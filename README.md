@@ -35,7 +35,8 @@ After some deep and meaningful conTemplaTion, really, the decision can only be p
 forth to announce that the idea `Shame and Obedience` has been truly selected. 
 
 - And so here it is, the simulation in its planned stage: 
-    - idea for pipeline: 
+    - idea for pipeline:
+        ```
         - declare initial Elements
         - assign Element attributes
             - language spoken 
@@ -51,7 +52,8 @@ forth to announce that the idea `Shame and Obedience` has been truly selected.
         -           if align => align next?
         -       apply c(t) 
         -       get reactions => set(ElementReactions) 
-        -       t.react(reactions) 
+        -       t.react(reactions)
+        ```
     - idea for shaming mechanism: 
         - prohibit speech of target of shaming 
         -   speech := S \subseteq L(target) 
@@ -59,11 +61,13 @@ forth to announce that the idea `Shame and Obedience` has been truly selected.
     - idea for alignment: 
         - suppose two Elements, E1 and E2
         - "merge" their languages 
-        - elaboration: 
+        - elaboration:
+        ```
         -       make them love...to develop...to learn from one another...
         -       to grow old together doing great things! 
         -       to die young together in the name of love!
-        -       *start:srs tho:end* 
+        -       *start:srs tho:end*
+        ```
         - subset of union(E1,E2) is S s.t. 
         ```
         MERGED(E1,E2) = (E1 - S) + (E2 -S) + S::extendable 
@@ -91,7 +95,8 @@ forth to announce that the idea `Shame and Obedience` has been truly selected.
             
             aka. An example is always the definition of hypocrisy. 
             ```
-    - idea for choosing target for each Element #2: 
+    - idea for choosing target for each Element #2:
+        ```
         - (1) select subset S in Elements\{Element}
         -   ?HOW? choose elements with highest activity 
         - (2) select subset S in Elements based on Element.Language.AttributeX
@@ -100,6 +105,7 @@ forth to announce that the idea `Shame and Obedience` has been truly selected.
         -           SOCIALIZED could mean the degree of Element.Language that intersections w/ other Elements.Languages. 
         -           lower socialization => higher threat
         -           higher socialization => higher payoff
+        ```
     - idea for choosing language metamorphosis mechanism: 
         - ways in which language can change: 
             - prohibition : certain speech will be removed from language 
@@ -107,11 +113,13 @@ forth to announce that the idea `Shame and Obedience` has been truly selected.
             - self-develop : general rule is "greater" the language, slower the growth rate.
     - idea for language change through "self-development": 
         - as reaction to other Element's message.
+            ```
             - counteract
             -   add VARIANT(message) => self.language.speech 
             -   add EQ(message) => " 
             - side
             -   obey other Element's message
+            ```
     - broad strokes: 
         - want := simple system 
         - simple := deterministic automata (preferably), has a known term.  
