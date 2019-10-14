@@ -7,21 +7,13 @@ pipeline:
 """
 uses the data structure, bag-of-words, to represent
 """
-###
-"""
-a measure of influence that does not use direct intersection:
-"functionality" : definitional capacity.
-    - FUNC(definitions(Element.bagOfWords), (otherElement.bagOfWords)) => 0 <= float <= 1
-    - will use similarity scores
-    - FUNC should not be commutative
-"""
-###
+
 
 
 class Element:
-    
+
     '''
-    
+
     idn := int, identifier
     language := set, bag-of-words
     '''
@@ -29,45 +21,10 @@ class Element:
         self.idn = idn
         self.language = language
         self.locations = [] # list of coordinates
-        
+
     # TODO
     def set_locations(self, locations = None):
         if locations == None: return # random
-        return -1
-
-class Language:
-    
-    def __init__(self, idn, bagOfWords):
-        self.idn = idn
-        self.bagOfWords = bagOfWords
-        self.prohibited = set() # prohibited words
-    
-    '''
-    description:
-    - gets the influence of this language over some other
-    '''
-    def get_influence_over(self, otherLanguage):
-        return -1
-    
-    def get_influence_score_over_targets(self):
-        return -1
-        
-    '''
-    description:
-    - pops subset of bagOfWords to prohibited
-    '''
-    def prohibit_speech(self, subsetBagOfWords):
-        return -1
-
-    '''
-    description:
-    - outputs a random string, consists of words from bagOfWords separated by whitespace
-    '''
-    def output_random_string(self):
-        return -1
-        
-    # TODO
-    def output_string_based_on_effect(self, factors):
         return -1
 
 '''
@@ -82,11 +39,11 @@ description:
 -   3. retaliate
 '''
 class Reaction:
-    
+
     def __init__(self, idn, reactionDictionary):
         self.idn = idn
         self.set_reactions(reactionDictionary)
-        
+
     '''
     description:
     ~
@@ -105,10 +62,10 @@ description:
 
 '''
 class Effect:
-    
+
     def __init__(self, idn):
         return -1
-        
+
 '''
 description:
 - each class instance is associated with some World
@@ -130,10 +87,10 @@ description:
 -
 '''
 class Actions:
-    
+
     def __init__(self, idn):
         self.idn = idn
-        
+
 """
 description:
 - each class instance is associated with some World.
@@ -150,7 +107,7 @@ description:
 class Evolution:
     def __init__(self):
         return
-    
+
     '''
     description:
     - adds new words to language
@@ -161,7 +118,7 @@ class Evolution:
     '''
     def introduce_new_words(self, element, growthFunc):
         return
-    
+
 
 #-----------------------------------#-----------------------------------#-----------------------------------#-----------------------------------#-----------------------------------
 '''
@@ -173,13 +130,8 @@ arguments:
 '''
 def set_initial_languages(Elements, mode = "disjoint"):
     return -1
-    
-import random
-def words_to_romantic(words):
-    romantic = ["ia", "io", "o", "a", "ni", "li", "sa", "la", "si", "zzi"]
-    for w in words:
-        yield w + random.choice(romantic)
-        
+
+
 
 """
 this is the data structure that will contain all info for display window
@@ -189,14 +141,14 @@ display window is a m x n grid. each coordinate will be marked by a color.
 interface should also have feature that allows user to get exact color value pressing a coordinate
 """
 class World:
-    
+
     def __init__(self, idn):
         self.idn = idn
         self.gridColors = None # TODO
-        
+
     def run_one_round():
         return -1
-        
+
 '''
 this will log all pertinent Element history to folder
 
@@ -204,6 +156,6 @@ of greater concern is the following:
 -   each Element has a History, but how sad is this that not all Histories have Elements?
 '''
 class EventHistory:
-    
+
     def __init__(self, idn, folder):
         self.idn = idn
