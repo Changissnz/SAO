@@ -6,6 +6,7 @@ class Element:
     def __init__(self, idn, language):
         self.idn = idn
         self.language = language
+        self.set_language_stats()
 
     '''
     description:
@@ -19,10 +20,10 @@ class Element:
     - sets the word count for language
     '''
     def set_language_stats(self):
-        if type(self.Language.language[1]) is list:
-            self.wordCount = len(list(self.Language.language[0]) + self.Language.language[1])
+        if type(self.language.language[1]) is list:
+            self.wordCount = len(list(self.language.language[0]) + self.language.language[1])
         else:
-            self.wordCount = len(self.Language.language[0] | self.Language.language[1])
+            self.wordCount = len(self.language.language[0] | self.language.language[1])
 
     ################## START : language modification methods
     '''
@@ -37,9 +38,9 @@ class Element:
     -
     '''
     def update_language_descriptors(self, newAdditions, newSubtractions):
-        q = LanguageMaker.get_language_type(self.Language.language)
-        self.Language.add_to_language_descriptors(newAdditions)
-        self.Language.remove_from_language_descriptors(newAdditions)
+        q = LanguageMaker.get_language_type(self.language.language)
+        self.language.add_to_language_descriptors(newAdditions)
+        self.language.remove_from_language_descriptors(newAdditions)
 
     '''
     description:
@@ -53,8 +54,8 @@ class Element:
     -
     '''
     def update_language_centroids(self, toAdd, toRemove):
-        self.Language[0].update(toAdd)
-        self.Language[0].difference_update(toRemove)
+        self.language.language[0].update(toAdd)
+        self.language.language[0].difference_update(toRemove)
 
     '''
     description:
@@ -72,4 +73,4 @@ class Element:
 
     ################## END : language modification methods
 
-    ################## START : language 
+    ################## START : language

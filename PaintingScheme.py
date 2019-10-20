@@ -7,8 +7,9 @@ from math import sqrt
 from random import uniform, random
 from copy import deepcopy
 
-# TODO : assigning and updating centroids
+from GameBoardHandler import *
 
+# TODO : assigning and updating centroids
 class PaintingScheme:
 
     '''
@@ -34,77 +35,8 @@ class PaintingScheme:
     def centroids_to_gameboard_points(centroids, coordinateRange):
         return -1
 
-    '''
-    description:
-    -
-
-    arguments:
-    -
-
-
-    '''
-    @staticmethod
-    def get_distance_between_coordinates(coord1, coord2):
-        assert len(coord1) == 2 and len(coord2) == len(coord1), "only 2-dimensions are permitted."
-        return sqrt((coord1[0] - coord2[0])**2 + (coord1[1] - coord2[1])**2 )
-
-    '''
-    description:
-    - chooses n centroids on game board
-
-    arguments:
-    - numCentroids := int
-    - coordinateRange := (int::(maxX), int::(maxY))
-
-    return:
-    -
-    '''
-    @staticmethod
-    def choose_n_points(numCentroids, coordinateRange, setOfCoordinates, minDistance = "auto"):
-
-        ##def get_valid_coordinate(otherCoordinates, coordinateRange, minDistance):
-        def farEnough(x):
-            print("X :\t", x)
-            for c in otherCoordinates:
-                if PaintingScheme.get_distance_between_coordinates(c, x) <= minDistance:
-                    return False
-            return True
-
-        if minDistance == "auto":
-            minDistance = (coordinateRange[0] * coordinateRange[1]) / (2 * numCentroids)
-
-        otherCoordinates = deepcopy(setOfCoordinates)
-        centroids = []
-        while len(centroids) < numCentroids:
-            x = (uniform(0, coordinateRange[0]), uniform(0, coordinateRange[1]))
-            if farEnough(x):
-                print("coordinate :\t", x)
-                otherCoordinates.add(x)
-                centroids.append(x)
-            #print("length :\t", len(centroids))
-        return centroids
-
     def check_points_for_minimum_distance(listOfPoints):
         return -1
-
-    '''
-    description:
-    - chooses a random coordinate in the ball radius of some point p
-
-    arguments:
-    -
-
-    return:
-    -
-    '''
-    @staticmethod
-    def choose_random_point_in_radius(p, radius):
-        p_ = []
-        for p1 in p:
-            px = uniform(0, radius)
-            px = -px if random() < 0.5 else px
-            p_.append(px)
-        return tuple(p_)
 
     # TODO : merge `languageContents` and `correspondingColors` into a dict-like object
     @staticmethod
@@ -156,7 +88,6 @@ class PaintingScheme:
                     return
             return -1
 
-
         # get the centroids
         centroids = PaintingScheme.choose_n_points(len(board.languages), board.dimensions, board.wordCoordinates, minDistance = minDistance)
 
@@ -167,25 +98,81 @@ class PaintingScheme:
         # assign words
         return -1
 
-    '''
-    
-    '''
+    # TODO : element.wordRatio of type ("net", "set")
+    """
+
+    schemes are defined as the following:
+    - rectangle := each element is an m x n subset of GameBoard
+                values m and n are determined by element.wordRatio
+
+    arguments:
+    - scheme := word2coord |element2Region
+
+
+    """
     @staticmethod
-    def populate_by_word_to_coordinate_assignment():
+    def populate_by_scheme(gameboard, scheme = "rectangle"):
+        ##assert scheme in {"rectangle"}, "scheme {} has not been implemented.".format(scheme)
+        assert scheme in {"word2coord", "element2region"}, "scheme {} has not been implemented.".format(scheme)
+
+        if scheme == "rectangle":
+            # get centroids first
+
+
+            return -1
+
+        return -1
+
+    '''
+    description:
+    - assigns coordinates for unregistered words.
+      this is initial assignment.
+
+    arguments:
+    - gameboard := GameBoard
+
+    return:
+    - gameboard
+    '''
+    # TODO : test this
+    @staticmethod
+    def populate_by_word_to_coordinate_assignment(gameboard, minDistance = "auto"):
+
+        # set centroid coordinates
+        centroids = GameBoardHandler.choose_n_points(len(gameboard.elements), gameboard.dimensions, gameboard.wordCoordinates, minDistance = minDistance)
+        gameboard.set_centroid_coordinates(centroids)
+
+        # get coordinates for each word in centroid
+
+        # for centroids
+        for i, c in enumerate(centroids):
+            points = GameBoardHandler.choose_random_points_in_radius(c, radius, len(gameboard.elements[i].language.language[0]))
+            gameboard.add_word_coordinate_info(gameboard.elements[i].language.language[0], points)
+
+        # for all other points
+        # TODO
+        radiusValues = GameBoardHandler.calculate_radius_values_given_centroids()
+        for i in range(len(gameboard.elements)):
+            radiusValue = Game
+            points = GameBoardHandler.choose_unused_random_points_in_radius(centroids[i], radiusValue)
+
+
+    def choose_unused_random_points_in_radius(p, radius, numPoints, setOfCoordinates, minDistance):
         return -1
 
     '''
     circle and radius
     '''
     @staticmethod
-    def populate_by_element_to_region_assignment():
+    def populate_by_element_to_region_assignment(gameboard):
+        # get centroid coordinates
         return -1
 
-
-
+    @staticmethod
+    def x():
+        return -1
 
 def PaintingScheme_ChooseNCentroids():
-
     numPoints = 100
     gameBoardCoordinates = (50, 20)
     setOfCoordinates = {(4, 9), (20, 25), (42, 55)}
@@ -193,17 +180,3 @@ def PaintingScheme_ChooseNCentroids():
     return centroids
 
 centroids = PaintingScheme_ChooseNCentroids()
-
-
-"""
-description:
-- make a paintHistory value.
-cumulative(n past color values are kepted and averaged) vs layered(only 1 color value kept)
-
-arguments:
-- languageContents := list((set(str), container(str)))
-- wordToCoordinateFunc :=
-
-return:
--
-"""

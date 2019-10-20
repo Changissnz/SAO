@@ -19,6 +19,13 @@ class Language:
         self.language = language
         self.prohibited = [] # prohibited words
 
+    def __len__(self):
+        q = LanguageMaker.get_language_type(self.language)
+        if q == "standard":
+            return len(self.language[0]) + len(self.language[1])
+        elif q == "ripple":
+            raise NotImplementedError("IMPLEMENT HERE")
+
     # TODO : test below 2 methods
     '''
     description:
@@ -240,50 +247,3 @@ class Language:
 
         if returnType == "lang": return (newLang1, x), (newLang2, x2)
         return (newLang1, x), (newLang2, x2), (requiredWordsToMerge, descriptors)
-
-def Language_Sample():
-    languages = LanguageMaker.get_languages(2, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
-    L = Language(5, languages[0])
-    return L
-
-def Language_GetTfidfMeasure():
-    languages = LanguageMaker.get_languages(2, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
-    l1, l2 = ' '.join(languages[0][1]), ' '.join(languages[1][1])
-    tm = Language.get_tfidf_measure(l1,l2)
-    return tm
-
-def Language_GetCosineSimilarityMeasure():
-    languages = LanguageMaker.get_languages(2, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
-    l1, l2 = languages[0], languages[1] # centers, and sprawl
-    lx1, lx2 = ' '.join(l1[1]), ' '.join(l2[1])
-
-    tm = Language.get_cosine_similarity_measure_(l1[1],lx2[1])
-    return tm
-
-def LanguageMaker_GetCosineSimilarityMeasure_():
-    x3 = LanguageMaker_GetLanguagesByContentSamples()
-    l1, l2 = x3[0], x3[1]
-    lx1, lx2 = ' '.join(l1[1]), ' '.join(l2[1])
-    print("* l1:\n")
-    print(l1)
-    print("\n*l2:\n")
-    print(l2)
-
-    tm = Language.get_cosine_similarity_measure_(l1[1],lx2[1])
-    print("cosine similarity :\t{}".format(tm))
-    return
-
-def Language_MateLanguages():
-    x3 = LanguageMaker_GetLanguagesByContentSamples()
-    l1, l2 = x3[0], x3[1] # get languages for (dog,whale), and (cat,rhino)
-    # mate "rhino" : l2->l1
-    ml = Language.mate_languages(l1, l2, (2,1), {"rhino"}, returnType = "lang+additions")
-
-    # get cosine intersection
-    cm = Language.get_cosine_similarity_measure_(ml[0][1], ml[1][1])
-    print("cosine intersection between [0],[1] : {}".format(cm))
-
-#tm = Language_GetTfidfMeasure()
-#tm2 = Language_GetCosineSimilarityMeasure()
-#tm3 = LanguageMaker_GetCosineSimilarityMeasure_()
-tm4 = Language_MateLanguages()

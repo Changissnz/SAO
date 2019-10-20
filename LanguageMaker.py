@@ -355,48 +355,6 @@ class LanguageMaker:
             descriptorSet |= desc
         return descriptorSet
 
-'''
-description:
-- checks the size of descriptors of bag for minimum size requirement
-'''
-def LanguageMaker_GetDescriptorsForBag_Helper():
-    x = LanguageMaker()
-    bow = x.fetch_nonstop_words(100)
-    desc = x.get_descriptors_for_bag(bow, 100)
-    if desc is None:
-        print("desk is None")
-    assert len(desc) >= 100, "desc is len {}, want at least 100".format(len(desc))
-
-    bow = x.fetch_nonstop_words(100)
-    desc = x.get_descriptors_for_bag_try_except(bow, 100, "const")
-    if desc is None:
-        print("desk is None")
-    assert len(desc) == 100, "desc is len {}, want exactly 100".format(len(desc))
-
-def LanguageMaker_GetDescriptorsForBag_GoodCodeTest():
-    for i in range(100):
-        print("{}".format(i))
-        LanguageMaker_GetDescriptorsForBag_Helper()
-
-def LanguageMaker_GetDescriptorsForBag_ContentsTest():
-    x = LanguageMaker()
-    bow = x.fetch_nonstop_words(1)
-    bow = {"* metamorphoses"}
-    print("* word to look at :\n{}".format(bow))
-    desc = x.get_descriptors_for_bag(bow, 100)
-    print("* descriptors :\n")
-    print(desc)
-
-def LanguageMaker_GetDescriptorsForBag_ContentsTest():
-    return LanguageMaker.get_list_of_descriptors(100, 5, mode = "geq")
-
-def LanguageMaker_GetLanguages():
-    return LanguageMaker.get_languages_standard(5, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
-
-def LanguageMaker_GetLanguagesByContentSamples():
-    centroidsForEach = [{"dog", "whale"}, {"cat", "rhino"}, {"water"}, {"hydrogen"}]
-    return LanguageMaker.get_languages_by_content_standard(centroidsForEach, outputForEach = list)
-
 #----
 ##x = LanguageMaker.get_descriptors_for_word("flower")
 ##x2 =  LanguageMaker.get_descriptors_for_word("blossom")
