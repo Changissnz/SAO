@@ -5,6 +5,7 @@ from nltk.corpus import wordnet as wn
 from random import shuffle, choice, choices
 from string import punctuation
 from copy import deepcopy
+from collections import deque
 
 #-------------------------------------------
 #-------------------------------------------
@@ -42,6 +43,19 @@ class LanguageMaker:
 
     def __init__(self, topics = None):
         self.topics = topics
+
+    '''
+    description:
+    - determines if language is standard or ripple
+    '''
+    @staticmethod
+    def get_language_type(languageContents):
+        if type(languageContents[1]) is list or type(languageContents[1]) is set:
+            return "standard"
+        elif type(languageContents[1]) is deque:
+            return "ripple"
+        else:
+            raise ValueError("error here")
 
     '''
     description:
@@ -193,7 +207,7 @@ class LanguageMaker:
     -
     '''
     @staticmethod
-    def get_languages(numLanguages, minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
+    def get_languages_standard(numLanguages, minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
 
         '''
         return:
@@ -226,7 +240,7 @@ class LanguageMaker:
     - list | set
     """
     @staticmethod
-    def get_languages_by_content(centroidsForEach, outputForEach = "list"):
+    def get_languages_by_content_standard(centroidsForEach, outputForEach = "list"):
         assert outputForEach in {list, set}, "invalid output : {}".format(output)
         dk = []
         for x in centroidsForEach:
@@ -377,14 +391,13 @@ def LanguageMaker_GetDescriptorsForBag_ContentsTest():
     return LanguageMaker.get_list_of_descriptors(100, 5, mode = "geq")
 
 def LanguageMaker_GetLanguages():
-    return LanguageMaker.get_languages(5, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
+    return LanguageMaker.get_languages_standard(5, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
 
 def LanguageMaker_GetLanguagesByContentSamples():
     centroidsForEach = [{"dog", "whale"}, {"cat", "rhino"}, {"water"}, {"hydrogen"}]
-    return LanguageMaker.get_languages_by_content(centroidsForEach, outputForEach = list)
-
+    return LanguageMaker.get_languages_by_content_standard(centroidsForEach, outputForEach = list)
 
 #----
-x = LanguageMaker.get_descriptors_for_word("flower")
-x2 =  LanguageMaker.get_descriptors_for_word("blossom")
+##x = LanguageMaker.get_descriptors_for_word("flower")
+##x2 =  LanguageMaker.get_descriptors_for_word("blossom")
 #----

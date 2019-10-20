@@ -19,11 +19,53 @@ class Language:
         self.language = language
         self.prohibited = [] # prohibited words
 
+    # TODO : test below 2 methods
+    '''
+    description:
+    - adds to language descriptors
+    '''
+    def add_to_language_descriptors(self, additions):
+        q = LanguageMaker.get_language_type(self.language)
+        if q == "standard":
+            if type(self.language[1]) is list:
+                for a in additions: self.language[1].append(additions)
+            elif type(self.language[1]) is set:
+                self.language[1].update(additions)
+            else:
+                raise ValueError("language type {} is invalid".format(type(self.language[1])))
+        elif q == "ripple":
+            raise NotImplementedError("IMPLEMENT HERE")
+        else:
+            raise NotImplementedError("IMPLEMENT HERE")
+
+    def remove_from_language_descriptors(self, subtractions):
+        q = LanguageMaker.get_language_type(self.language)
+        if q == "standard":
+            if type(self.language[1]) is list:
+                for s in subtractions:
+                    try:
+                        i = self.language[1].index(s)
+                        self.language[1].pop(i)
+                    except:
+                        print("word {} not found".format(s))
+                        pass
+            elif type(self.language[1]) is set:
+                self.language[1].difference_update(subtractions)
+            else:
+                raise ValueError("language type {} is invalid".format(type(self.language[1])))
+        elif q == "ripple":
+            raise NotImplementedError("IMPLEMENT HERE")
+        else:
+            raise NotImplementedError("IMPLEMENT HERE")
+
     '''
     description:
     - compares 2 languages
 
+    arguments:(self.language) i
+
     arguments:
+    - mode := tf-idf | cosine
     - mode := tf-idf | cosine
     '''
     def compare_language_contents(self, otherLang, mode = "tf-idf"):
@@ -236,7 +278,7 @@ def Language_MateLanguages():
     l1, l2 = x3[0], x3[1] # get languages for (dog,whale), and (cat,rhino)
     # mate "rhino" : l2->l1
     ml = Language.mate_languages(l1, l2, (2,1), {"rhino"}, returnType = "lang+additions")
-    
+
     # get cosine intersection
     cm = Language.get_cosine_similarity_measure_(ml[0][1], ml[1][1])
     print("cosine intersection between [0],[1] : {}".format(cm))
