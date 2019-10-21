@@ -32,7 +32,9 @@ class GameBoardHandler:
     - determines if point x is at least minimum distance from all other coordinates
 
     arguments:
-    - x := (int::(x), int::(y))
+    - c := (int::(x), int::(y))
+    - otherCoordinates := set((int::(x), int::(y)))
+    - minDistance := float
 
     return:
     - bool
@@ -233,10 +235,30 @@ class GameBoardHandler:
     '''
     description:
     - gets a random factor pair for integer
+
+    arguments:
+    - i := int
+
+    return:
+    - (int,int)
     '''
     # TODO : make this func better
     @staticmethod
     def get_random_factor_pair(i):
         q = GameBoardHandler.get_factors_for(i, 5)
         shuffle(q)
-        return q
+        return q[0]
+
+    '''
+    description:
+    - gets the factor pair for integer with the least pairwise distance.
+
+    arguments:
+    - i := int
+
+    return:
+    - (int,int)
+    '''
+    @staticmethod
+    def get_closest_factor_pair(i):
+        return -1

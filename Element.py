@@ -62,7 +62,7 @@ class Element:
     -
 
     arguments:
-    - otherElement :=
+    - otherElement := 
     - mateDetails := TODO
 
     return:

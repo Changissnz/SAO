@@ -25,6 +25,81 @@ class PaintingScheme:
     def color_generator_cycle(numColors):
         return -1
 
+    """
+    description:
+    - assigns gameboard locations based on element areas by the following scheme:
+        using reference point R = (0, 0),
+        for all areas,
+            assign region starting at R to gameboard
+            update R
+        **assignment of region should be one with the most free space**
+    """
+    @staticmethod
+    def assign_locations_for_elements_by_area(areas):
+
+        refVal = (0,0)
+        elementLocations = []
+
+        for a in areas:
+            return a
+        return -1
+
+    '''
+    description:
+    - gets the rectangular region that best fits element's `area` given the usedRegions
+
+    arguments:
+    - area := (int,int), specifies the new region's dimensions
+    - boardDimensions := (int,int), specifies board dimensions
+    - usedRegions := list(((int,int), (int,int)), contains regions that have already been allocated
+
+    return:
+    - (minX, maxX), (minY, maxY) : denotes new region
+    - bool, if region overlaps with any other
+    '''
+    @staticmethod
+    def get_region_to_fit_element(area, boardDimensions, usedRegions):
+
+        # algorithm :
+        # get lowest unmarked x value
+        # get lowest unmarked y value
+        return -1
+
+    ########### TODO : methods for scanning left-to-right-fit below are not known
+    '''
+    description:
+    - scans gameboard top to bottom looking for empty rectangle to fit `area`
+
+    arguments:
+    ~ see method PaintingScheme.get_region_to_fit_element
+
+    return:
+    - (minX, maxX), (minY, maxY) : denotes new region
+    '''
+    @staticmethod
+    def scan_left_to_right(area, boardDimensions, usedRegions, scanIncrement = 0.01):
+        return -1
+
+    '''
+    description:
+    - scans gameboard top to bottom looking for empty rectangle to fit `area`
+
+    arguments:
+    -
+
+    return:
+    -
+    '''
+    @staticmethod
+    def scan_top_to_bottom(area, boardDimensions, usedRegions):
+        return -1
+
+    ########### END TODO : methods for scanning left-to-right-fit below are not known
+
+    @staticmethod
+    def update_locations_for_elements_by_area(areas):
+        return -1
+
     '''
     description:
     -
@@ -38,6 +113,7 @@ class PaintingScheme:
     def check_points_for_minimum_distance(listOfPoints):
         return -1
 
+    #--------------------- DELETE THESE METHODS -------------------------------#
     # TODO : merge `languageContents` and `correspondingColors` into a dict-like object
     @staticmethod
     def populate_by_scheme1(languageContents, correspondingColors, wordToCoordinateFunc, minDistance = "auto"):
@@ -117,11 +193,10 @@ class PaintingScheme:
 
         if scheme == "rectangle":
             # get centroids first
-
-
             return -1
 
         return -1
+    #----------------------------------------------------------------------------------------
 
     '''
     description:
@@ -156,12 +231,12 @@ class PaintingScheme:
             radiusValue = Game
             points = GameBoardHandler.choose_unused_random_points_in_radius(centroids[i], radiusValue)
 
-
-    def choose_unused_random_points_in_radius(p, radius, numPoints, setOfCoordinates, minDistance):
-        return -1
-
     '''
-    circle and radius
+    description:
+    -
+
+    arguments:
+    - gameboard := GameBoard
     '''
     @staticmethod
     def populate_by_element_to_region_assignment(gameboard):
