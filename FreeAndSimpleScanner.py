@@ -7,6 +7,21 @@ class FreeAndSimpleScanner:
 
     ########## START : methods on coordinates ################
 
+    '''
+    description:
+    - determines if coordinates denote gameboard dimensions or region
+
+    arguments:
+    - coords := (int,int)
+
+    return:
+    - gameboard-dim|region
+    '''
+    @staticmethod
+    def get_dimension_format(coords):
+        if type(coords[0]) is tuple: return "region"
+        return "gameboard-dim"
+
     """
     description:
     - determines if coordinate is in region
@@ -64,9 +79,9 @@ class FreeAndSimpleScanner:
     @staticmethod
     def to_proper_region(tuplePairOfPairs):
         assert len(tuplePairOfPairs) == 2, "invalid" # TODO make better check
-        if tuplePairOfPairs[0][0] >= tuplePairOfPairs[1][0] or tuplePairOfPairs[0][1] >= tuplePairOfPairs[1][1]:
+        if tuplePairOfPairs[0][0] > tuplePairOfPairs[1][0] or tuplePairOfPairs[0][1] > tuplePairOfPairs[1][1]:
             tuplePairOfPairs = (tuplePairOfPairs[1], tuplePairOfPairs[0])
-        if tuplePairOfPairs[0][0] >= tuplePairOfPairs[1][0] or tuplePairOfPairs[0][1] >= tuplePairOfPairs[1][1]:
+        if tuplePairOfPairs[0][0] > tuplePairOfPairs[1][0] or tuplePairOfPairs[0][1] > tuplePairOfPairs[1][1]:
             return False
         return tuplePairOfPairs
 
@@ -75,7 +90,7 @@ class FreeAndSimpleScanner:
     ~
 
     arguments:
-    - region := ((int::(minX), int::(minY)), (int::(maxX), int::(maxY))::(region))
+    - region := ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))
 
     return:
     - float
@@ -120,7 +135,6 @@ class FreeAndSimpleScanner:
         try:
             assert type(region) is tuple and len(region) == 2, "invalid region {}".format(region)
             assert type(region[0]) is tuple and type(region[0]) is type(region[1]), "invalid region {}".format(region)
-            assert len(region[0]) == 2 and type(region[0]) is type(region[1]), "invalid region {}".format(region)
             assert (region[1][0] - region[0][0]) >= 0 and (region[1][1] - region[0][1]) >= 0, "invalid region {}".format(region)
             return True
         except: return False
@@ -157,13 +171,110 @@ class FreeAndSimpleScanner:
 
     ########## END : methods on regions ##################
 
+    # TODO : check this
+    """
+    description:
+    - makes an increment function using direction
+
+    arguments:
+    - direction := left|right|up|down
+    - increment := float, negative or positive already set
+
+    return:
+    - func((int,int),(int,int)) => (int,int)
+    """
+    @staticmethod
+    def get_increment(gameboardDim, direction, increment):##, mode = "cutoff"):
+        increment = FreeAndSimpleScanner.set_increment(gameboardDim, increment)
+        if direction == "right":
+            ##if mode == "cutoff":
+            if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim":
+                incrementos = lambda c: (c[0] + increment, c[1]) if c[0] + increment \
+                        <= gameboardDim[0] else (gameboardDim[0], c[1])
+            else:
+                incrementos = lambda c: (c[0] + increment, c[1]) if c[0] + increment \
+                        <= gameboardDim[1][0] else (gameboardDim[1][0], c[1])
+        elif direction == "left":
+            if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim":
+                incrementos = lambda c: \
+                    (c[0] + increment, c[1]) if c[0] + increment \
+                    >= 0 else (0, c[1])
+            else:
+                incrementos = lambda c: (c[0] + increment, c[1]) if c[0] + increment \
+                        >= gameboardDim[0][0] else (gameboardDim[0][0], c[1])
+        elif direction == "up":
+            if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim":
+                incrementos = lambda c: \
+                    (c[0], c[1] + increment) if c[1] + increment \
+                    <= gameboardDim[1] else (c[0], gameboardDim[1])
+            else:
+                incrementos = lambda c: (c[0], c[1] + increment) if c[0] + increment \
+                        <= gameboardDim[1][1] else (c[0], gameboardDim[1][1])
+        else:
+            if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim":
+                incrementos = lambda c: \
+                    (c[0], c[1] + increment) if c[1] + increment \
+                    >= 0 else (c[0], 0)
+            else:
+                incrementos = lambda c: (c[0], c[1] + increment) if c[1] + increment \
+                        >= gameboardDim[0][1] else (c[0], gameboardDim[0][1])
+
+        return incrementos
+
+    @staticmethod
+    def set_increment(gameboardDim, increment = "auto"):
+        assert increment == "auto" or type(increment) is float, "invalid increment {}".format(increment)
+        # calculate hop automatically by this schematic:
+        if increment == "auto":
+            if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim":
+                increment = gameboardDim[0] / 1000
+            else:
+                increment = (gameboardDim[1][0] - gameboardDim[0][0]) / 1000
+
+
+        ##else: assert increment >= 0, "invalid increment"
+        return increment
+
+    @staticmethod
+    def on_border(coord, gameboardDim):
+        return True if (coord[0] == gameboardDim[0] or coord[0] == 0)\
+            or (coord[1] == gameboardDim[1] or coord[1] == 0) else False
+
+    """
+    @staticmethod
+    def on_border_during_scan_event(coord, gameboardDim, direction):
+        if direction == "left" and coord[0] == 0: return True
+        if direction == "right" and coord[0] == gameboardDim[0]: return True
+        if direction == "up" and coord[1] == gameboardDim[1]: return True
+        if direction == "down" and coord[1] == 0: return True
+        return False
+    """
+
+    """
+    description:
+    -
+
+    arguments:
+    - coord := (int,int)
+    - targetRegion := ((int::(minX), int::(minY)), (int::(maxX), int::(maxY))::(region))
+    - direction := left|right|up|down
+    """
+    @staticmethod
+    def on_border_during_scan_event(coord, targetRegion, direction):
+        if direction == "left" and coord[0] <= targetRegion[0][0]: return True
+        if direction == "right" and coord[0] >= targetRegion[1][0]: return True
+        if direction == "up" and coord[1] >= targetRegion[1][1]: return True
+        if direction == "down" and coord[1] <= targetRegion[0][1]: return True
+        return False
+
+
     """
     description:
     - scans horizontally until free coordinate found
 
     arguments:
     - coord := (int,int)
-    - gameboardDim := (int,int)
+    - gameboardDim := (int,int)|((int,int),(int,int))
     - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY))))
     - direction := str, left|right|up|down
     - increment := float|auto
@@ -174,23 +285,84 @@ class FreeAndSimpleScanner:
     @staticmethod
     def line_scan_from_coordinate(coord, gameboardDim, usedRegions, direction = "left", increment = "auto"):
         assert direction in {'left', 'right', 'up', 'down'}, "direction {} invalid".format(direction)
-        assert increment == "auto" or type(increment) is float, "invalid increment {}".format(increment)
-        # calculate hop automatically by this schematic:
-        if increment == "auto":
-            increment = gameboardDim[0] / 1000
-        else: assert increment >= 0, "invalid increment"
+        increment = FreeAndSimpleScanner.set_increment(gameboardDim, increment)
 
         if direction in {'left', 'down'}:
             increment = -1 * increment
 
-        incrementos = lambda coord: (coord[0] + increment, coord[1]) if\
-            direction in {'left', 'right'} else (coord[0], coord[1] + increment)
-        clause = lambda c: True if c >= 0 and c <= gameboardDim[0] else False
+        incrementos = FreeAndSimpleScanner.get_increment(gameboardDim, direction, increment)
+        clause = lambda c: True if \
+            (c[0] >= 0 and c[0] <= gameboardDim[0]) and\
+            (c[1] >= 0 and c[1] <= gameboardDim[1]) else False
+
+        coord_ = coord
+        tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
         while clause(coord_):
             if FreeAndSimpleScanner.is_coordinate_free(coord_, usedRegions):
                 return coord_
+
+            if FreeAndSimpleScanner.on_border_during_scan_event(coord_, tr, direction):
+                break
             coord_ = incrementos(coord_)
+            ##print("coord_:\t",coord_)
         return False
+
+
+    '''
+    description:
+    - performs line scan starting from a coordinate of type f, shaded or free,
+      and scans in direction until extreme(last coordinate in direction)
+      coordinate of type f found.
+
+    arguments:
+    - coord := (int,int)
+    - gameboardDim := (int,int)|((int,int),(int,int))
+    - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY))))
+    - regionType := None|free|shaded
+    - direction := left|right|up|down
+    - increment := int|auto
+
+    return:
+    - (int,int)::(maxCoord of regiontype), (int,int)::(minCoord of other regionType)|None
+    '''
+    @staticmethod
+    def line_scan_from_coordinate_for_extreme(coord, gameboardDim, usedRegions, regionType = None, direction = "left", increment = "auto"):
+        # get type of region shaded or free
+        if regionType is None:
+            if FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions):
+                regionType = "free"
+            else:
+                regionType = "shaded"
+        assert regionType in {"free", "shaded"}, "invalid regionType {}".format(regionType)
+
+        if regionType == "free":
+            clause = lambda c: True if FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions) else False
+            print("free")
+        else:
+            clause = lambda c: True if not FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions) else False
+            print("shade")
+
+        # set increment
+        assert direction in {'left', 'right', 'up', 'down'}, "direction {} invalid".format(direction)
+        increment = FreeAndSimpleScanner.set_increment(gameboardDim, increment)
+
+        if direction in {'left', 'down'}:
+            increment = -1 * increment
+
+        coord_ = coord
+        incrementos = FreeAndSimpleScanner.get_increment(gameboardDim, direction, increment)
+        tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
+        nextCoord = None
+        while clause(coord):
+            coord_ = coord
+            if FreeAndSimpleScanner.on_border_during_scan_event(coord_, tr, direction):
+                nextCoord = False
+                break
+            ##print("coord:\t", coord)
+            coord = incrementos(coord)
+            ##print("current coord :\t", coord)
+        if nextCoord is not False: nextCoord = coord
+        return coord_, nextCoord
 
     # not thorough horizontal
     '''
@@ -199,7 +371,7 @@ class FreeAndSimpleScanner:
 
     arguments:
     - coord := (int,int)
-    - gameboardDim := (int,int)
+    - gameboardDim := (int,int)|((int,int),(int,int))
     - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))
     - angleDirectionX := str, left|right
     - angleDirectionY := str, up|down
@@ -222,6 +394,41 @@ class FreeAndSimpleScanner:
         return region
 
     ############# START : scanning algorithms
+
+    @staticmethod
+    def get_overlap_between_regions(r1,r2):
+        startX, endX, startY, endY = None, None, None, None
+
+        # determine if minX or maxX in range
+        # maxX of r2 is in range of r1
+        if r2[1][0] >= r1[0][0] and r2[1][0] <= r1[1][0]:
+            startX = min(r2[0][0], r1[0][0])
+            endX = r2[1][0]
+        # minX of r2 is in range of r1
+        elif r2[0][0] >= r1[0][0] and r2[0][0] <= r1[1][0]:
+            startX = r2[0][0]
+            endX = min(r1[1][0], r2[1][0])
+        # maxY of r2 is in range of r1
+        elif r2[1][1] >= r1[0][1] and r2[1][1] <= r1[1][1]:
+            startY = min(r2[0][0], r1[0][0])
+            endY = r2[1][0]
+        # minY of r2 is in range of r1
+        elif r2[0][1] >= r1[0][1] and r2[0][1] <= r1[1][1]:
+            startY = r2[0][0]
+            endY = min(r1[1][0], r2[1][0])
+        else:
+            pass
+        return ((startX, startY),(endX,endY)) if startX is not None else None
+
+    @staticmethod
+    def get_free_area_of_region(region, otherRegions):
+
+        # iterate through otherRegions and determine if they overlap with region
+        return -1
+
+    @staticmethod
+    def get_best_region_given_coordinates_and_direction(coord, gameboardDim, usedRegions, direction, increment = "auto"):
+        assert direction in {'left', 'right'}, "direction {} invalid".format(direction)
 
     '''
     description:
@@ -311,6 +518,6 @@ class FreeAndSimpleScanner:
 
         startCoord = (0, n)
         m, b = FreeAndSimpleScanner.get_diagonal_given_region(((0,0), gameboardDim), diagonal = "down")
-        return diagonal_operation(m, b startCoord, gameboardDim)
+        return diagonal_operation(m, b, startCoord, gameboardDim)
 
     ############# END : scanning algorithms
