@@ -33,6 +33,12 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         x = GameBoardHandler.choose_n_points(numPoints, coordinateRange, setOfCoordinates, minDistance)
         assert len(x) == numPoints
 
+    @staticmethod
+    def test_GameBoardHandler_ChooseNPoints():
+#     def choose_unused_random_points_in_radius(p, radius, numPoints, setOfCoordinates, minDistance):
+
+        return -1
+
     '''
     '''
     def test_GameBoardHandler_GetFactorsFor(self):

@@ -38,9 +38,8 @@ class FreeAndSimpleScanner:
         # TODO make region check?
         assert FreeAndSimpleScanner.is_proper_region(region) is True, "invalid region {}".format(region)
 
-        if not (coord[0] >= region[0][0] and coord[0] <= region[1][0]):
-            return False
-        if not (coord[1] >= region[0][1] and coord[0] <= region[1][1]):
+        if not ((coord[0] >= region[0][0] and coord[0] <= region[1][0]) and\
+            (coord[1] >= region[0][1] and coord[1] <= region[1][1])):
             return False
         return True
 
@@ -230,8 +229,6 @@ class FreeAndSimpleScanner:
                 increment = gameboardDim[0] / 1000
             else:
                 increment = (gameboardDim[1][0] - gameboardDim[0][0]) / 1000
-
-
         ##else: assert increment >= 0, "invalid increment"
         return increment
 
@@ -241,23 +238,16 @@ class FreeAndSimpleScanner:
             or (coord[1] == gameboardDim[1] or coord[1] == 0) else False
 
     """
-    @staticmethod
-    def on_border_during_scan_event(coord, gameboardDim, direction):
-        if direction == "left" and coord[0] == 0: return True
-        if direction == "right" and coord[0] == gameboardDim[0]: return True
-        if direction == "up" and coord[1] == gameboardDim[1]: return True
-        if direction == "down" and coord[1] == 0: return True
-        return False
-    """
-
-    """
     description:
-    -
+    - determines if coordinate is on or past border given `direction` of scan.
 
     arguments:
     - coord := (int,int)
     - targetRegion := ((int::(minX), int::(minY)), (int::(maxX), int::(maxY))::(region))
     - direction := left|right|up|down
+
+    return:
+    - bool
     """
     @staticmethod
     def on_border_during_scan_event(coord, targetRegion, direction):
@@ -270,7 +260,7 @@ class FreeAndSimpleScanner:
 
     """
     description:
-    - scans horizontally until free coordinate found
+    - scans in `direction` until free coordinate found
 
     arguments:
     - coord := (int,int)
@@ -337,10 +327,10 @@ class FreeAndSimpleScanner:
 
         if regionType == "free":
             clause = lambda c: True if FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions) else False
-            print("free")
+            ##print("free")
         else:
             clause = lambda c: True if not FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions) else False
-            print("shade")
+            ##print("shade")
 
         # set increment
         assert direction in {'left', 'right', 'up', 'down'}, "direction {} invalid".format(direction)
@@ -358,8 +348,8 @@ class FreeAndSimpleScanner:
             if FreeAndSimpleScanner.on_border_during_scan_event(coord_, tr, direction):
                 nextCoord = False
                 break
-            ##print("coord:\t", coord)
             coord = incrementos(coord)
+            ##print("free coord {} :\t{}".format(coord, FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions)))
             ##print("current coord :\t", coord)
         if nextCoord is not False: nextCoord = coord
         return coord_, nextCoord
@@ -382,16 +372,36 @@ class FreeAndSimpleScanner:
     @staticmethod
     def right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, angleDirectionX, angleDirectionY):
 
-        # get max/min values
-        coordForX = FreeAndSimpleScanner.line_scan_from_coordinate(\
-            coord, gameboardDim, usedRegions, direction = angleDirectionX, increment = "auto")
+        assert angleDirectionX in {"left", "right"} and angleDirectionY in \
+            {"up", "down"}, "invalid angle directions ({},{})".format(angleDirectionX, angleDirectionY)
 
-        coordForY =  FreeAndSimpleScanner.line_scan_from_coordinate(\
-            coord, gameboardDim, usedRegions, direction = angleDirectionY, increment = "auto")
+        # get max/min values
+        coordForX, res = FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
+            coord, gameboardDim, usedRegions, "free", angleDirectionX, increment = "auto")
+
+        coordForY, res2 =  FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
+            coord, gameboardDim, usedRegions, "free", angleDirectionY, increment = "auto")
 
         region = (coord, (coordForX[0], coordForY[1]))
-        region = FreeAndSimpleScanner.to_proper_region(region)
-        return region
+
+        # determine left bottom corner and right top corner
+        if angleDirectionY == "up":
+            if angleDirectionX == "left":
+                s = coordForX
+                e = coordForY
+            else:
+                s = coord
+                e = (coordForX[0],coordForY[1])
+        else:
+            if angleDirectionX == "right":
+                minX = coord[0]
+                e = (coordForX[0], coord[1])
+            else:
+                minX = coordForX[0]
+                e = coord
+            s = (minX,coordForY[1])
+
+        return (s,e)
 
     ############# START : scanning algorithms
 
@@ -420,104 +430,59 @@ class FreeAndSimpleScanner:
             pass
         return ((startX, startY),(endX,endY)) if startX is not None else None
 
-    @staticmethod
-    def get_free_area_of_region(region, otherRegions):
-
-        # iterate through otherRegions and determine if they overlap with region
-        return -1
-
-    @staticmethod
-    def get_best_region_given_coordinates_and_direction(coord, gameboardDim, usedRegions, direction, increment = "auto"):
-        assert direction in {'left', 'right'}, "direction {} invalid".format(direction)
-
-    '''
+    """
     description:
-    - scan algorithm starts from upper-left on diagonal line of region.
-    - iterates downward until other lower-right reached and do the following:
-    -   scan left and right by right angles and look for the best region
+    - this is an algorithm designed to scan for the greatest area by the
+      'swiss-cheese' method below:
+      - the 'swiss-cheese' method uses randomized blotting of the region
+      - each blot will be located on an unused region and do,
+      -     attempt to fetch a region
+      -     compare with and update best region
+      - there will be a maximum of n blots
+      - if n is set to auto, will use the formula:
+      -     area(gameboard) * 2000
 
     arguments:
-    - coord := (int,int)
-    - wantedArea := float
     - gameboardDim := (int,int)
-    - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))
+    - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY))))
+    - n := int|auto
 
     return:
-    -
-    '''
+    - ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))|False
+    """
     @staticmethod
-    def scan_algorithm_1(coord, wantedArea, gameboardDim, usedRegions, increment = "auto"):
-        # get diagonal
-        # starting from upper left, travel down diagonal and run best scan
+    def scan_by_swiss_cheese_for_max(gameboardDim, usedRegions, n = "auto"):
+        if n == "auto":
+            n = FreeAndSimpleScanner.get_area_of_region(((0,0),gameboardDim)) * 2000
 
-        # a small function that can cerTainly
-        comparadantos = lambda r1, r2: r1 if\
-            abs(wantedArea - FreeAndSimpleScanner.get_area_of_region(r1)) < \
-            abs(wantedArea - FreeAndSimpleScanner.get_area_of_region(r2))\
-            else r2
+        # get n used points
+        points = FreeAndSimpleScanner.choose_n_points(n, coordinateRange, {}, minDistance = "auto")
 
-        def get_best_region(coordos, direction):
-            assert direction in {'left', 'right'}, "direction {} invalid".format(direction)
-            q = FreeAndSimpleScanner.line_scan_from_coordinate(coord, gameboardDim, usedRegions, direction, increment = "auto")
-            if q is False:
-                return False
-            corordosWeuvas = coordos
-            if direction == "left":
-                # right-angle directions
-                ## left, down
-                f1 = ("left", "down")
-                f2 = ("right", "up")
-            else:
-                f1 = ("left", "up")
-                f2 = ("right", "down")
-            e = FreeAndSimpleScanner.right_angle_scan_from_coordinate(corordosWeuvas, gameboardDim, usedRegions, f1[0], f1[1])
-            e2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(corordosWeuvas, gameboardDim, usedRegions, f2[0], f2[1])
-            return comparadantos(e,e2)
+        maxRegion = None
+        maxArea = None
 
-        def get_best_region_from_horizon(coordos, direction):
-            assert direction in {'left', 'right'}, "direction {} invalid".format(direction)
-            coordos_ = [coordos[0], coordos[1]]
-            bestRegion = None
+        for p in points:
+            q = AreaScanner.get_best_region_given_coordinates(p, gameboardDim, usedRegions, increment = 10**(-2))
+            if q is False: continue
+            r,a = q
 
-            while True:
-                x = get_best_region(coordos_, direction)
-                if x == False: break
+            if maxRegion == None:
+                maxRegion,maxArea = r,a
+            elif maxArea < a:
+                maxRegion,maxArea = r,a
 
-                if bestRegion is None:
-                    bestRegion = x
-                else:
-                    bestRegion = comparadantos(bestRegion,x)
+        return maxRegion, maxArea
 
-                # update coordos_ : xVal equal to x[0]
-                # if direction is left => x[0][0],x[1][1], right => x[1]
-                if direction == "left":
-                    coordos = [x[0][0], x[1][1]]
-                else:
-                    coordos = [x[1][0],x[1][1]]
+    ## RELOCATE THIS TO GAMEBOARD HANDLER
+    @staticmethod
+    def x():
+        return -1
 
-            return bestRegion
 
-        def diagonal_operation(m, b, startingCoord, gameboardDim, increment = 10**(-5)):
+    @staticmethod
+    def scan(gameboardDim, usedRegions, mode = "swiss-cheesed"):
 
-            # increment x
-            coordos = [startingCoord[0],startingCoord[1]]
-            bestRegion = None
-            while coordos[0] <= gameboardDim[0]:
-                q = get_best_region_from_horizon(coordos, 'left')
-                q2 = get_best_region_from_horizon(coordos, 'right')
-                q = comparadantos(q,q2)
+        return -1
 
-                if bestRegion != None:
-                    bestRegion = comparadantos(q, bestRegion)
-                else:
-                    bestRegion = q
-                newX = coordos + increment
-                newY = newX * m + b
-                coordos = (newX,newY)
-            return bestRegion
-
-        startCoord = (0, n)
-        m, b = FreeAndSimpleScanner.get_diagonal_given_region(((0,0), gameboardDim), diagonal = "down")
-        return diagonal_operation(m, b, startCoord, gameboardDim)
 
     ############# END : scanning algorithms

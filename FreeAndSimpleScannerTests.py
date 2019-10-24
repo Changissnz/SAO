@@ -69,8 +69,8 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
                 "usedRegions": [usedRegionLeft, usedRegionRight, usedRegionUp, usedRegionDown]
                 }
 
-    @staticmethod
-    def test_FreeAndSimpleScanner_LineScanFromCoordinate():#self):
+    # TODO : check this.
+    def test_FreeAndSimpleScanner_LineScanFromCoordinate(self):
         # test case 1
         gameboardDim = (3,3)
         usedRegions = [((0.5,0), (1.5,3))]
@@ -101,61 +101,40 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         q4 = FreeAndSimpleScanner.line_scan_from_coordinate(startPoint4,\
             gameboardDim, usedRegions, direction = "left", increment = "auto")
         print("scan left at {} : {}".format(startPoint4, q4))
-        #self.assertTrue(q3 == startPoint3, "error: right test start {} : got {}".format(startPoint3, q3))
+        self.assertTrue(q4 == (0.49899999999999956, 1.5), "error: right test start {} : got {}".format(startPoint4, q4))
 
         ## scan up tests
         startPoint5 = (1,1)
         q5 = FreeAndSimpleScanner.line_scan_from_coordinate(startPoint5,\
             gameboardDim, usedRegions, direction = "up", increment = "auto")
         print("scan up at {} : {}".format(startPoint5, q5))
+        self.assertTrue(q5 == False, "error: right test start {} : got {}".format(startPoint5, q5))
 
         startPoint6 = (2,2)
         q6 = FreeAndSimpleScanner.line_scan_from_coordinate(startPoint6,\
             gameboardDim, usedRegions, direction = "up", increment = "auto")
         print("scan up at {} : {}".format(startPoint6, q6))
+        self.assertTrue(q6 == (2,2), "error: right test start {} : got {}".format(startPoint6, q6))
 
         ## scan down tests
         startPoint7 = startPoint5
         q7 = FreeAndSimpleScanner.line_scan_from_coordinate(startPoint7,\
             gameboardDim, usedRegions, direction = "up", increment = "auto")
         print("scan up at {} : {}".format(startPoint7, q7))
+        self.assertTrue(q7 == False, "error: right test start {} : got {}".format(startPoint7, q7))
+
 
         startPoint8 = startPoint6
         q8 = FreeAndSimpleScanner.line_scan_from_coordinate(startPoint8,\
             gameboardDim, usedRegions, direction = "down", increment = "auto")
         print("scan up at {} : {}".format(startPoint8, q8))
+        self.assertTrue(q8 == (2,2), "error: right test start {} : got {}".format(startPoint8, q8))
 
-    """
-    ## TODO : work on
-    @staticmethod
-    def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate():
-        gameboardDim = (2,2)
-        usedRegions = [((0.5,1),(1,1.75))]
-
-        # case 1 : reference point is
-        refPoint = (1.5,1.5)
-
-        # perform right angle scan
-        # left, down
-        region1 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(refPoint, gameboardDim, usedRegions, "left", "down")
-        # left, up
-        region2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(refPoint, gameboardDim, usedRegions, "left", "up")
-        # right, down
-        region3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(refPoint, gameboardDim, usedRegions, "right", "down")
-        # right, up
-        region4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(refPoint, gameboardDim, usedRegions, "right", "down")
-
-        regions = [region1,region2,region3,region4]
-        # print areas
-        for r in regions:
-            print("area :\t", FreeAndSimpleScanner.get_area_of_region(r))
-        return
-    """
 
     ## TODO : complete tests
     def test_FreeAndSimpleScanner_LineScanFromCoordinateForExtreme(self):
         gameboardDim = (3,3)
-        usedRegions = [((0.5,0), (1.5,3))]
+        usedRegions = [((0.5,0), (1.5,3)), ((2.9,2.9), (3,3))]
 
         # test scan
         ## scan right tests
@@ -176,6 +155,99 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         self.assertTrue(abs(q2[0] - 1.5) <= 9/1000 and q1[1] == 1.5, "wrong q2")
         self.assertTrue(abs(q3[0] - 3) <= 9/1000 and q1[1] == 1.5, "wrong q3")
 
+    def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate2(self):
+        gameboardDim = (3,2)
+        ##ur1 = ((0.75,1.25),(1.25,1.75))
+        ur2 = ((0,0),(0.5,0.5))
+        ##usedRegions = [ur1,ur2]
+        usedRegions =[ur2]
+
+        # scan tests
+        # point above used
+        coord = (0.51,0.51)
+
+        ## left, down
+        dx, dy = "left", "down"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        self.assertTrue(reg == ((0, 0), (0.51, 0.51)), "reg ld wrong {}".format(reg))
+
+        ## left, up
+        dx, dy = "left", "up"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        self.assertTrue(reg == ((0, 0.51), (0.51, 2)), "reg lu wrong {}".format(reg))
+        print("reg :\t", reg)
+
+
+        ## right, down
+        dx, dy = "right", "down"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg rd :\t",reg)
+        self.assertTrue(reg == ((0.51, 0), (3, 0.51)), "reg rd wrong {}".format(reg))
+
+        ## right, up
+        dx, dy = "right", "up"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        ##print("reg ru :\t",reg)
+        self.assertTrue(reg == ((0.51, 0.51), (3, 2)), "reg ru wrong {}".format(reg))
+
+        ##### try with coord == (0.5,0.5)
+        coord = (0.5,0.5)
+
+        dx, dy = "left", "down"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        self.assertTrue(reg == ((0.5, 0.5), (0.5, 0.5)), "#2 reg ld wrong {}".format(reg))
+        ##print("reg x:\t", reg)
+
+
+    @staticmethod
+    def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate():
+
+        gameboardDim = (3,2)
+        ur1 = ((0.75,1.25),(1.25,1.75))
+        ur2 = ((0,0),(0.5,0.5))
+        usedRegions = [ur1,ur2]
+
+        ##coord = (0.5001,0.5001)
+        coord = (1.5,1.5)
+        dx, dy = "right", "up"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg:\t",reg)
+        # assert
+        ## ((0.5001, 0.5001), (3, 2))
+
+        dx, dy = "right", "down"
+        reg2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg2:\t",reg2)
+
+        dx, dy = "left", "up"
+        reg3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg3:\t",reg3)
+
+        dx, dy = "left", "down"
+        reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg4:\t",reg4)
+
+        coord = (0.5,0.5)
+        dx, dy = "right", "up"
+        reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+
+        # assert
+        ## ((0.5001, 0.5001), (3, 2))
+
+        dx, dy = "right", "down"
+        reg2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg2:\t",reg2)
+
+
+        dx, dy = "left", "up"
+        reg3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg3:\t",reg3)
+
+        dx, dy = "left", "down"
+        reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg4:\t",reg4)
+
+
     @staticmethod
     def is_equal_rounded(t1, t2):
 
@@ -193,11 +265,12 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
 #----------------------------------------
 
 def t():
-    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
-    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_RightAngleScanFromCoordinate()
     FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
+    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_RightAngleScanFromCoordinate()
+    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
     #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinateForExtreme()
-
+    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_RightAngleScanFromCoordinate2()
+    return
 #----------------------------------------
 
 if __name__ == "__main__":

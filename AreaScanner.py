@@ -143,8 +143,8 @@ class AreaScanner:
         while clause(coord):
             q1, q2 = FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(coord, gameboardDim, usedRegions,\
                 regionType, direction)
-            print("q11:\t", q1)
-            print("scan right:\t", q2)
+            ##print("q11:\t", q1)
+            ##print("scan right:\t", q2)
             if regionType == "free":
                 x = FreeAndSimpleScanner.to_proper_region((coord, q1))
                 lineset.append(x)
@@ -162,17 +162,23 @@ class AreaScanner:
     return:
     - list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))), linesets
     """
+    # TODO : error here
     @staticmethod
     def scan_collect_free_lineset(startCoord, gameboardDim, usedRegions, direction = "right", increment = 10 **(-2)):
         tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
-        #clause = lambda c: False if FreeAndSimpleScanner.on_border_during_scan_event(c, tr, direction = direction) else True
+        clause = lambda c: False if FreeAndSimpleScanner.on_border_during_scan_event(c, tr, direction = direction) else True
         lineset = []
         coord = startCoord
-        while coord != False:
+        while clause(coord):
             ls, coord = AreaScanner.scan_collect_free_lineset_(coord, tr, usedRegions, direction, increment)
             lineset.extend(ls)
-            print("yes")
+            ##print("coord:\t", coord)
+            if coord == False: break
         return lineset
+
+    ####################################################
+
+    ####################################################
 
     '''
     description:
@@ -189,6 +195,8 @@ class AreaScanner:
     @staticmethod
     def sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2)):
         assert FreeAndSimpleScanner.is_proper_region(wantedRegion) is True, "invalid region {}".format(wantedRegion)
+        if FreeAndSimpleScanner.get_area_of_region(wantedRegion) == 0:
+            return False
 
         '''
         description:
@@ -203,8 +211,9 @@ class AreaScanner:
         def get_area_from_horizontal_line_segments(listOfSegments, increment):
             # get the total length
             c = sum([l[1] - l[0] for l in listOfSegments])
-            ##print("c\t",c)
             return c * increment
+
+        print("SS")
 
         # scan from lower left corner to upper right corner
         startCoord = wantedRegion[0]
@@ -213,17 +222,67 @@ class AreaScanner:
         incrementos = FreeAndSimpleScanner.get_increment(wantedRegion, "up", increment)
         totalArea = 0
         ls1,ls2 = None, None
-        allLineSets = []
+        ##allLineSets = []
+        print("SS :\t", startCoord)
+        print("free")
 
         while clause(startCoord):
             ls2 = ls1
 
             ls1 = AreaScanner.scan_collect_free_lineset(startCoord, wantedRegion, usedRegions,\
                 direction = "right", increment = 10 **(-3))
-            allLineSets.append(ls1)
+            #print("free ls:\t",ls1)
+
+            ##allLineSets.append(ls1)
             if ls1 != None and ls2 != None:
                 coex = AreaScanner.get_horizontal_coexistence_between_linesets(ls1, ls2)
                 a = get_area_from_horizontal_line_segments(coex, increment)
                 totalArea += a
             startCoord = incrementos(startCoord)
-        return totalArea, ls1
+            #print("SC:\t",startCoord)
+        return totalArea##, ls1
+
+    '''
+    description:
+    -
+
+    arguments:
+    - coord := (int,int), a free coordinate given `usedRegions`
+    '''
+    @staticmethod
+    def get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2)):
+
+        if FreeAndSimpleScanner.get_area_of_region(((0,0),gameboardDim)) == 0:
+            return False
+
+        print("YES")
+
+
+        # get 4 regions
+        lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "left", "up")
+        ld = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "left", "down")
+        ru = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "up")
+        rd = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "down")
+
+        print("lu:\t", lu)
+        print("ld:\t", ld)
+        print("ru:\t", ru)
+        print("rd:\t", rd)
+
+
+        d = {}
+        if lu != False:
+            d[lu] = AreaScanner.sloppy_area_scan(lu, usedRegions, increment = increment)
+        if ld != False:
+            d[ld] = AreaScanner.sloppy_area_scan(ld, usedRegions, increment = increment)
+        if ru != False:
+            d[ru] = AreaScanner.sloppy_area_scan(ru, usedRegions, increment = increment)
+        if rd !=False:
+            d[rd] = AreaScanner.sloppy_area_scan(rd, usedRegions, increment = increment)
+
+        # sort dictionary by
+
+        print("HERE:\t",d)
+        d = sorted(d.items(), key=lambda kv: kv[1])
+        #return d
+        return d[-1] if len(d) > 0 else False

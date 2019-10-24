@@ -63,7 +63,7 @@ class GameBoardHandler:
     def choose_n_points(numCentroids, coordinateRange, setOfCoordinates, minDistance = "auto"):
 
         if minDistance == "auto":
-            minDistance = (coordinateRange[0] * coordinateRange[1]) / (2 * numCentroids)
+            minDistance = (coordinateRange[0] * coordinateRange[1]) / (2000)
 
         otherCoordinates = deepcopy(setOfCoordinates)
         centroids = []
@@ -105,6 +105,7 @@ class GameBoardHandler:
     '''
     description:
     - chooses n random points that take into account existing points
+    - an unused point must be at least `minDistance` from all other points
 
     arguments:
     - p := (float, float), reference point
@@ -127,8 +128,17 @@ class GameBoardHandler:
             for p in points:
                 if GameBoardHandler.is_coordinate_far_enough(p, otherCoordinates, minDistance):
                     newPoints.add(p)
+                    otherCoordinates.add(p)
                     numPoints -= 1
         return newPoints
+
+    """
+    @staticmethod
+    def choose_unused_random_points_in_region(p, region, numPoints, setOfCoordinates, minDistance):
+        otherCoordinates = deepcopy(setOfCoordinates)
+        return -1
+    """
+
 
     """
     description:
