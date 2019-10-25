@@ -31,7 +31,6 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
 
     '''
     '''
-    # TODO make assertion
     def test_GameBoardHandler_ChooseNPoints(self):
 
         numPoints = 1000 # this will not work : 10000
@@ -39,13 +38,7 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         setOfCoordinates = {(5, 100), (10, 101), (20, 35)}
         minDistance = 5
         x = GameBoardHandler.choose_n_points(numPoints, coordinateRange, setOfCoordinates, minDistance)
-        assert len(x) == numPoints
-
-    @staticmethod
-    def test_GameBoardHandler_ChooseNPoints():
-#     def choose_unused_random_points_in_radius(p, radius, numPoints, setOfCoordinates, minDistance):
-
-        return -1
+        self.assertTrue(len(x) == numPoints)
 
     '''
     '''

@@ -8,6 +8,9 @@ def Language_Sample():
 
 class LanguageMethodsTest(unittest.TestCase):
 
+    def test_Language_Random(self):
+        x = Language.random()
+
     def test_Language_GetTfidfMeasure(self):
         try:
             languages = LanguageMaker.get_languages_standard(2, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
@@ -32,16 +35,9 @@ class LanguageMethodsTest(unittest.TestCase):
         cm = Language.get_cosine_similarity_measure_(ml[0][1], ml[1][1])
         self.assertTrue(cm >= 0.15)
 
-    def test_isupper(self):
-        self.assertTrue('FOO'.isupper())
-        self.assertFalse('Foo'.isupper())
-
-    def test_split(self):
-        s = 'hello world'
-        self.assertEqual(s.split(), ['hello', 'world'])
-        # check that s.split fails when the separator is not a string
-        with self.assertRaises(TypeError):
-            s.split(2)
+    def test_SelfReproduce():
+    ##def self_reproduce(self, numberOfDescriptors):
+        return -1
 
 if __name__ == '__main__':
     unittest.main()

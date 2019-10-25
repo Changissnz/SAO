@@ -169,82 +169,7 @@ class GameBoardHandler:
             return False
         return True if a > minThresholdArea else False
 
-    """
-    description:
-    -
-
-    arguments:
-    - gameboard := GameBoard
-    - mode := size-net|influence
-
-    return:
-    - list((x, y)), x and y are length and width values for each element
-    OR
-    - False (check error)
-    """
-    # TODO : test this
-    @staticmethod
-    def calculate_proportions_for_elements(gameboard, mode = "size-net"):
-
-        assert mode in {"size-net", "influence"}, "mode {} is invalid".format(mode)
-        areas = []
-        if mode == "size-net":
-            totalSize = 0
-            for i, e in enumerate(gameboard.elements):
-                sz = len(gameboard.elements[i].language.language[1])
-                areas.append(sz)
-                totalSize += sz
-            try:
-                return [a / totalSize for a in areas]
-            except:
-                return False # no language contents
-        else:
-            raise ValueError("mode {} has not yet been implemented".format(mode))
-
-    """
-
-    arguments:
-    - mode := size-net|influence
-    """
-    @staticmethod
-    def calculate_areas_for_elements(gameboard, mode = "size-net"):
-
-        """
-        description:
-        - rounding algorithm
-
-        arguments:
-        - ea := list(float)
-
-        return:
-        - list
-        """
-        def rounding_alg(ea):
-            return [int(round(e,0)) for e in ea]
-
-        totalArea = gameboard.get_area()
-        proportions = GameBoardHandler.calculate_proportions_for_elements(gameboard, mode)
-        assert proportions != False, "could not compute"
-
-        # areas in floats, need to round up or down one
-        elementAreas = [p * totalArea for p in proportions]
-        elementAreas = rounding_alg(elementAreas)
-        elementAreas = [GameBoardHandler.get_random_factor_pair(e) for e in elementAreas]
-        return elementAreas
-
-
-    """
-    description:
-    -
-
-    arguments:
-    - criteria := "net"|"set"
-
-
-    """
-    @staticmethod
-    def calculate_radius_by_criteria(criteria = "sadfsdaf"):
-        return -1
+    ################ START : methods below are currently not used
 
     '''
     description:
@@ -302,7 +227,7 @@ class GameBoardHandler:
     def get_closest_factor_pair(i):
         return -1
 
-    #-----------------------------------------
+    ################ END : methods below are currently not used
 
     ########### START : code for assigning elements to regions here
 
@@ -452,6 +377,11 @@ class GameBoardHandler:
         return True
 
 
+    # TODO : v v v 
+    """
+    could be further optimized by making sure all points to inspect are x distance
+    apart, to cover the area
+    """
     @staticmethod
     def get_config_tmp_func(elementInfo, gameboardDim, numRandomPoints = 10):
 

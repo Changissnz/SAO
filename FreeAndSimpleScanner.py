@@ -147,9 +147,9 @@ class FreeAndSimpleScanner:
     @staticmethod
     def is_proper_region(region):
         try:
-            assert type(region) is tuple and len(region) == 2, "invalid region {}".format(region)
-            assert type(region[0]) is tuple and type(region[0]) is type(region[1]), "invalid region {}".format(region)
-            assert (region[1][0] - region[0][0]) >= 0 and (region[1][1] - region[0][1]) >= 0, "invalid region {}".format(region)
+            assert type(region) is tuple and len(region) == 2, "invalid region x {}".format(region)
+            assert type(region[0]) is tuple and type(region[0]) is type(region[1]), "invalid region y {}".format(region)
+            assert (region[1][0] - region[0][0]) >= 0 and (region[1][1] - region[0][1]) >= 0, "invalid region z {}".format(region)
             return True
         except: return False
 

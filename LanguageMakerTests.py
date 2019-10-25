@@ -6,7 +6,6 @@ class LanguageMakerMethodsTest(unittest.TestCase):
     def test_Language_GetTfidfMeasure(self):
         return -1
 
-
     '''
     description:
     - checks the size of descriptors of bag for minimum size requirement

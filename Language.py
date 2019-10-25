@@ -8,16 +8,19 @@ a measure of influence that does not use direct intersection:
 """
 ###
 from sklearn.feature_extraction.text import TfidfVectorizer
-from random import choice
+from random import choice, choices, sample
 from nltk import word_tokenize
 from LanguageMaker import *
 
 class Language:
 
-    def __init__(self, idn, language):
+    def __init__(self, idn, language, languageFormation = "centroid"):
         self.idn = idn
         self.language = language
         self.prohibited = [] # prohibited words
+
+        assert languageFormation == "centroid", "languageFormation {} invalid".format(languageFormation)
+        self.languageFormation = languageFormation
 
     def __len__(self):
         q = LanguageMaker.get_language_type(self.language)
@@ -25,6 +28,17 @@ class Language:
             return len(self.language[0]) + len(self.language[1])
         elif q == "ripple":
             raise NotImplementedError("IMPLEMENT HERE")
+
+    """
+    description:
+    - outputs a random language of specified size
+    """
+    @staticmethod
+    def random(idn = "numero-unetas", languageFormation = "centroid",\
+        minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
+        languageContents = LanguageMaker.get_languages_standard(1, minSizeInfo, startSizeInfo, mode)[0]
+        l = Language(idn, languageContents, languageFormation = languageFormation)
+        return l
 
     # TODO : test below 2 methods
     '''
@@ -86,13 +100,13 @@ class Language:
 
     '''
     description:
-    -
+    ~
 
     arguments:
-    - args : str
+    - l1,l2 := str
 
     return:
-    -
+    ~
     '''
     @staticmethod
     def get_tfidf_measure(l1, l2):
@@ -140,16 +154,6 @@ class Language:
             return csn
         except:
             return 0 # 0-division
-
-    def get_influence_score_over_targets(self):
-        return -1
-
-    '''
-    description:
-    - pops subset of bagOfWords to prohibited
-    '''
-    def prohibit_speech(self, subsetBagOfWords):
-        return -1
 
     '''
     description:
@@ -247,3 +251,28 @@ class Language:
 
         if returnType == "lang": return (newLang1, x), (newLang2, x2)
         return (newLang1, x), (newLang2, x2), (requiredWordsToMerge, descriptors)
+
+    # TODO : test this
+    """
+    description:
+    - chooses random words in language descriptors and outs descriptors for them
+      into self
+    """
+    def self_reproduce(self, numberOfDescriptors):
+
+        if type(self.language[1]) is set:
+            x = list(self.language[1])
+            q = sample(x, numberOfDescriptors)
+        elif type(self.language[1]) is list:
+            x = self.language[1]
+            q = choices(x, k = numberOfDescriptors)
+        else:
+            raise NotImplementedError("invalid type of language : {}".\
+                format(type(self.language[1])))
+
+        # gather descriptors for these descriptors
+        # like a see-saw.
+        additions = LanguageMaker.get_descriptors(q, type(self.language[1]))
+        self.add_to_language_descriptors(additions)
+        # update centroids
+        self.language[0] |= q

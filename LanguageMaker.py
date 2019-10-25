@@ -158,7 +158,9 @@ class LanguageMaker:
 
     arguments:
     - word := str
-    - minDescriptors := int
+
+    return:
+    - list(str::(descriptors))
     '''
     @staticmethod
     def get_descriptors_for_word(word):
@@ -175,15 +177,22 @@ class LanguageMaker:
 
     '''
     description:
-    -
+    - gets a list of descriptors from some arbitrary initial bag of words
+      of size `startSize`
 
     arguments:
-    - minDescriptors :=
+    - minDescriptors := int, minimum number of terms to return
+    - startSize := int
     - mode := geq | const
+
+    return:
+    - str::(centroids)), list(str::(descriptors))
     '''
     @staticmethod
     def get_list_of_descriptors(minDescriptors, startSize, mode = "geq"):
         # get initial bag of descriptors
+        assert mode in {"geq", "const"}, "invalid mode {}".format(mode)
+
         x = list(LanguageMaker.fetch_nonstop_words(startSize))
         f_ = deepcopy(x)
         f = []
@@ -191,8 +200,11 @@ class LanguageMaker:
             c = choice(x)
             f.extend(list(LanguageMaker.get_descriptors_for_word(c)))
             if len(f) >= minDescriptors: break
-        return f_, f
+        if mode == "geq":
+            return f_, f
+        return f_, f[:minDescriptors]
 
+    # TODO : test that `mode` is working
     '''
     description:
     -
@@ -204,7 +216,7 @@ class LanguageMaker:
     - mode := geq
 
     return:
-    -
+    - list((str::(centroids), str::(descriptors)))
     '''
     @staticmethod
     def get_languages_standard(numLanguages, minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):

@@ -1,33 +1,57 @@
-# todo : add a descriptor->level mapping
-# there should be an integer that corresponds to descriptor when called
+from Language import *
 
 class Element:
 
     def __init__(self, idn, language):
         self.idn = idn
         self.language = language
+        self.setInitial = False
         self.set_language_stats()
+        self.prohibitedSpeech = {}
 
     '''
     description:
     - calculates the size of centroid over its descriptor
     '''
     def centroid_to_descriptor_ratio(self):
-        return -1
+        return len(self.language[0]) / len(self.language[1])
 
     '''
     description:
     - sets the word count for language
     '''
     def set_language_stats(self):
+        assert self.setInitial != True, "cannot set language stats after initial"
+
         if type(self.language.language[1]) is list:
             self.wordCount = len(list(self.language.language[0]) + self.language.language[1])
         else:
             self.wordCount = len(self.language.language[0] | self.language.language[1])
+        self.setInitial = True
 
-    def get_alignments():
-        return -1
 
+    # TODO : test this
+    """
+    description:
+    - determines size of language that factors in prohibited words
+
+    return:
+    - float
+    """
+    def get_language_stats_with_prohibition(self):
+
+        funk = lambda x : False if x in self.prohibitedSpeech else True
+
+        centroidSize = len(list(filter(funk, self.language.language[0])))
+        descriptorSize = len(list(filter(funk, self.language.language[1])))
+        return centroidSize + descriptorSize
+
+    '''
+    description:
+    - pops subset of bagOfWords to prohibited
+    '''
+    def prohibit_speech(self, subsetBagOfWords):
+        self.prohibitedSpeech.update(subsetBagOfWords)
 
     ################## START : language modification methods
     '''
@@ -76,5 +100,3 @@ class Element:
         return -1
 
     ################## END : language modification methods
-
-    ################## START : language
