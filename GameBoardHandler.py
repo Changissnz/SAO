@@ -5,6 +5,7 @@ GameBoard
 from math import sqrt
 from random import uniform, random, shuffle
 from copy import deepcopy
+from FreeAndSimpleScanner import *
 
 class GameBoardHandler:
 
@@ -132,13 +133,41 @@ class GameBoardHandler:
                     numPoints -= 1
         return newPoints
 
-    """
-    @staticmethod
-    def choose_unused_random_points_in_region(p, region, numPoints, setOfCoordinates, minDistance):
-        otherCoordinates = deepcopy(setOfCoordinates)
-        return -1
-    """
+    # TODO : test this
+    '''
+    description:
+    - make sure targetRegion has area > some threshold
 
+    arguments:
+    - numPoints := int
+    - targetRegion := ((int,int), (int,int)), a proper region
+    - usedRegions := list((int,int),(int,int)), list of proper regions
+
+    return:
+    - set((int::x,int::y))
+    '''
+    @staticmethod
+    def choose_unused_random_points_by_region(numPoints, targetRegion, usedRegions, minThresholdArea = 0):
+
+        if not GameBoardHandler.is_region_free_by_area(targetRegion, usedRegions, minThresholdArea):
+            return False
+
+        q = set()
+        while len(q) < numPoints:
+            x, y = uniform(targetRegion[0][0], targetRegion[1][0]),\
+                uniform(targetRegion[0][1], targetRegion[1][1])
+
+            if FreeAndSimpleScanner.is_coordinate_free((x,y), usedRegions):
+                q.add((x,y))
+        return q
+
+    # TODO : test this
+    @staticmethod
+    def is_region_free_by_area(targetRegion, usedRegions, minThresholdArea = 0):
+        a = AreaScanner.sloppy_area_scan(targetRegion, usedRegions, increment = 10**(-2))
+        if a == False:
+            return False
+        return True if a > minThresholdArea else False
 
     """
     description:
@@ -272,3 +301,194 @@ class GameBoardHandler:
     @staticmethod
     def get_closest_factor_pair(i):
         return -1
+
+    #-----------------------------------------
+
+    ########### START : code for assigning elements to regions here
+
+    @staticmethod
+    def is_valid_point_to_area_ratio(numPoints, area, req = 1.5):
+        #requirement : p/a < 1.5
+        try:
+            return True if numPoints/ area < req else False
+        except: return False
+
+    """
+    description:
+    - this is an algorithm designed to scan for the greatest area by the
+      'swiss-cheese' method below:
+      - the 'swiss-cheese' method uses randomized blotting of the region
+      - each blot will be located on an unused region and do,
+      -     attempt to fetch a region
+      -     compare with and update best region
+      - there will be a maximum of n blots
+      - if n is set to auto, will use the formula:
+      -     area(gameboard) * 2000
+
+    arguments:
+    - gameboardDim := (int,int)
+    - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY))))
+    - n := int|auto
+
+    return:
+    - ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))|False
+    """
+    @staticmethod
+    def scan_by_swiss_cheese_for_max(gameboardDim, usedRegions, n = "auto"):
+        if n == "auto":
+            n = FreeAndSimpleScanner.get_area_of_region(((0,0),gameboardDim)) * 2000
+
+        # get n unused points
+        points = GameBoardHandler.choose_unused_random_points_by_region(n, ((0,0), gameboardDim), usedRegions)
+        if points == False: return False
+
+        maxRegion = None
+        maxArea = None
+
+        for p in points:
+            q = AreaScanner.get_best_region_given_coordinates(p, gameboardDim, usedRegions, increment = 10**(-2))
+            if q is False: continue
+            r,a = q
+
+            if maxRegion == None:
+                maxRegion,maxArea = r,a
+            elif maxArea < a:
+                maxRegion,maxArea = r,a
+
+        return maxRegion, maxArea
+
+    ####### START : the assignment algorithm for elements in Shame And Obedience
+
+    """
+    description:
+    -
+
+    arguments:
+    - elementInfo := list, of (key,values),
+                    keys are int::(elementId), values are int::(wantedSquareDim)
+    - gameboardDim := (int,int)
+
+    """
+    @staticmethod
+    def assign_elements_to_regions_using_info_by_swiss_cheese(elementInfo, gameboardDim, numConfigAttempts = 5):
+        if len(elementInfo) == 0: return False
+
+        if not GameBoardHandler.is_valid_point_to_area_ratio(len(elementInfo), gameboardDim[0] * gameboardDim[1]):
+            return False
+
+        # keep track of the lowest area difference
+        bestConfig = None
+        lowestAreaDifference = None
+
+        for i in range(numConfigAttempts):
+            config, ad = GameBoardHandler.assign_helper(elementInfo, gameboardDim, numRandomPoints = 1000) # last arg.?
+            if GameBoardHandler.is_valid_config(config):
+
+                if bestConfig == None:
+                    bestConfig, lowestAreaDifference = config, ad
+                elif lowestAreaDifference > ad:
+                    bestConfig, lowestAreaDifference = config, ad
+        return bestConfig, lowestAreaDifference
+
+    '''
+    description:
+    - method helps with assigning the best region for each element in element
+    - method goes as follows:
+    -
+
+    arguments:
+    - elementInfo := list, of (key,values),
+                    keys are int::(elementId), values are int::(wantedSquareDim)
+    - gameboardDim := (int,int)
+
+    return:
+    - list, of (key,values),
+        keys are int::(elementId), values are (`regions`, `freeArea`)
+    '''
+    @staticmethod
+    def assign_helper(elementInfo, gameboardDim, numRandomPoints = 1000):
+
+        def helper_func(rp):
+            bestRegion = None
+            bestRegionAreaDiff = None
+            for p in rp:
+                r = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim, (e[1],e[1]), currentConfig, increment = 10**(-2))
+                if r == False:
+                    continue
+                elif bestRegion == None:
+                    bestRegion = r[0]
+                    bestRegionAreaDiff = abs(r[1] - e[1]**2)
+                else:
+                    q = abs(r[1] - e[1]**2)
+                    if bestRegionAreaDiff > q:
+                        bestRegion, bestRegionAreaDiff = r[0], q
+            return bestRegion, bestRegionAreaDiff
+
+        shuffle(elementInfo)
+
+        # these are the default check points
+        defaultPoints = [(0,0), (0,gameboardDim[1]), (gameboardDim[0], 0), gameboardDim]
+
+        # iterate through elementInfo
+        currentConfig = []
+        configAreaDiff = 0
+
+        for e in elementInfo:
+            # get random points for elements
+            points = GameBoardHandler.choose_unused_random_points_by_region(numRandomPoints,\
+                ((0,0), gameboardDim), currentConfig, 0)
+            rndmPts = defaultPoints + list(points)
+
+            br, brad = helper_func(rndmPts)
+            currentConfig.append(br)
+            if br != None:
+                configAreaDiff += brad
+        return currentConfig, configAreaDiff
+
+    @staticmethod
+    def is_valid_config(config):
+        for c in config:
+            if c == None: return False
+        return True
+
+
+    @staticmethod
+    def get_config_tmp_func(elementInfo, gameboardDim, numRandomPoints = 10):
+
+        def helper_func(rp):
+            bestRegion = None
+            bestRegionAreaDiff = None
+            for p in rp:
+                r = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim, (e[1],e[1]), currentConfig, increment = 10**(0))
+                if r == False:
+                    continue
+                elif bestRegion == None:
+                    bestRegion = r[0]
+                    bestRegionAreaDiff = abs(r[1] - e[1]**2)
+                else:
+                    q = abs(r[1] - e[1]**2)
+                    if bestRegionAreaDiff > q:
+                        bestRegion, bestRegionAreaDiff = r[0], q
+            return bestRegion, bestRegionAreaDiff
+
+        defaultPoints = [(0,0), (0,gameboardDim[1]), (gameboardDim[0], 0), gameboardDim]
+        currentConfig = []
+        configAreaDiff = 0
+
+        for e in elementInfo:
+            # get random points for elements
+            points = GameBoardHandler.choose_unused_random_points_by_region(numRandomPoints,\
+                ((0,0), gameboardDim), currentConfig, 0)
+            rndmPts = defaultPoints + list(points)
+
+            br, brad = helper_func(rndmPts)
+            currentConfig.append(br)
+            if br != None:
+                configAreaDiff += brad
+
+        return currentConfig, configAreaDiff
+
+
+
+    ####### END : the assignment algorithm for elements in Shame And Obedience
+    ########### END : code for assigning elements to regions here

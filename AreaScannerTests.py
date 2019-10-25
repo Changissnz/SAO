@@ -1,4 +1,4 @@
-from AreaScanner import *
+from FreeAndSimpleScanner import *
 import unittest
 
 class AreaScannerMethodsTest(unittest.TestCase):
@@ -72,17 +72,32 @@ class AreaScannerMethodsTest(unittest.TestCase):
         ls3,_ = AreaScanner.scan_collect_free_lineset_(sc3, wr1, usedRegions)
         ls4,_ = AreaScanner.scan_collect_free_lineset_(sc4, wr1, usedRegions)
         ls5,_ = AreaScanner.scan_collect_free_lineset_(sc5, wr1, usedRegions)
+        """
         print("*ls 1 :\t", ls1)
         print("*ls 2 :\t", ls2)
         print("*ls 3 :\t", ls3)
         print("*ls 4 :\t", ls4)
         print("*ls 5 :\t", ls5)
         print()
-        self.assertTrue([((0, 1), (0.4995000000000004, 1))] == ls1, "wrong ls1")
-        self.assertTrue([((0, 2), (0.4995000000000004, 2))] == ls2, "wrong ls2")
-        self.assertTrue([((0, 2.5), (0.4995000000000004, 2.5))] == ls3, "wrong ls3")
-        self.assertTrue([((0, 0.5), (0.4995000000000004, 0.5))] == ls4, "wrong ls4")
-        self.assertTrue([((0, 0.49), (0.5, 0.49))] == ls5, "wrong ls5")
+        """
+
+        ## get answers
+        a1 = ((0, 1), (0.4995000000000004, 1))
+        a2 = ((0, 2), (0.4995000000000004, 2))
+        a3 = ((0, 2.5), (0.4995000000000004, 2.5))
+        a4 = ((0, 0.5), (0.4995000000000004, 0.5))
+        a5 = ((0, 0.49), (0.5, 0.49))
+
+        c2 = lambda x1,x2 : True if AreaScannerMethodsTest.is_equal_rounded(x1[0],x2[0])\
+            and AreaScannerMethodsTest.is_equal_rounded(x1[1], x2[1]) else False
+
+        self.assertTrue(c2(a1, ls1[0]), "wrong ls1 {}".format(ls1[0]))
+        self.assertTrue(c2(a2, ls2[0]), "wrong ls2 {}".format(ls2[0]))
+        self.assertTrue(c2(a3, ls3[0]), "wrong ls3 {}".format(ls3[0]))
+        self.assertTrue(c2(a4, ls4[0]), "wrong ls4 {}".format(ls4[0]))
+        self.assertTrue(c2(a5, ls5[0]), "wrong ls5 {}".format(ls5[0]))
+
+
 
         wr1 = ((0,0), (3,3))
         ls1,_ = AreaScanner.scan_collect_free_lineset_(sc1, wr1, usedRegions)
@@ -91,60 +106,44 @@ class AreaScannerMethodsTest(unittest.TestCase):
         ls4,_ = AreaScanner.scan_collect_free_lineset_(sc4, wr1, usedRegions)
         ls5,_ = AreaScanner.scan_collect_free_lineset_(sc5, wr1, usedRegions)
 
+
         print("*ls 1 :\t", ls1)
         print("*ls 2 :\t", ls2)
         print("*ls 3 :\t", ls3)
         print("*ls 4 :\t", ls4)
         print("*ls 5 :\t", ls5)
-        self.assertTrue([((0, 1), (0.4980000000000004, 1)),\
-            ((2.000999999999965, 1), (3, 1))] == ls1, "wrong ls1")
-        self.assertTrue([((0, 2), (0.4980000000000004, 2)), \
-            ((2.000999999999965, 2), (3, 2))] == ls2, "wrong ls2")
-        self.assertTrue([((0, 2.5), (0.4980000000000004, 2.5)),\
-            ((2.000999999999965, 2.5), (3, 2.5))] == ls3, "wrong ls3")
-        self.assertTrue([((0, 0.5), (0.4980000000000004, 0.5)),\
-            ((2.000999999999965, 0.5), (3, 0.5))] == ls4, "wrong ls4")
-        self.assertTrue([((0, 0.49), (3, 0.49))] == ls5, "wrong ls5")
 
-    @staticmethod
-    def test_AreaScanner_ScanCollectFreeLineset3():
+        self.assertAlmostEqual([((0, 1), (0.4980000000000004, 1)),\
+            ((2.000999999999965, 1), (3, 1))], ls1, "wrong ls1")
+        self.assertAlmostEqual([((0, 2), (0.4980000000000004, 2)), \
+            ((2.000999999999965, 2), (3, 2))], ls2, "wrong ls2")
+        self.assertAlmostEqual([((0, 2.5), (3, 2.5))], ls3, "wrong ls3 {}".format(ls3))
+        self.assertAlmostEqual([((0, 0.5), (0.4980000000000004, 0.5)), ((2.000999999999965, 0.5), (3, 0.5))],\
+            ls4, "wrong ls4")
+        self.assertAlmostEqual([((0, 0.49), (3, 0.49))],ls5, "wrong ls5")
+
+    #@staticmethod
+    def test_AreaScanner_ScanCollectFreeLineset3(self):
         gameboardDim = (3,3)
         usedRegions = [((0.5,0.5),(2,2))]
         wr1 = ((0,0),(0.5,0.5))
 
         coord = (0,0.5)
         ls1 = AreaScanner.scan_collect_free_lineset(coord, gameboardDim, usedRegions, direction = "right", increment = 10 **(-2))
-        print("lineset :\t",ls1)
+        #print("lineset :\t",ls1)
         qls1 = [((0, 0.5), (0.4980000000000004, 0.5)), ((2.000999999999965, 0.5), (3, 0.5))]
+        self.assertAlmostEqual(qls1, ls1)
 
         coord = (1,0.5)
         ls2 = AreaScanner.scan_collect_free_lineset(coord, gameboardDim, usedRegions, direction = "right", increment = 10 **(-2))
-        print("lineset 2:\t",ls2)
+        #print("lineset 2:\t",ls2)
         qls2 = [((2.001999999999964, 0.5), (3, 0.5))]
+        self.assertAlmostEqual(qls2, ls2)
 
-    # DELETE
-    """
-    @staticmethod
-    def h():
-        usedRegions = [((0.5,0.5),(2,2))]
-
-        wr3 = ((1.5,0.5),(2,3))
-        sc1 = wr3[0]
-        sc1 = (1.6, 2.5)
-        ##ls1 = AreaScanner.scan_collect_free_lineset(sc1, wr3, usedRegions)
-        ##print("\n\nXXXX ls1 :\t",ls1)
-        ls, coord = AreaScanner.scan_collect_free_lineset_(sc1, wr3, usedRegions)
-
-        print("LS\t",ls)
-        print("COORD\t",coord)
-
-        # check coordinate limits
-        ##a3 = AreaScanner.sloppy_area_scan(wr3, usedRegions)
-    """
 
     ## TODO : finish this
-    @staticmethod
-    def test_AreaScanner_SloppyAreaScan():
+    #@staticmethod
+    def test_AreaScanner_SloppyAreaScan(self):
 
         usedRegions = [((0.5,0.5),(2,2))]
         usedRegions = []
@@ -160,101 +159,20 @@ class AreaScannerMethodsTest(unittest.TestCase):
         a3 = AreaScanner.sloppy_area_scan(wr3, usedRegions)
         a4 = AreaScanner.sloppy_area_scan(wr4, usedRegions)
 
+        self.assertAlmostEqual(a1, 0.24500000000000013)
+        self.assertAlmostEqual(a2, 2.980000000000002)
+        self.assertAlmostEqual(a3, 6.250000000000021)
+        self.assertAlmostEqual(a4, 0.2500000000000002)
+
+        """
         print("region {} :\tarea {}".format(wr1,a1))
         print("region {} :\tarea {}".format(wr2,a2))
         print("region {} :\tarea {}".format(wr3,a3))
         print("region {} :\tarea {}".format(wr4,a4))
-
-        ## assert below
-        """
-area 0.24500000000000013
-region ((0, 0.5), (2, 2)) :	area 2.980000000000002
-region ((0.5, 0.5), (3, 3)) :	area 6.250000000000021
-region ((2.0, 0.5), (2.1, 3)) :	area 0.2500000000000002
         """
 
-    """
-    @staticmethod
-    def test_AreaScanner_GetBestRegionGivenCoordinates():
-##     def get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2)):
-        gameboardDim = (3,2)
-        ur1 = ((0.75,1.25),(1.25,1.75))
-        ur2 = ((0,0),(0.5,0.5))
-        usedRegions = [ur1,ur2]
-
-        coord = (0.5001,0.5001)
-
-        ## right-angle scans for each
-        lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "left", "up")
-        ld = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "left", "down")
-        ru = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "up")
-        rd = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "down")
-        print("LU:\t", lu)
-        print("LD:\t", ld)
-        print("RU:\t", ru)
-        print("RD:\t", rd)
-
-        # get areas for each
-
-
-        #print("COORD:\t", AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions))
-
-
-
-        # try area-scanning
-
-        as1 = AreaScanner.sloppy_area_scan(lu, usedRegions)
-        print("lu area:\t", as1)
-
-
-        as1 = AreaScanner.sloppy_area_scan(ld, usedRegions)
-        print("ld area:\t", as1)
-
-
-        #print("ru:\t", ru)
-
-        ##r1 = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-1))
-        ##print("r1 :\t{}".format(r1))
-
-
-        c2 = (0,1.25001)
-        r2 = AreaScanner.get_best_region_given_coordinates(c2, gameboardDim, ur, increment = 10**(-2))
-        print("r2 :\t{}".format(r2))
-
-    """
-
-
-    ## TODO : make assertions for below
-    """
-    @staticmethod
-    def test_AreaScanner_SloppyAreaScan2():
-        gameboardDim = (3,2)
-        ##ur1 = ((0.75,1.25),(1.25,1.75))
-        ur2 = ((0,0),(0.5,0.5))
-        ##usedRegions = [ur1,ur2]
-        usedRegions = [ur2]
-
-        wantedRegion = ((0,0), (0.5,0.5))
-        q = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2))
-        print("q :\t",q)
-
-        wantedRegion = ((0,0), (0.6,0.6))
-        q = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2))
-        print("q :\t",q)
-
-        wantedRegion = ((0,0), (3,2))
-        q = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2))
-        print("q :\t",q)
-
-
-        usedRegions = [ur2, ((2,1), (3,2))]
-        wantedRegion = ((0,0), (3,2))
-        q = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2))
-        print("q :\t",q)
-    """
-
-    @staticmethod
-    def test_AreaScanner_GetBestRegionGivenCoordinates():
+    #@staticmethod
+    def test_AreaScanner_GetBestRegionGivenCoordinates(self):
 
         gameboardDim = (3,2)
         ##ur1 = ((0.75,1.25),(1.25,1.75))
@@ -263,14 +181,66 @@ region ((2.0, 0.5), (2.1, 3)) :	area 0.2500000000000002
         coord = (0.51,0.51)
 
         q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
-        print("q1:\n",q)
+        ##print("q1:\n",q)
+        self.assertTrue(((0.51, 0.51), (3, 2.0009999999999644)) == q, "incorrect q1 : {}".format(q))
 
         coord = (2,2)
         q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
-        print("q2:\n",q)
+        ##print("q2:\n",q)
+        self.assertTrue(((0, 0), (2, 2)) == q, "incorrect q2 : {}".format(q))
 
+        ## test bottom right corner
+        coord = (2,0)
+        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        #print("q3:\n",q)
+        self.assertTrue(((0.5000000000000356, 0), (2, 2)) == q, "incorrect q3 : {}".format(q))
 
+        coord = (0,0)
+        x, q = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        self.assertTrue(False == q, "incorrect q3 : {}".format(q))
 
+    ##@staticmethod
+    def test_AreaScanner_GetBestRegionGivenWantedDimensions(self):
+        ##def get_best_region_fit_given_wanted_dimensions(coord, gameboardDim, wantedDimensions, usedRegions, increment = 10**(-2)):
+        gameboardDim = (3,3)
+        ur2 = ((0,0),(1,1))
+        ur = [ur2]
+
+        wantedDimensions = (1,1)
+        c1 = (1.01,1.01)
+        r, _ = AreaScanner.get_best_region_fit_given_wanted_dimensions(c1, gameboardDim, wantedDimensions, ur)
+        #print("region for {} of {} :\n{}".format(c1, wantedDimensions, r))
+        self.assertAlmostEqual(((0.010000000000000009, 1.01), (1.01, 2.01099999999989)), r)
+
+        wantedDimensions = (2.5,2.5)
+        c1 = (1.01,1.01)
+        r, _ = AreaScanner.get_best_region_fit_given_wanted_dimensions(c1, gameboardDim, wantedDimensions, ur)
+        #print("region for {} of {} :\n{}".format(c1, wantedDimensions, r))
+        self.assertAlmostEqual(((1.01, 1.01), (3, 3)), r)
+
+        wantedDimensions = (1.5,1.5)
+        c1 = (1.01,1.01)
+        r, _ = AreaScanner.get_best_region_fit_given_wanted_dimensions(c1, gameboardDim, wantedDimensions, ur)
+        #print("region for {} of {} :\n{}".format(c1, wantedDimensions, r))
+        self.assertAlmostEqual(((1.01, 1.01), (2.51, 2.5100000000000566)), r)
+
+        return -1
+
+    '''
+    description:
+    - for tuples
+    '''
+    @staticmethod
+    def is_equal_rounded(t1, t2):
+
+        e = 10 ** (-2)
+        d1, d2 = abs(t2[0] - t1[0]), abs(t2[1] - t1[1])
+
+        ##print("t1 {}\tt2 {}".format(t1,t2))
+
+        if d1 >= e or d2 >= e:
+            return False
+        return True
 
 def t():
     #AreaScannerMethodsTest.test_AreaScanner_SloppyAreaScan()
@@ -279,9 +249,10 @@ def t():
     #AreaScannerMethodsTest.test_AreaScanner_t2()
     #AreaScannerMethodsTest.h()
     #AreaScannerMethodsTest.test_AreaScanner_SloppyAreaScan2()
-    AreaScannerMethodsTest.test_AreaScanner_GetBestRegionGivenCoordinates()
+    #AreaScannerMethodsTest.test_AreaScanner_GetBestRegionGivenCoordinates()
+    #AreaScannerMethodsTest.test_AreaScanner_GetBestRegionGivenWantedDimensions()
     return
 
 if __name__ == "__main__":
-    t()
-    #unittest.main()
+    #t()
+    unittest.main()

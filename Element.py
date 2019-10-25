@@ -25,6 +25,10 @@ class Element:
         else:
             self.wordCount = len(self.language.language[0] | self.language.language[1])
 
+    def get_alignments():
+        return -1
+
+
     ################## START : language modification methods
     '''
     description:
@@ -62,7 +66,7 @@ class Element:
     -
 
     arguments:
-    - otherElement := 
+    - otherElement :=
     - mateDetails := TODO
 
     return:

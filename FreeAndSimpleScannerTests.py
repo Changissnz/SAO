@@ -247,7 +247,6 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         print("reg4:\t",reg4)
 
-
     @staticmethod
     def is_equal_rounded(t1, t2):
 
@@ -265,7 +264,7 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
 #----------------------------------------
 
 def t():
-    FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
+    #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
     #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_RightAngleScanFromCoordinate()
     #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinate()
     #FreeAndSimpleScannerMethodsTest.test_FreeAndSimpleScanner_LineScanFromCoordinateForExtreme()

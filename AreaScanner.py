@@ -194,6 +194,9 @@ class AreaScanner:
     '''
     @staticmethod
     def sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2)):
+        ##print("X")
+        ##("f", FreeAndSimpleScanner)
+        if wantedRegion == None: return False ##### ?? TODO
         assert FreeAndSimpleScanner.is_proper_region(wantedRegion) is True, "invalid region {}".format(wantedRegion)
         if FreeAndSimpleScanner.get_area_of_region(wantedRegion) == 0:
             return False
@@ -264,11 +267,14 @@ class AreaScanner:
         ru = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "up")
         rd = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, "right", "down")
 
+        ##
+        """
         print("lu:\t", lu)
         print("ld:\t", ld)
         print("ru:\t", ru)
         print("rd:\t", rd)
-
+        """
+        ##
 
         d = {}
         if lu != False:
@@ -281,8 +287,113 @@ class AreaScanner:
             d[rd] = AreaScanner.sloppy_area_scan(rd, usedRegions, increment = increment)
 
         # sort dictionary by
-
-        print("HERE:\t",d)
+        ##print("HERE:\t",d)
         d = sorted(d.items(), key=lambda kv: kv[1])
         #return d
+        return d[-1] if len(d) > 0 else False
+
+
+    ## TODO : untested
+    ## wacky function
+    '''
+    description:
+    - determines a best corner to fit `wantedDimensions` into `targetRegion` given `usedRegions`
+    - call this the `corner fit` algorithm.
+
+    arguments:
+    - wantedDimensions := (int,int)
+    - targetRegion := ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))
+    - gameboardDim := (int,int)
+    - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY))))
+
+    return:
+    -
+
+    '''
+    @staticmethod
+    def get_best_region_fit_given_target_region(wantedDimensions, targetRegion, gameboardDim, usedRegions):
+
+        ## wrong
+        assert wantedDimensions[0] <= gameboardDim[0] and wantedDimensions[1] <= gameboardDim[1], "invalid : wanted dimensions {} game dimensions {}".format(wantedDimensions, gameboardDim)
+
+        # gameboard dimensions for each must take into account wantedDimensions
+
+        # right up : bottom left corner of targetRegion
+        gd = (targetRegion[0], (targetRegion[0] + wantedDimensions[0],\
+            targetRegion[1] + wantedDimensions[1]))
+        ru = AreaScanner.get_best_region_given_coordinates(targetRegion[0], gd, usedRegions, increment = 10**(-2))
+
+        # right down : upper left corner of targetRegion
+        gd = ((targetRegion[0][0], targetRegion[1][1] - wantedDimensions[1]),\
+            (targetRegion[0][0] + wantedDimensions[0], targetRegion[1][1]))
+        rd = AreaScanner.get_best_region_given_coordinates((gd[0][0], gd[1][1]), gd, usedRegions, increment = 10**(-2))
+
+        # left up : bottom right corner of targetRegion
+        gd = ((targetRegion[1][0] - wantedDimensions[0], targetRegion[0][1]),\
+            (targetRegion[1][0], targetRegion[0][1] + wantedDimensions[1]))
+        lu = AreaScanner.get_best_region_given_coordinates((gd[1][0], gd[0][1]), gd, usedRegions, increment = 10**(-2))
+
+        # left down : upper right corner of targetRegion
+        gd = ((targetRegion[1][0] - wantedDimensions[0], targetRegion[1][1] - wantedDimensions[1]),\
+            targetRegion[1])
+        ld = AreaScanner.get_best_region_given_coordinates(gd[1], gd, usedRegions, increment = 10**(-2))
+
+        # sort for greatest area
+        d = {}
+        x = [ru,rd,lu,ld]
+        for x_ in x:
+            if x_[1] != False: d[x_[0]] = x_[1]
+        d = sorted(d.items(), key=lambda kv: kv[1])
+        return d[-1] if len(d) > 0 else False
+
+    # TODO : test this
+    @staticmethod
+    def calibrate_wanted_region_given_gameboard_dimensions(wantedRegion, gameboardDim):
+        new = [list(wantedRegion[0]), list(wantedRegion[1])]
+        if wantedRegion[0][0] < 0:
+            new[0][0] = 0
+        if wantedRegion[0][1] < 0:
+            new[0][1] = 0
+        if wantedRegion[1][0] > gameboardDim[0]:
+            new[1][0] = gameboardDim[0]
+        if wantedRegion[1][1] > gameboardDim[1]:
+            new[1][1] = gameboardDim[1]
+        return new
+
+
+    """
+    description:
+    -
+    """
+    @staticmethod
+    def get_best_region_fit_given_wanted_dimensions(coord, gameboardDim, wantedDimensions, usedRegions, increment = 10**(-2)):
+        assert wantedDimensions[0] <= gameboardDim[0] and wantedDimensions[1] <= gameboardDim[1], "invalid : wanted dimensions {} game dimensions {}".format(wantedDimensions, gameboardDim)
+
+        # right up : coord is (minX, minY)
+        gd =  (coord, (coord[0] + wantedDimensions[0], coord[1] + wantedDimensions[1]))
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        ru = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+
+        # right down : coord[0] is minX
+        gd =  ((coord[0], coord[1] - wantedDimensions[1]), (coord[0] + wantedDimensions[0], coord[1]))
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        rd = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+
+        # left up : coord is bottom right
+        gd = ((coord[0] - wantedDimensions[0], coord[1]), (coord[0], coord[1] + wantedDimensions[1]))
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        lu = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+
+        # left down : coord is top right
+        gd = ((coord[0] - wantedDimensions[0], coord[1] - wantedDimensions[1]), coord)
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        ld = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+
+        # sort for greatest area
+        d = {}
+        x = [ru,rd,lu,ld]
+        for x_ in x:
+
+            if x_ != False: d[x_[0]] = x_[1]
+        d = sorted(d.items(), key=lambda kv: kv[1])
         return d[-1] if len(d) > 0 else False

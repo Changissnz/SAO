@@ -1,6 +1,14 @@
 from GameBoardHandler import *
 import unittest
 
+## TODO : methods that need to be tested.
+"""
+assign_elements_to_regions_using_info_by_swiss_cheese(elementInfo, gameboardDim, numConfigAttempts = 5)
+assign_helper(elementInfo, gameboardDim, numRandomPoints = 1000)
+
+"""
+
+
 class GameBoardHandlerMethodsTests(unittest.TestCase):
 
     '''
@@ -48,5 +56,17 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         for q_ in q:
             self.assertTrue(q_[0] * q_[1] == 1000, "want 1000 got {}".format(q_[0] * q_[1]))
 
+    #######
+    def test_GameBoardHandler_GetConfigTmpFunc(self):
+        e1 = [(0, 1), (1, 2)]
+        gameboardDim = (3,3)
+
+        q = GameBoardHandler.get_config_tmp_func(e1, gameboardDim, numRandomPoints = 10)
+
+        self.assertAlmostEqual(q[1], 2.4136248555350903e-13)
+        print("here :\n\n", q)
+
 if __name__ == '__main__':
+    #GameBoardHandlerMethodsTests.test_GameBoardHandler_AssignHelper()
+    ##GameBoardHandlerMethodsTests.test_GameBoardHandler_AssignElementsToRegionsUsingInfoBySwissCheese()
     unittest.main()
