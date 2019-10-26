@@ -48,10 +48,10 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
 
 
         # test downwards
-        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_rounded(diag1D, r1D))
-        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_rounded(diag1U, r1U))
-        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_rounded(diag2D, r2D))
-        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_rounded(diag2U, r2U))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(diag1D, r1D))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(diag1U, r1U))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(diag2D, r2D))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(diag2U, r2U))
 
     @staticmethod
     def Sample_Args():
@@ -155,6 +155,7 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         self.assertTrue(abs(q2[0] - 1.5) <= 9/1000 and q1[1] == 1.5, "wrong q2")
         self.assertTrue(abs(q3[0] - 3) <= 9/1000 and q1[1] == 1.5, "wrong q3")
 
+    """
     def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate2(self):
         gameboardDim = (3,2)
         ##ur1 = ((0.75,1.25),(1.25,1.75))
@@ -169,67 +170,82 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         ## left, down
         dx, dy = "left", "down"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        self.assertTrue(reg == ((0, 0), (0.51, 0.51)), "reg ld wrong {}".format(reg))
+        ##print("REG :\t", reg)
+        #   check [0] and [1]
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[0], (0,0)), "ld [0] error")
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[1], (0.51,0.51)), "ld [1] error")
 
         ## left, up
         dx, dy = "left", "up"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        self.assertTrue(reg == ((0, 0.51), (0.51, 2)), "reg lu wrong {}".format(reg))
-        print("reg :\t", reg)
-
+        ##print("REG :\t", reg)
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[0], (0, 0.51)), "lu [0] error")
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[1], (0.51, 2)), "lu [1] error")
 
         ## right, down
         dx, dy = "right", "down"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        print("reg rd :\t",reg)
-        self.assertTrue(reg == ((0.51, 0), (3, 0.51)), "reg rd wrong {}".format(reg))
+        #print("reg rd :\t",reg)
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[0], (0.51, 0)), "rd [0] error")
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[1], (3, 0.51)), "rd [1] error")
+
 
         ## right, up
         dx, dy = "right", "up"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         ##print("reg ru :\t",reg)
-        self.assertTrue(reg == ((0.51, 0.51), (3, 2)), "reg ru wrong {}".format(reg))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[0], (0.51, 0.51)), "ru [0] error")
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(reg[1], (3, 2)), "ru [1] error")
+
 
         ##### try with coord == (0.5,0.5)
         coord = (0.5,0.5)
-
         dx, dy = "left", "down"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        self.assertTrue(reg == ((0.5, 0.5), (0.5, 0.5)), "#2 reg ld wrong {}".format(reg))
+        print("HERE :\t", reg)
+
+        self.assertAlmostEqual(reg, ((0.5, 0.5), (0.5, 0.5)))#, "#2 reg ld wrong {}".format(reg))
         ##print("reg x:\t", reg)
+    """
 
 
-    @staticmethod
-    def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate():
+    #@staticmethod
+    def test_FreeAndSimpleScanner_RightAngleScanFromCoordinate(self):
 
         gameboardDim = (3,2)
         ur1 = ((0.75,1.25),(1.25,1.75))
         ur2 = ((0,0),(0.5,0.5))
         usedRegions = [ur1,ur2]
 
-        ##coord = (0.5001,0.5001)
+        coord = (0.5001,0.5001)
         coord = (1.5,1.5)
         dx, dy = "right", "up"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        print("reg:\t",reg)
-        # assert
+        self.assertAlmostEqual(reg, ((1.5, 1.5), (2.99700000000002, 1.997999999999982)))
+
         ## ((0.5001, 0.5001), (3, 2))
+        ##self.assertAlmostEqual(reg, ((0.5001, 0.5001), (3, 2)))
 
         dx, dy = "right", "down"
         reg2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        print("reg2:\t",reg2)
+        ##print("reg2:\t",reg2)
+        self.assertAlmostEqual(reg2, ((1.5, 0.003000000000017133), (2.99700000000002, 1.5)))
 
         dx, dy = "left", "up"
         reg3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        print("reg3:\t",reg3)
+        ##print("reg3:\t",reg3)
+        self.assertAlmostEqual(reg3, ((1.251000000000009, 1.5), (1.5, 1.997999999999982)))
 
         dx, dy = "left", "down"
         reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        print("reg4:\t",reg4)
+        ##print("reg4:\t",reg4)
+        self.assertAlmostEqual(reg4, ((1.251000000000009, 0.003000000000017133), (1.5, 1.5)))
 
         coord = (0.5,0.5)
         dx, dy = "right", "up"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
+        print("reg :\t", reg)
+        self.assertAlmostEqual(reg, ((0.5, 0.5), (0.5, 0.5)))
 
         # assert
         ## ((0.5001, 0.5001), (3, 2))
@@ -237,20 +253,24 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         dx, dy = "right", "down"
         reg2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         print("reg2:\t",reg2)
+        self.assertAlmostEqual(reg2, ((0.5, 0.5), (0.5, 0.5)))
 
 
         dx, dy = "left", "up"
         reg3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         print("reg3:\t",reg3)
+        self.assertAlmostEqual(reg3, ((0.5, 0.5), (0.5, 0.5)))
 
         dx, dy = "left", "down"
         reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         print("reg4:\t",reg4)
+        self.assertAlmostEqual(reg4, ((0.5, 0.5), (0.5, 0.5)))
+
 
     @staticmethod
-    def is_equal_rounded(t1, t2):
+    def is_equal_tuplepair_rounded(t1, t2):
 
-        e = 10 ** (-5)
+        e = 10 ** (-2)
         d1, d2 = abs(t2[0] - t1[0]), abs(t2[1] - t1[1])
 
         print("t1 {}\tt2 {}".format(t1,t2))
@@ -274,4 +294,4 @@ def t():
 
 if __name__ == "__main__":
     unittest.main()
-    #t()
+    t()

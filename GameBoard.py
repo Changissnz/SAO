@@ -16,13 +16,12 @@ class GameBoard:
     - languageInfo := int|list(`languages`)
     - dimensions := (int,int)
     """
-    def __init__(self, languageInfo, dimensions):
-        assert len(languageInfo) <= 52, "cannot operate on more than 52 elements"
+    def __init__(self, languageInfo, dimensions, maxNumLanguages = 52):
         self.dimensions = dimensions
         self.area = self.dimensions[0] * self.dimensions[1]
         self.wordCoordinates = {} ## these are not used for Shame And Obedience
         self.centroidCoordinates = None ## these are not used for Shame And Obedience
-        self.set_languages(languageInfo)
+        self.set_languages(languageInfo, maxNumLanguages = maxNumLanguages)
         self.get_element_stats()
 
         self.config, self.configAreaDiff = None, None
@@ -68,11 +67,16 @@ class GameBoard:
     arguments:
     - languageInfo := int|list(`languages`)
     '''
-    def set_languages(self, languageInfo):
+    def set_languages(self, languageInfo, maxNumLanguages):
         if type(languageInfo) is int:
+            assert languageInfo <= maxNumLanguages, "cannot operate on more than {} elements".format(maxNumLanguages)
             languages = LanguageMaker.get_languages(n = languageInfo, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
         elif type(languageInfo) is list: # list of languages
+            assert len(languageInfo) <= maxNumLanguages, "cannot operate on more than {} elements".format(maxNumLanguages)
             languages = languageInfo
+        else:
+            raise IOError("invalid languageInfo {}".format(languageInfo))
+
 
         # make colors for languages
         colors = GameBoard.generate_colors(len(languages))
@@ -144,7 +148,7 @@ class GameBoard:
             q = get_element_dim_from_ratio(v)
             elementDim.append((k,q))
 
-        config, areaDiff = GameBoardHandler.get_config_tmp_func(elementDim, self.dimensions, numRandomPoints = 10) # try 10 ** 5 next
+        config, areaDiff = GameBoardHandler.get_config_small_brute(elementDim, self.dimensions, numRandomPoints = 10) # try 10 ** 5 next
         if not GameBoardHandler.is_valid_config(config):
             return GameBoardHandler.is_valid_config(config)
 

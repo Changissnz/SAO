@@ -266,10 +266,20 @@ class FreeAndSimpleScanner:
     """
     @staticmethod
     def on_border_during_scan_event(coord, targetRegion, direction):
-        if direction == "left" and coord[0] <= targetRegion[0][0]: return True
-        if direction == "right" and coord[0] >= targetRegion[1][0]: return True
-        if direction == "up" and coord[1] >= targetRegion[1][1]: return True
-        if direction == "down" and coord[1] <= targetRegion[0][1]: return True
+        if direction == "left" and (coord[0] <= targetRegion[0][0] or\
+            round(abs(coord[0] - targetRegion[0][0]), 2) == 0): return True
+
+        if direction == "right" and (coord[0] >= targetRegion[1][0] or\
+            round(abs(coord[0] - targetRegion[1][0]), 2) == 0):
+            #print("TARGET :\t", targetRegion, "\tcoord :\t", coord)
+            return True
+
+        if direction == "up" and (coord[1] >= targetRegion[1][1] or\
+            round(abs(coord[1] - targetRegion[1][1]), 2) == 0): return True
+
+        if direction == "down" and (coord[1] < targetRegion[0][1] or \
+            round(abs(coord[1] - targetRegion[0][1]), 2) == 0): return True
+
         return False
 
 
@@ -355,17 +365,29 @@ class FreeAndSimpleScanner:
             increment = -1 * increment
 
         coord_ = coord
+        ##print("GD :\t", gameboardDim)
         incrementos = FreeAndSimpleScanner.get_increment(gameboardDim, direction, increment)
         tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
         nextCoord = None
+
+
+        #### TODO
+        #### ATTENTION : there is a possible infinite loop here
+        ####                below is a temporary patch
+        stall = 0
+        maxStall = 10
+
+
         while clause(coord):
             coord_ = coord
+            ##print("direction :\t", direction)
+            ##print("tr :\t", tr)
             if FreeAndSimpleScanner.on_border_during_scan_event(coord_, tr, direction):
+                ##print("YES")
                 nextCoord = False
                 break
             coord = incrementos(coord)
-            ##print("free coord {} :\t{}".format(coord, FreeAndSimpleScanner.is_coordinate_free(coord, usedRegions)))
-            ##print("current coord :\t", coord)
+            ##print("bug here :\t{}\tgameboard dim :\t{}".format(coord, gameboardDim))
         if nextCoord is not False: nextCoord = coord
         return coord_, nextCoord
 
@@ -380,16 +402,19 @@ class FreeAndSimpleScanner:
     - usedRegions := list(((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))
     - angleDirectionX := str, left|right
     - angleDirectionY := str, up|down
+    - calibrateMode := approximate|square
 
     return:
     - ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))|False
     '''
     @staticmethod
-    def right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, angleDirectionX, angleDirectionY):
+    def right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, angleDirectionX, angleDirectionY, calibrateMode = "approximate"):
 
         assert angleDirectionX in {"left", "right"} and angleDirectionY in \
             {"up", "down"}, "invalid angle directions ({},{})".format(angleDirectionX, angleDirectionY)
 
+
+        ##print("GAMEBOARD DIM:\t", gameboardDim)
         # get max/min values
         coordForX, res = FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
             coord, gameboardDim, usedRegions, "free", angleDirectionX, increment = "auto")
@@ -397,26 +422,18 @@ class FreeAndSimpleScanner:
         coordForY, res2 =  FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
             coord, gameboardDim, usedRegions, "free", angleDirectionY, increment = "auto")
 
-        region = (coord, (coordForX[0], coordForY[1]))
+        ##print("coordX : {}\tcoordY : {}".format(coordForX, coordForY))
 
         # determine left bottom corner and right top corner
-        if angleDirectionY == "up":
-            if angleDirectionX == "left":
-                s = coordForX
-                e = coordForY
-            else:
-                s = coord
-                e = (coordForX[0],coordForY[1])
-        else:
-            if angleDirectionX == "right":
-                minX = coord[0]
-                e = (coordForX[0], coord[1])
-            else:
-                minX = coordForX[0]
-                e = coord
-            s = (minX,coordForY[1])
+        xMin, yMin = min(coordForX[0], coord[0]), min(coordForY[1], coord[1])
+        xMax, yMax =  max(coordForX[0], coord[0]), max(coordForY[1], coord[1])
 
-        return (s,e)
+        here = ((xMin, yMin), (xMax, yMax))
+        ##print("XXXX :\t" , here)
+        if calibrateMode == "square":
+            ##print("HEREXXXX:\t", here)
+            return AreaScanner.calibrate_region_into_square(here)
+        return here
 
     ############# START : scanning algorithms
 
@@ -444,33 +461,6 @@ class FreeAndSimpleScanner:
         else:
             pass
         return ((startX, startY),(endX,endY)) if startX is not None else None
-
-
-
-
-
-
-
-
-    """
-    @staticmethod
-    def scan_by_swiss_cheese_for_fit(gameboardDim, usedRegions, wantedArea, numberOfAttempts = "auto", n = "auto"):
-        if numberOfAttempts == "auto": numberOfAttempts = 5
-
-        if n == "auto":
-            n = FreeAndSimpleScanner.get_area_of_region(((0,0),gameboardDim)) * 2000
-        else:
-            assert numberOfAttempts * n <= 10 ** 6, "number of test points {} cannot exceed 1000000".format(numberOfAttempts * n)
-
-        # call scan_by_swiss_cheese_for_fit for `numberOfAttempts` times, each time trying n points
-        # for a best fit
-    """
-
-    @staticmethod
-    def scan(gameboardDim, usedRegions, mode = "swiss-cheesed"):
-
-        return -1
-
 
     ############# END : scanning algorithms
 
@@ -708,7 +698,7 @@ class AreaScanner:
 
             ls1 = AreaScanner.scan_collect_free_lineset(startCoord, wantedRegion, usedRegions,\
                 direction = "right", increment = 10 **(-3))
-            #print("free ls:\t",ls1)
+            ##print("free ls:\t",ls1)
 
             ##allLineSets.append(ls1)
             if ls1 != None and ls2 != None:
@@ -716,8 +706,11 @@ class AreaScanner:
                 a = get_area_from_horizontal_line_segments(coex, increment)
                 totalArea += a
             startCoord = incrementos(startCoord)
+            ##print("A NOW :\t", totalArea)
             #print("SC:\t",startCoord)
         return totalArea##, ls1
+
+        ru = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
 
     '''
     description:
@@ -734,7 +727,7 @@ class AreaScanner:
         if FreeAndSimpleScanner.get_area_of_region(tr) == 0:
             return False
 
-        ##print("YES")
+        ##print("USED:\t", usedRegions)
 
 
         # get 4 regions
@@ -751,19 +744,30 @@ class AreaScanner:
         print("rd:\t", rd)
         """
         ##
-
+        ##print("USED R :\t", usedRegions)
         d = {}
         if lu != False:
-            d[lu] = AreaScanner.sloppy_area_scan(lu, usedRegions, increment = increment)
+            a = AreaScanner.sloppy_area_scan(lu, usedRegions, increment = increment)
+            if a != False:
+                d[lu] = a
         if ld != False:
-            d[ld] = AreaScanner.sloppy_area_scan(ld, usedRegions, increment = increment)
+            a = AreaScanner.sloppy_area_scan(ld, usedRegions, increment = increment)
+            if a != False:
+                d[ld] = a
         if ru != False:
-            d[ru] = AreaScanner.sloppy_area_scan(ru, usedRegions, increment = increment)
+            ##print("RU :\t", ru, "\tusedR :\t", usedRegions)
+            a = AreaScanner.sloppy_area_scan(ru, [], increment = increment)
+            ##print("HERE A:\t", a)
+            if a != False:
+                d[ru] = a
+
         if rd !=False:
-            d[rd] = AreaScanner.sloppy_area_scan(rd, usedRegions, increment = increment)
+            a = AreaScanner.sloppy_area_scan(rd, usedRegions, increment = increment)
+            if a != False:
+                d[rd] = a
 
         # sort dictionary by
-        ##print("HERE:\t",d)
+        ##print("HERE D:\t",d)
         d = sorted(d.items(), key=lambda kv: kv[1])
         #return d
         return d[-1] if len(d) > 0 else False
@@ -798,6 +802,7 @@ class AreaScanner:
         gd = (targetRegion[0], (targetRegion[0] + wantedDimensions[0],\
             targetRegion[1] + wantedDimensions[1]))
         ru = AreaScanner.get_best_region_given_coordinates(targetRegion[0], gd, usedRegions, increment = 10**(-2))
+        print("ONE :\t", ru)
 
         # right down : upper left corner of targetRegion
         gd = ((targetRegion[0][0], targetRegion[1][1] - wantedDimensions[1]),\
@@ -822,63 +827,152 @@ class AreaScanner:
         d = sorted(d.items(), key=lambda kv: kv[1])
         return d[-1] if len(d) > 0 else False
 
-    # TODO : test this
+    '''
+    description:
+    - calibrates region into a square starting from bottom-left
+
+    arguments:
+    - new := `region`
+
+    return:
+    - `region`
+    '''
     @staticmethod
-    def calibrate_wanted_region_given_gameboard_dimensions(wantedRegion, gameboardDim):
-        new = [list(wantedRegion[0]), list(wantedRegion[1])]
-        if wantedRegion[0][0] < 0:
-            new[0][0] = 0
-        if wantedRegion[0][1] < 0:
-            new[0][1] = 0
-        if wantedRegion[1][0] > gameboardDim[0]:
-            new[1][0] = gameboardDim[0]
-        if wantedRegion[1][1] > gameboardDim[1]:
-            new[1][1] = gameboardDim[1]
-        return (tuple(new[0]), tuple(new[1]))
+    def calibrate_region_into_square(new):
+        d1, d2 = new[1][0] - new[0][0] , new[1][1] - new[0][1]
+        if round(abs(d1 -d2), 0) != 0:
+            m = min(d1, d2)
+            new_ = (tuple(new[0]), (new[0][0] + m, new[0][1] + m))
+            return new_
+        return new
 
-
+    # TODO : test this
     """
     description:
-    -
+    - calibrates a wantedRegion so that it stays inside
+
+    arguments:
+    - wantedRegion := ((int,int),(int,int))
+    - gameboardDim := (int,int)
+    - calibrateMode := `square`|`approximate`
+
+    return:
+    - `region`
     """
     @staticmethod
-    def get_best_region_fit_given_wanted_dimensions(coord, gameboardDim, wantedDimensions, usedRegions, increment = 10**(-2)):
+    def calibrate_wanted_region_given_gameboard_dimensions(wantedRegion, gameboardDim, calibrateMode = "approximate"):
+        assert calibrateMode in {"approximate", "square"}, "invalid calibrateMode {}".format(calibrateMode)
+        new = [list(wantedRegion[0]), list(wantedRegion[1])]
+
+
+        q = []
+        if wantedRegion[0][0] < 0:
+            new[0][0] = 0
+            if calibrateMode == "square":
+                diff = wantedRegion[1][0] - wantedRegion[0][0]
+                newXDimMin = diff + wantedRegion[0][0]
+                q.append(newXDimMin)
+        if wantedRegion[0][1] < 0:
+            new[0][1] = 0
+            if calibrateMode == "square":
+                diff = wantedRegion[1][1] - wantedRegion[0][1]
+                newYDimMin = diff + wantedRegion[0][1]
+                q.append(newYDimMin)
+        if wantedRegion[1][0] > gameboardDim[0]:
+            new[1][0] = gameboardDim[0]
+            if calibrateMode == "square":
+                diff = wantedRegion[1][0] - gameboardDim[0]
+                newXDimMax = (wantedRegion[1][0] - wantedRegion[0][0]) - diff
+                q.append(newXDimMax)
+        if wantedRegion[1][1] > gameboardDim[1]:
+            new[1][1] = gameboardDim[1]
+            if calibrateMode == "square":
+                diff = wantedRegion[1][1] - gameboardDim[1]
+                newYDimMax = (wantedRegion[1][1] - wantedRegion[0][1]) - diff
+                q.append(newYDimMax)
+
+        ##print("calibrating :\t")
+        out = (tuple(new[0]), tuple(new[1]))
+
+        if calibrateMode == "approximate":
+            return out
+
+        if len(q) == 0:
+            return out
+
+        x = min(q)
+        out = (out[0], (out[0][0] + x, out[0][1] + x))
+        ##print("OUT:\t", out)
+        return out
+
+    # TODO : test this for square calibration
+    """
+    description:
+    - sometimes, there are no squares but still regions nonetheless
+
+
+    arguments:
+    - coord := (int,int)
+    - gameboardDim := (int,int)|((int,int),(int,int))
+    - wantedDimensions :=  (int,int)
+    - usedRegions := list(`region`)
+    - increment := float
+    - calibrateMode := approximate|square
+                approximate is if select region for check can be size other than wantedDimensions
+                exact is if select region for check has to be size wantedDimensions
+
+    return:
+    - (`region`, `approximate free area`)
+    """
+    @staticmethod
+    def get_best_region_fit_given_wanted_dimensions(coord, gameboardDim, wantedDimensions, usedRegions, increment = 10**(-1), calibrateMode = "approximate"):
         assert wantedDimensions[0] <= gameboardDim[0] and wantedDimensions[1] <= gameboardDim[1], "invalid : wanted dimensions {} game dimensions {}".format(wantedDimensions, gameboardDim)
+        assert wantedDimensions[0] > 0 and wantedDimensions[1] > 0, "invalid wantedDimensions {}".format(wantedDimensions)
+        ##print("wanted dim :\t", wantedDimensions)
 
         # right up : coord is (minX, minY)
         gd =  (coord, (coord[0] + wantedDimensions[0], coord[1] + wantedDimensions[1]))
-        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim, "square")
         ##print("ru :\t", gd)
-        ru = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+        ru = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
         ##print("ru2 :\t", ru)
 
         # right down : coord[0] is minX
         gd =  ((coord[0], coord[1] - wantedDimensions[1]), (coord[0] + wantedDimensions[0], coord[1]))
-        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim, "square")
         ##print("rd :\t", gd)
-        rd = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+        rd = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
 
         # left up : coord is bottom right
         gd = ((coord[0] - wantedDimensions[0], coord[1]), (coord[0], coord[1] + wantedDimensions[1]))
-        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim, "square")
         ##print("lu :\t", gd)
-        lu = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+        lu = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
 
         # left down : coord is top right
         gd = ((coord[0] - wantedDimensions[0], coord[1] - wantedDimensions[1]), coord)
-        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim)
+        ##print("before :\t", gd)
+        gd = AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(gd, gameboardDim, "square")
         ##print("ld :\t", gd)
-        ld = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = 10**(-2))
+        ld = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
 
         # sort for greatest area
         d = {}
         x = [ru,rd,lu,ld]
-        for x_ in x:
 
-            if x_ != False: d[x_[0]] = x_[1]
+        ##for x_ in x: print("here xxx :\t",x_)
+
+        ##print("HERE0:\t", x)
+
+        for x_ in x:
+            if x_ != False:
+                ##d[x_[0]] = FreeAndSimpleScanner.get_area_of_region(x_[0])
+                ##print("YES :\t", x_)
+                d[x_[0]] = x_[1]
+
+        ##print("D HERE :\t", d)
+
         d = sorted(d.items(), key=lambda kv: kv[1])
         x = d[-1] if len(d) > 0 else False
-
-        if x != False:
-            return (AreaScanner.calibrate_wanted_region_given_gameboard_dimensions(x[0], gameboardDim), x[1])
+        ##print("HERE :\t", x)
         return x

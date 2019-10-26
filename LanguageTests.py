@@ -26,7 +26,9 @@ class LanguageMethodsTest(unittest.TestCase):
         self.assertTrue(tm >= 0 and tm <= 1)
 
     def test_Language_MateLanguages(self):
-        x3 = LanguageMaker_GetLanguagesByContentSamples()
+
+        x3 = LanguageMaker.get_languages_by_content_standard([{"dog", "whale"}, {"cat", "rhino"}], outputForEach = list)
+
         l1, l2 = x3[0], x3[1] # get languages for (dog,whale), and (cat,rhino)
         # mate "rhino" : l2->l1
         ml = Language.mate_languages(l1, l2, (2,1), {"rhino"}, returnType = "lang+additions")
@@ -35,7 +37,7 @@ class LanguageMethodsTest(unittest.TestCase):
         cm = Language.get_cosine_similarity_measure_(ml[0][1], ml[1][1])
         self.assertTrue(cm >= 0.15)
 
-    def test_SelfReproduce():
+    def test_SelfReproduce(self):
     ##def self_reproduce(self, numberOfDescriptors):
         return -1
 

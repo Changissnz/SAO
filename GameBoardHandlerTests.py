@@ -1,5 +1,6 @@
 from GameBoardHandler import *
 import unittest
+from time import time
 
 ## TODO : methods that need to be tested.
 """
@@ -50,16 +51,58 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
             self.assertTrue(q_[0] * q_[1] == 1000, "want 1000 got {}".format(q_[0] * q_[1]))
 
     #######
-    def test_GameBoardHandler_GetConfigTmpFunc(self):
-        e1 = [(0, 1), (1, 2)]
-        gameboardDim = (3,3)
 
-        q = GameBoardHandler.get_config_tmp_func(e1, gameboardDim, numRandomPoints = 10)
+    #@staticmethod
+    def test_GameBoardHandler_GetBestConfigRegionUsingInspectionPoints_Accuracy(self):
 
-        self.assertAlmostEqual(q[1], 2.4136248555350903e-13)
-        print("here :\n\n", q)
+        gameboardDim = (8, 8)
+        wantedDim = (2,2)
+
+        # case 1
+        currentConfig = []
+        q = GameBoardHandler.get_best_config_region_using_inspection_points(\
+            gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = "auto")
+
+        self.assertTrue(q[1] < 0.05, "configuration not accurate")
+
+        # case 2
+        currentConfig = [((0,0), (2,2))]
+        q = GameBoardHandler.get_best_config_region_using_inspection_points(\
+            gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = "auto")
+
+        self.assertTrue(q[1] < 0.05, "configuration not accurate")
+
+    ##@staticmethod
+    def test_GameBoardHandler_GetBestConfigRegionUsingInspectionPoints_Accuracy(self):
+        gameboardDim = (8, 8)
+        wantedDim = (2,2)
+
+        # case 1
+        currentConfig = []
+        s = time()
+        q = GameBoardHandler.get_best_config_region_using_inspection_points(\
+            gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
+        rt = time() - s
+        print("time 1 :\t", rt)
+        self.assertTrue(rt < 50, "[1] could not get best config not fast enough : {}".format(rt))
+
+        # case 2
+
+        currentConfig = [((0,0), (2,2))]
+        s = time()
+        q = GameBoardHandler.get_best_config_region_using_inspection_points(\
+            gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
+        rt = time() - s
+        print("time 2 :\t", rt)
+        self.assertTrue(rt < 50, "[2] could not get best config not fast enough : {}".format(rt))
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
-    #GameBoardHandlerMethodsTests.test_GameBoardHandler_AssignHelper()
-    ##GameBoardHandlerMethodsTests.test_GameBoardHandler_AssignElementsToRegionsUsingInfoBySwissCheese()
+    #GameBoardHandlerMethodsTests.test_GameBoardHandler_GetBestConfigByRandomInspection_Accuracy()
     unittest.main()
