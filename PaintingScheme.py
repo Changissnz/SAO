@@ -8,7 +8,6 @@ from random import uniform, random
 from copy import deepcopy
 from PIL import Image
 
-from GameBoardHandler import *
 
 # TODO : assigning and updating centroids
 class PaintingScheme:
@@ -44,7 +43,7 @@ class PaintingScheme:
     -
     """
     @staticmethod
-    def paint_image_given_region_and_color(region, color, zheFile = "defaultPitcherOfEmotions.png"):
+    def paint_image_given_pixel_region_and_color(region, color, zheFile = "defaultPitcherOfEmotions.png"):
 
         # load image here
         try:
@@ -59,9 +58,25 @@ class PaintingScheme:
 
         while y <= region[1][1]:
             for x in range(region[0][0], region[1][0] + 1):
-                data[x,y] = color
+                try:
+                    data[x,y] = color
+                except: continue
             y += 1
         img.save(zheFile)
+
+    """
+    description:
+    ~
+    """
+    @staticmethod
+    def convert_region_to_pixel_region(region, gameboardDim, pixelDim):
+        rX, rY = pixelDim[0] / gameboardDim[0], pixelDim[1] / gameboardDim[1]
+        pixelRegion = [[rX * region[0][0], rY * region[0][1]], [rX * region[1][0], rY * region[1][1]]]
+        pixelRegion[0][0] = int(round(pixelRegion[0][0], 0))
+        pixelRegion[0][1] = int(round(pixelRegion[0][1], 0))
+        pixelRegion[1][0] = int(round(pixelRegion[1][0], 0))
+        pixelRegion[1][1] = int(round(pixelRegion[1][1], 0))
+        return (tuple(pixelRegion[0]), tuple(pixelRegion[1]))
 
     @staticmethod
     def paint_image_using_gameboard_info(gameboard):
@@ -85,3 +100,5 @@ class PaintingScheme:
     def populate_by_element_to_region_assignment(gameboard):
         # get centroid coordinates
         return -1
+
+## TODO : fix up assign square region 

@@ -8,6 +8,9 @@ from copy import deepcopy
 from FreeAndSimpleScanner import *
 from multiprocessing import Pool
 
+## TODO : bug in square calibration
+
+
 class GameBoardHandler:
 
     def __init__(self):
@@ -279,6 +282,7 @@ class GameBoardHandler:
         ##print("HERE2:\t", q)
         return q
 
+    ## TODO : there is a bug in `calibrate_region_into_square`
     @staticmethod
     def y(wantedDim, gameboardDim, usedRegions, calibrateMode, p):
         q = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim,\
@@ -288,6 +292,12 @@ class GameBoardHandler:
             return q
         if q[1] == False:
             return q[1]
+
+        ##print("IS SQUARE REGION :\t", FreeAndSimpleScanner.is_square_region(q[0]))
+        if calibrateMode == "square":
+            if not FreeAndSimpleScanner.is_square_region(q[0]):
+                ##print("NOT SQUARE")
+                return False
 
         x = abs(q[1] - (wantedDim[0] * wantedDim[1]))
         return q[0], x
@@ -396,13 +406,14 @@ class GameBoardHandler:
         p.join()
 
         # filter values by false
-        q = [r for r in q if r != False]
         ##print("Q:\t", q)
+
+        q = [r for r in q if r != False]
         if len(q) == 0:
             bestRegion, bestAreaDiff = None, None
         else:
-            d = sorted(q, key = lambda kv: kv[1])[-1]
-            ##print("D:\t",d)
+            d = sorted(q, key = lambda kv: kv[1])[0]
+            ##print("D here:\n{}\n\n".format(d))
             bestRegion, bestAreaDiff = d[0], d[1]
         return bestRegion, bestAreaDiff
 
@@ -430,17 +441,22 @@ class GameBoardHandler:
         currentAreaDiff = 0
 
         for k, v in elementInfo:
-            br, bad = GameBoardHandler.get_best_config_region_using_inspection_points(\
-                gameboardDim, v, currentConfig, numRandomPoints = numRandomPoints,\
-                calibrateMode = calibrateMode, cutOff = cutOff)
-            if br != None:
-                currentConfig.append(br)
-                configInfo.append((k, v, br, bad))
-                currentAreaDiff += bad
 
-            print("found region for {}".format(k))
+            q = 3
+            while q > 0:
+
+                br, bad = GameBoardHandler.get_best_config_region_using_inspection_points(\
+                    gameboardDim, v, currentConfig, numRandomPoints = numRandomPoints,\
+                    calibrateMode = calibrateMode, cutOff = cutOff)
+                if br != None:
+                    currentConfig.append(br)
+                    configInfo.append((k, v, br, bad))
+                    currentAreaDiff += bad
+                    print("found region for {} : {}".format(k, br))
+                    break
+
+                q -= 1
 
         return configInfo, currentAreaDiff
-
     ####### END : the assignment algorithm for elements in Shame And Obedience
     ########### END : code for assigning elements to regions here

@@ -1,10 +1,11 @@
 from Language import *
+from GameBoardHandler import * 
 
 class Element:
 
     def __init__(self, idn, language):
         self.idn = idn
-        self.language = language
+        self.language = language #Language(idn, languageContents)
         self.setInitial = False
         self.set_language_stats()
         self.prohibitedSpeech = {}
@@ -14,7 +15,7 @@ class Element:
     - calculates the size of centroid over its descriptor
     '''
     def centroid_to_descriptor_ratio(self):
-        return len(self.language[0]) / len(self.language[1])
+        return len(self.language.language[0]) / len(self.language.language[1])
 
     '''
     description:
@@ -22,7 +23,8 @@ class Element:
     '''
     def set_language_stats(self):
         assert self.setInitial != True, "cannot set language stats after initial"
-        print("HERE:\n{}\n".format(self.language.language[1]))
+        ##print("HERE0:\n{}\n".format(self.language.language))
+        ##print("HERE:\n{}\n".format(self.language.language[1]))
         self.descriptorCount = len(self.language.language[1])
 
         if type(self.language.language[1]) is list:

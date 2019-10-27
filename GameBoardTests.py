@@ -11,7 +11,8 @@ class GameBoardMethodsTest(unittest.TestCase):
         dim = (8,8)
         for i in range(5):
             languageInfo.append(Language.random(idn = i, mode = "const"))
-        return GameBoard(languageInfo, dim)
+        q = GameBoard(languageInfo, dim)
+        return q
         """
         # print out element info
         print("gb language count :\t", self.gb.elementLanguageCount)
@@ -50,6 +51,7 @@ class GameBoardMethodsTest(unittest.TestCase):
         self.assertTrue(rt < 60, msg = "too slow")
 
 
-
+"""
 if __name__ == "__main__":
     unittest.main()
+"""

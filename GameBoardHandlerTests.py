@@ -83,10 +83,25 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         q = GameBoardHandler.get_best_config_region_using_inspection_points(\
             gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
         rt = time() - s
+        print("Q:\t", q[0])
+        print("Q2:\t", q[1])
         print("time 1 :\t", rt)
         self.assertTrue(rt < 20, "[1] could not get best config not fast enough : {}".format(rt))
 
+        currentConfig.append(q[0])
+        s = time()
+        q = GameBoardHandler.get_best_config_region_using_inspection_points(\
+            gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
+        rt = time() - s
+        print("[1] Q:\t", q[0])
+        print("[1] Q2:\t", q[1])
+        print("time 1 :\t", rt)
+
+
+
+
         # case 2
+
 
         currentConfig = [((0,0), (2,2))]
         s = time()
@@ -96,6 +111,7 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         print("time 2 :\t", rt)
         print("q :\t", q)
         self.assertTrue(rt < 20, "[2] could not get best config not fast enough : {}".format(rt))
+        
 
 if __name__ == '__main__':
     #GameBoardHandlerMethodsTests.test_GameBoardHandler_GetBestConfigByRandomInspection_Accuracy()

@@ -2,6 +2,9 @@ from copy import deepcopy
 from functools import partial
 ##from AreaScanner import *
 
+## TODO : there is a bug in `calibrate_region_into_square`
+
+
 class FreeAndSimpleScanner:
 
     def __init__(self):
@@ -96,6 +99,15 @@ class FreeAndSimpleScanner:
         if not (r1[1][0] >= r2[0][0] and r1[1][0] <= r2[1][0]):
             return False
         if not (r1[1][1] >= r2[0][1] and r1[1][1] <= r2[1][1]):
+            return False
+        return True
+
+    @staticmethod
+    def is_square_region(region, rounding = 2):
+        m = round(region[1][0], rounding) - round(region[0][0], rounding)
+        n = round(region[1][1], rounding) - round(region[0][1], rounding)
+
+        if round(m, rounding) != round(n, rounding):
             return False
         return True
 
@@ -413,6 +425,8 @@ class FreeAndSimpleScanner:
         assert angleDirectionX in {"left", "right"} and angleDirectionY in \
             {"up", "down"}, "invalid angle directions ({},{})".format(angleDirectionX, angleDirectionY)
 
+        assert calibrateMode in {"approximate", "square"}, "invalid calibrateMode {}".format(calibrateMode)
+
 
         ##print("GAMEBOARD DIM:\t", gameboardDim)
         # get max/min values
@@ -422,12 +436,11 @@ class FreeAndSimpleScanner:
         coordForY, res2 =  FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
             coord, gameboardDim, usedRegions, "free", angleDirectionY, increment = increment)
 
-        ##print("coordX : {}\tcoordY : {}".format(coordForX, coordForY))
-
         # determine left bottom corner and right top corner
         xMin, yMin = min(coordForX[0], coord[0]), min(coordForY[1], coord[1])
         xMax, yMax =  max(coordForX[0], coord[0]), max(coordForY[1], coord[1])
 
+        ##print("coordX : {}\tcoordY : {}".format(coordForX, coordForY))
         here = ((xMin, yMin), (xMax, yMax))
         ##print("XXXX :\t" , here)
         if calibrateMode == "square":
@@ -742,7 +755,7 @@ class AreaScanner:
     - coord := (int,int), a free coordinate given `usedRegions`
     '''
     @staticmethod
-    def get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2)):
+    def get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "square"):
 
         tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
         ##print("TR:\t",tr)
@@ -752,10 +765,10 @@ class AreaScanner:
         ##print("USED:\t", usedRegions)
 
         # get 4 regions
-        lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "up")
-        ld = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "down")
-        ru = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "right", "up")
-        rd = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "right", "down")
+        lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "up", calibrateMode = calibrateMode)
+        ld = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "down", calibrateMode = calibrateMode)
+        ru = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "right", "up", calibrateMode = calibrateMode)
+        rd = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "right", "down", calibrateMode = calibrateMode)
 
         ##
         """
@@ -772,21 +785,26 @@ class AreaScanner:
             if a != False:
                 d[lu] = a
         if ld != False:
+            a = False
             a = AreaScanner.sloppy_area_scan(ld, usedRegions, increment = increment)
             if a != False:
                 d[ld] = a
         if ru != False:
             ##print("RU :\t", ru, "\tusedR :\t", usedRegions)
+            a = False
             a = AreaScanner.sloppy_area_scan(ru, [], increment = increment)
             ##print("HERE A:\t", a)
             if a != False:
                 d[ru] = a
 
         if rd !=False:
+            a = False
             a = AreaScanner.sloppy_area_scan(rd, usedRegions, increment = increment)
             if a != False:
                 d[rd] = a
 
+        ##print("DDDD :\t",d)
+        #print("HERE :\")
         # sort dictionary by
         d = sorted(d.items(), key=lambda kv: kv[1])
         return d[-1] if len(d) > 0 else False
@@ -820,7 +838,7 @@ class AreaScanner:
         gd = (targetRegion[0], (targetRegion[0] + wantedDimensions[0],\
             targetRegion[1] + wantedDimensions[1]))
         ru = AreaScanner.get_best_region_given_coordinates(targetRegion[0], gd, usedRegions, increment = 10**(-2))
-        print("ONE :\t", ru)
+        ##print("ONE :\t", ru)
 
         # right down : upper left corner of targetRegion
         gd = ((targetRegion[0][0], targetRegion[1][1] - wantedDimensions[1]),\

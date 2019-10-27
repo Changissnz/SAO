@@ -46,7 +46,7 @@ class ShameAndObedienceElement(Element):
     @staticmethod
     def get_element_descriptor_overlap_measures(e1, e2):
         # both languages must be same type
-        t1, t2 = LanguageMaker.get_standard_language_type(e1), LanguageMaker.get_standard_language_type(e2)
+        t1, t2 = LanguageMaker.get_standard_language_type(e1.language.language), LanguageMaker.get_standard_language_type(e2.language.language)
         assert t1 == t2, "incompatible languages!"
         if e1.descriptorCount == 0 or e2.descriptorCount == 0: return False # TODO remove this
 
@@ -98,23 +98,31 @@ class ShameAndObedienceElement(Element):
         overlapRatios = self.get_element_descriptor_overlaps(otherElements)
         self.colorTable = {self.classColor : 1}
         for i, v in enumerate(overlapRatios):
-            assert otherElements[i].location != None, "cannot operate on None location"
+            ##assert otherElements[i].location != None, "cannot operate on None location"
             self.colorTable[otherElements[i].classColor] = v
 
-    # TODO : test this 
-    def calculate_color_from_color_table(self, roundDecimalPlaces = 2):
+    # TODO : test this
+    @staticmethod
+    def calculate_color_by_color_table(colorTable, roundDecimalPlaces = 2):
         maxxy = 10 ** roundDecimalPlaces
         sequenceColors = []
         colorCounts = {}
-        for k, v in self.colorTable.items():
+        for k, v in colorTable.items():
             # perform rounding first
-            self.colorTable[k] = round(v, roundDecimalPlaces)
-            numColors = int(round(self.colorTable[k] * maxxy, 0))
+            colorTable[k] = round(v, roundDecimalPlaces)
+            numColors = int(round(colorTable[k] * maxxy, 0))
             # get sequence of colors
             sequenceColors += [k for i in range(numColors)]
 
         sequenceColors = np.array(sequenceColors)
-        return np.mean(sequenceColors, axis = 0)
+        q = np.asarray(np.mean(sequenceColors, axis = 0), dtype = int)
+        return tuple(q)
+
+    # TODO : test this
+    def update_color(self, otherElements, roundDecimalPlaces = 2):
+        self.update_element_color_info_from_descriptor_overlaps(otherElements)
+        self.currentColor = ShameAndObedienceElement.calculate_color_by_color_table(self.colorTable, roundDecimalPlaces)
+        return self.currentColor
 
     # shame is disjoint, obey is overlap
     def get_shame_obey_table(self):
@@ -134,7 +142,3 @@ class ShameAndObedienceElement(Element):
     """
     def is_mute(self, minSpeakingRatio):
         return -1
-
-
-def test_ShameAndObedienceElement_GetElementDescriptorOverlapMeasures():
-    return -1

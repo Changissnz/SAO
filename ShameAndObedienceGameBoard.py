@@ -9,6 +9,7 @@ this is where visualization of gameboard in Shame And Obedience goes.
 
 from GameBoard import *
 from PaintingScheme import *
+from FreeAndSimpleScanner import *
 
 class ShameAndObedienceGameBoard(GameBoard):
 
@@ -18,27 +19,36 @@ class ShameAndObedienceGameBoard(GameBoard):
         super().__init__(languageInfo, dimensions, maxNumLanguages)
         self.pixelRes = pixelRes
         self.set_area_change_update(areaChangeUpdate)
-
+        self.update_element_colors()
+        PaintingScheme.make_blanko(self.pixelRes)
     """
     description:
     - gets color for element based on its language stats
     - element stats cannot be none
     """
-    def get_element_colors(self):
-        return -1
-
+    def update_element_colors(self):
+        for k, v in self.elements.items():
+            q = deepcopy(self.elements)
+            del q[k]
+            q = [q_ for q_ in q.values()]
+            v.update_color(q)
+        return
 
     def set_area_change_update(self, areaChangeUpdate):
         assert areaChangeUpdate == "auto" or type(areaChangeUpdate) is float, "invalid areaChangeUpdate {}".format(areaChangeUpdate)
         self.areaChangeUpdate = self.area / 4 if areaChangeUpdate == "auto" else areaChangeUpdate
 
-    def paint_gameboard(self):
-        # get element stats
-        self.get_element_stats()
-        # assign elements to regions
-        self.assign_elements_to_region()
-        # get color for elements
-        return -1
+    def paint_element(self, elementIndex, zheFile = "defaultPitcherOfEmotions.png"):
+        q = self.elements[elementIndex]
+
+        if q.location != None:
+            x = PaintingScheme.convert_region_to_pixel_region(q.location, self.dimensions, self.pixelRes)
+            ##print("PAINTING :\t", x)
+            PaintingScheme.paint_image_given_pixel_region_and_color(x, q.currentColor, zheFile = zheFile)
+
+    def paint_elements(self):
+        for k in self.elements.keys():
+            self.paint_element(k)
 
     """
     description:
@@ -52,7 +62,7 @@ class ShameAndObedienceGameBoard(GameBoard):
     return:
     - bool
     """
-    # TODO : test this. 
+    # TODO : test this.
     def paint(self, regionAndColorPairs, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
         assert mode in {"clear first", None}
 
@@ -60,7 +70,7 @@ class ShameAndObedienceGameBoard(GameBoard):
             PaintingScheme.make_blanko(self.pixelRes, zheFile)
 
         for r, c in regionAndColorPairs:
-            PaintingScheme.paint_image_given_region_and_color(r, c, zheFile = zheFile)
+            PaintingScheme.paint_image_given_pixel_region_and_color(r, c, zheFile = zheFile)
         return True
 
     """
