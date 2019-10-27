@@ -1,5 +1,6 @@
 from GameBoard import *
 import unittest
+from time import time
 
 class GameBoardMethodsTest(unittest.TestCase):
 
@@ -37,13 +38,18 @@ class GameBoardMethodsTest(unittest.TestCase):
         self.gb = GameBoardMethodsTest.sample_gameboard2()
         return -1
 
-
     # TODO : test areaDiff
-    def test_GameBoard_AssignElementsToRegion(self):
-        ##self.setUp()
+    def test_GameBoard_AssignElementsToRegion_Time(self):
+        s = time()
         self.gb.assign_elements_to_region()
+        rt = time() - s
         print("config:\n{}\n".format(self.gb.config))
         print("areaDiff :\n{}\n".format(self.gb.configAreaDiff))
+        print("time :\t{}".format(rt))
+
+        self.assertTrue(rt < 60, msg = "too slow")
+
+
 
 if __name__ == "__main__":
     unittest.main()

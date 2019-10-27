@@ -23,6 +23,8 @@ class Element:
     def set_language_stats(self):
         assert self.setInitial != True, "cannot set language stats after initial"
 
+        self.descriptorCount = len(self.language.language[1])
+
         if type(self.language.language[1]) is list:
             self.wordCount = len(list(self.language.language[0]) + self.language.language[1])
         else:
@@ -45,6 +47,10 @@ class Element:
         centroidSize = len(list(filter(funk, self.language.language[0])))
         descriptorSize = len(list(filter(funk, self.language.language[1])))
         return centroidSize + descriptorSize
+
+    # TODO : future
+    def get_language_stats_unique_with_prohibition(self):
+        return -1
 
     '''
     description:

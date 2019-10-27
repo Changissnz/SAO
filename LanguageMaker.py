@@ -7,27 +7,6 @@ from string import punctuation
 from copy import deepcopy
 from collections import deque
 
-#-------------------------------------------
-#-------------------------------------------
-"""
-('diaphysis relating bone sulfa medicine like drug used also sulfadiazine veterinary putting interpretation wrong diaphysis relating bone good disconnected consisting small parts good putting interpretation wrong diaphysis relating bone diaphysis relating bone good putting interpretation wrong disconnected consisting small parts sulfa medicine like drug used also sulfadiazine veterinary sulfa medicine like drug used also sulfadiazine veterinary good good disconnected consisting small parts putting interpretation wrong disconnected consisting small parts sulfa medicine like drug used also sulfadiazine veterinary diaphysis relating bone disconnected consisting small parts disconnected consisting small parts good sulfa medicine like drug used also sulfadiazine veterinary diaphysis relating bone', 'dress garishly tastelessly leaf three shape lobes divided work caring sick injured infirm clearly able act intelligently mentally think confused clearly able act intelligently mentally think confused dress garishly tastelessly dress garishly tastelessly dress garishly tastelessly leaf three shape lobes divided dress garishly tastelessly work caring sick injured infirm work caring sick injured infirm clearly able act intelligently mentally think confused leaf three shape lobes divided clearly able act intelligently mentally think confused dress garishly tastelessly work caring sick injured infirm pays gaming table bets collects someone work caring sick injured infirm dress garishly tastelessly clearly able act intelligently mentally think confused')
-"""
-#-------------------------------------------
-
-## problem : encoding a bag-of-words
-"""
-popular approach is to use frequency measures (tf-idf for example)
-but since these are just bag-of-words, then have to find a way to `extract their meaning` first.
-
-`Tree-Algorithm`
-Take the following approach:
-- for each word w, get d = definition(w).
-- descriptorForWord = {d.split()}
-- for each relevant word r in definition, get that definition d1.
-- loop above steps until minimum number of descriptors is obtained for each Language
-"""
-#
-
 # NOTE : TODO
 """
 function
@@ -39,6 +18,7 @@ should be better.
 '''
 could add a `fetchByTopics` variable
 '''
+
 class LanguageMaker:
 
     def __init__(self, topics = None):
@@ -56,6 +36,11 @@ class LanguageMaker:
             return "ripple"
         else:
             raise ValueError("error here")
+
+    @staticmethod
+    def get_standard_language_type(languageContents):
+        assert LanguageMaker.get_language_type(languageContents) == "standard", "invalid language type!"
+        return "s" if type(languageContents) is set else "l"
 
     '''
     description:

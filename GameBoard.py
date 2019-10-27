@@ -5,7 +5,6 @@ from ShameAndObedienceElement import *
 from GameBoardHandler import *
 from math import sqrt
 
-# TODO : test below methods
 class GameBoard:
 
     """
@@ -23,8 +22,7 @@ class GameBoard:
         self.centroidCoordinates = None ## these are not used for Shame And Obedience
         self.set_languages(languageInfo, maxNumLanguages = maxNumLanguages)
         self.get_element_stats()
-
-        self.config, self.configAreaDiff = None, None
+        self.assign_elements_to_region()
 
     # TODO : test this.
     '''
@@ -113,7 +111,7 @@ class GameBoard:
     - averages values by sum from output of method above
 
     arguments:
-    - q := None|dict::(element stats)
+    - q := None|dict::(element stats literal counts)
 
     return:
     - dict(int : float)
@@ -130,7 +128,7 @@ class GameBoard:
 
     ################# START : methods below used to calculate the element-to-region assignment
 
-    # TODO : test this
+    # TODO : test this, make argument for alternative config alg.
     """
     description:
     - assigns elements to region after alreading setting element stats
@@ -146,12 +144,13 @@ class GameBoard:
         elementDim = []
         for k, v in self.elementLanguageRatio.items():
             q = get_element_dim_from_ratio(v)
-            elementDim.append((k,q))
+            elementDim.append((k,(q,q)))
 
-        config, areaDiff = GameBoardHandler.get_config_small_brute(elementDim, self.dimensions, numRandomPoints = 10) # try 10 ** 5 next
-        if not GameBoardHandler.is_valid_config(config):
-            return GameBoardHandler.is_valid_config(config)
+        config, areaDiff = GameBoardHandler.get_best_config_by_random_inspection(elementDim,\
+            self.dimensions)
 
+        if len(config) < len(self.elements):
+            return False
         return config, areaDiff
 
 

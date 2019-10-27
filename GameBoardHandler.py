@@ -249,12 +249,13 @@ class GameBoardHandler:
 
     return:
     - bool
-    """
+
     @staticmethod
     def is_valid_config(config):
         for c in config:
             if c == None: return False
         return True
+    """
 
     """
     description:
@@ -399,6 +400,7 @@ class GameBoardHandler:
                 currentConfig.append(br)
                 configInfo.append((k, v, br, bad))
                 currentAreaDiff += bad
+
             print("found region for {}".format(k))
 
         return configInfo, currentAreaDiff

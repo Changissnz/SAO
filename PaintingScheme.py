@@ -20,40 +20,6 @@ class PaintingScheme:
 ############# BELOW CODE NEEDS TO BE REWRITTEN ############################################
 ###########################################################################################
 
-
-    '''
-    description:
-    - returns a dictionary of keys words/setOfWords and values gameboard coordinates
-    '''
-    @staticmethod
-    def paint_scheme_given_gameboard_data(coordinateRange, languages):
-        accounted = {} #
-        return -1
-
-    @staticmethod
-    def color_generator_cycle(numColors):
-        return -1
-
-    """
-    description:
-    - assigns gameboard locations based on element areas by the following scheme:
-        using reference point R = (0, 0),
-        for all areas,
-            assign region starting at R to gameboard
-            update R
-        **assignment of region should be one with the most free space**
-    """
-    @staticmethod
-    def assign_locations_for_elements_by_area(areas):
-
-        refVal = (0,0)
-        elementLocations = []
-
-        for a in areas:
-            return a
-        return -1
-
-
     ########### START : methods for painting image given element info
 
     @staticmethod
@@ -69,7 +35,6 @@ class PaintingScheme:
                     255,
                     255,
                 )
-
         img.save(saveFile)
 
     """
@@ -97,6 +62,10 @@ class PaintingScheme:
                 data[x,y] = color
             y += 1
         img.save(zheFile)
+
+    @staticmethod
+    def paint_image_using_gameboard_info(gameboard):
+        return -1
 
 
     ########### END : methods for painting image given element info
