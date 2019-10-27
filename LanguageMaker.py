@@ -48,6 +48,7 @@ class LanguageMaker:
 
     arguments:
     - n := int
+    - mode := list|set
     - byTopic := bool
 
     return:
@@ -178,8 +179,9 @@ class LanguageMaker:
         # get initial bag of descriptors
         assert mode in {"geq", "const"}, "invalid mode {}".format(mode)
 
-        x = list(LanguageMaker.fetch_nonstop_words(startSize))
+        x = LanguageMaker.fetch_nonstop_words(startSize)
         f_ = deepcopy(x)
+        x = list(x)
         f = []
         while True:
             c = choice(x)
@@ -237,12 +239,13 @@ class LanguageMaker:
     - list | set
     """
     @staticmethod
-    def get_languages_by_content_standard(centroidsForEach, outputForEach = "list"):
+    def get_languages_by_content_standard(centroidsForEach, outputForEach = list):
         assert outputForEach in {list, set}, "invalid output : {}".format(output)
         dk = []
         for x in centroidsForEach:
             dk_ = LanguageMaker.get_descriptors(x, output = outputForEach)
-            dk.append((x, dk_))
+            ##print("X :\t", set(x))
+            dk.append((set(x), dk_))
         return dk
 
     #!!

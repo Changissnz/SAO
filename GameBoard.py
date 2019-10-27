@@ -147,7 +147,7 @@ class GameBoard:
             elementDim.append((k,(q,q)))
 
         config, areaDiff = GameBoardHandler.get_best_config_by_random_inspection(elementDim,\
-            self.dimensions)
+            self.dimensions, cutOff = "auto")
 
         if len(config) < len(self.elements):
             return False
@@ -160,3 +160,13 @@ class GameBoard:
         self.config, self.configAreaDiff = q[0],q[1]
 
     ################# END : methods below used to calculate the element-to-region assignment
+
+"""
+sizesInfo = [(400, 10), (2000, 30), (1000, 20)]
+languageInfo = []
+dim = (8,8)
+for i, s in enumerate(sizesInfo):
+    languageInfo.append(Language.random(idn = i,\
+        minSizeInfo = s[0], startSizeInfo = s[1], mode = "const"))
+gb = GameBoard(languageInfo, dim)
+"""

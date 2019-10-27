@@ -1,6 +1,6 @@
 from copy import deepcopy
+from functools import partial
 ##from AreaScanner import *
-
 
 class FreeAndSimpleScanner:
 
@@ -408,7 +408,7 @@ class FreeAndSimpleScanner:
     - ((int::(minX), int::(minY)), (int::(maxX), int::(maxY)))|False
     '''
     @staticmethod
-    def right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, angleDirectionX, angleDirectionY, calibrateMode = "approximate"):
+    def right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, angleDirectionX, angleDirectionY, calibrateMode = "approximate", increment = 10**-1):
 
         assert angleDirectionX in {"left", "right"} and angleDirectionY in \
             {"up", "down"}, "invalid angle directions ({},{})".format(angleDirectionX, angleDirectionY)
@@ -417,10 +417,10 @@ class FreeAndSimpleScanner:
         ##print("GAMEBOARD DIM:\t", gameboardDim)
         # get max/min values
         coordForX, res = FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
-            coord, gameboardDim, usedRegions, "free", angleDirectionX, increment = "auto")
+            coord, gameboardDim, usedRegions, "free", angleDirectionX, increment = increment)
 
         coordForY, res2 =  FreeAndSimpleScanner.line_scan_from_coordinate_for_extreme(\
-            coord, gameboardDim, usedRegions, "free", angleDirectionY, increment = "auto")
+            coord, gameboardDim, usedRegions, "free", angleDirectionY, increment = increment)
 
         ##print("coordX : {}\tcoordY : {}".format(coordForX, coordForY))
 
@@ -647,6 +647,22 @@ class AreaScanner:
 
     '''
     description:
+    - calculates area given a list of (minX,maxX) info. for listOfSegments
+
+    arguments:
+    - listOfSegments := list((minX,maxX))
+
+    return:
+    - float
+    '''
+    @staticmethod
+    def get_area_from_horizontal_line_segments(listOfSegments, increment):
+        # get the total length
+        c = sum([l[1] - l[0] for l in listOfSegments])
+        return c * increment
+
+    '''
+    description:
     - calculates approximate area of `wantedRegion`
 
     arguments:
@@ -666,21 +682,6 @@ class AreaScanner:
         if FreeAndSimpleScanner.get_area_of_region(wantedRegion) == 0:
             return False
 
-        '''
-        description:
-        - calculates area given a list of (minX,maxX) info. for listOfSegments
-
-        arguments:
-        - listOfSegments := list((minX,maxX))
-
-        return:
-        - float
-        '''
-        def get_area_from_horizontal_line_segments(listOfSegments, increment):
-            # get the total length
-            c = sum([l[1] - l[0] for l in listOfSegments])
-            return c * increment
-
         ##print("SS")
         # scan from lower left corner to upper right corner
         startCoord = wantedRegion[0]
@@ -697,20 +698,41 @@ class AreaScanner:
             ls2 = ls1
 
             ls1 = AreaScanner.scan_collect_free_lineset(startCoord, wantedRegion, usedRegions,\
-                direction = "right", increment = 10 **(-3))
+                direction = "right", increment = increment)
             ##print("free ls:\t",ls1)
 
             ##allLineSets.append(ls1)
             if ls1 != None and ls2 != None:
                 coex = AreaScanner.get_horizontal_coexistence_between_linesets(ls1, ls2)
-                a = get_area_from_horizontal_line_segments(coex, increment)
+                a = AreaScanner.get_area_from_horizontal_line_segments(coex, increment)
                 totalArea += a
             startCoord = incrementos(startCoord)
             ##print("A NOW :\t", totalArea)
             #print("SC:\t",startCoord)
         return totalArea##, ls1
 
-        ru = AreaScanner.get_best_region_given_coordinates(coord, gd, usedRegions, increment = increment)
+    # TODO : check this
+    """
+    description:
+    - to be used with multiprocessing
+    """
+    @staticmethod
+    def sloppy_area_scan_(usedRegions, increment, wantedRegion):
+        a = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment)
+        return wantedRegion, a
+
+    @staticmethod
+    def get_area_from_coordinate_pairs(wantedRegion, usedRegions, increment, p):
+        p1, p2 = p
+
+        ls1 = AreaScanner.scan_collect_free_lineset(p1, wantedRegion, usedRegions,\
+            direction = "right", increment = increment)
+        ls2 = AreaScanner.scan_collect_free_lineset(p2, wantedRegion, usedRegions,\
+            direction = "right", increment = increment)
+
+        coex = AreaScanner.get_horizontal_coexistence_between_linesets(ls1, ls2)
+        area = AreaScanner.get_area_from_horizontal_line_segments(coex, increment)
+        return area
 
     '''
     description:
@@ -728,7 +750,6 @@ class AreaScanner:
             return False
 
         ##print("USED:\t", usedRegions)
-
 
         # get 4 regions
         lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "up")
@@ -767,11 +788,8 @@ class AreaScanner:
                 d[rd] = a
 
         # sort dictionary by
-        ##print("HERE D:\t",d)
         d = sorted(d.items(), key=lambda kv: kv[1])
-        #return d
         return d[-1] if len(d) > 0 else False
-
 
     ## TODO : untested
     ## wacky function

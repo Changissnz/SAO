@@ -84,7 +84,7 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
             gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
         rt = time() - s
         print("time 1 :\t", rt)
-        self.assertTrue(rt < 50, "[1] could not get best config not fast enough : {}".format(rt))
+        self.assertTrue(rt < 20, "[1] could not get best config not fast enough : {}".format(rt))
 
         # case 2
 
@@ -94,14 +94,8 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
             gameboardDim, wantedDim, currentConfig, numRandomPoints = 10, calibrateMode = "square", cutOff = None)
         rt = time() - s
         print("time 2 :\t", rt)
-        self.assertTrue(rt < 50, "[2] could not get best config not fast enough : {}".format(rt))
-
-
-
-
-
-
-
+        print("q :\t", q)
+        self.assertTrue(rt < 20, "[2] could not get best config not fast enough : {}".format(rt))
 
 if __name__ == '__main__':
     #GameBoardHandlerMethodsTests.test_GameBoardHandler_GetBestConfigByRandomInspection_Accuracy()

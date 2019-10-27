@@ -221,25 +221,28 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         coord = (1.5,1.5)
         dx, dy = "right", "up"
         reg = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        self.assertAlmostEqual(reg, ((1.5, 1.5), (2.99700000000002, 1.997999999999982)))
+        print("REG:\t", reg)
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.are_equal_regions(reg, ((1.5,1.5),(3,2))))
 
         ## ((0.5001, 0.5001), (3, 2))
         ##self.assertAlmostEqual(reg, ((0.5001, 0.5001), (3, 2)))
 
         dx, dy = "right", "down"
         reg2 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
-        ##print("reg2:\t",reg2)
-        self.assertAlmostEqual(reg2, ((1.5, 0.003000000000017133), (2.99700000000002, 1.5)))
+        print("reg2:\t",reg2)
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.are_equal_regions(reg2, ((1.5,0),(3,1.5))))
 
         dx, dy = "left", "up"
         reg3 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         ##print("reg3:\t",reg3)
-        self.assertAlmostEqual(reg3, ((1.251000000000009, 1.5), (1.5, 1.997999999999982)))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.are_equal_regions(reg3, ((1.25,1.5),(1.5,2))))
+
 
         dx, dy = "left", "down"
         reg4 = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, gameboardDim, usedRegions, dx, dy)
         ##print("reg4:\t",reg4)
-        self.assertAlmostEqual(reg4, ((1.251000000000009, 0.003000000000017133), (1.5, 1.5)))
+        self.assertTrue(FreeAndSimpleScannerMethodsTest.are_equal_regions(reg4, ((1.25,0),(1.5,1.5))))
+
 
         coord = (0.5,0.5)
         dx, dy = "right", "up"
@@ -267,10 +270,11 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
         self.assertAlmostEqual(reg4, ((0.5, 0.5), (0.5, 0.5)))
 
 
-    @staticmethod
-    def is_equal_tuplepair_rounded(t1, t2):
 
-        e = 10 ** (-2)
+
+    @staticmethod
+    def is_equal_tuplepair_rounded(t1, t2, e = 10 **(-1)):
+
         d1, d2 = abs(t2[0] - t1[0]), abs(t2[1] - t1[1])
 
         print("t1 {}\tt2 {}".format(t1,t2))
@@ -279,6 +283,13 @@ class FreeAndSimpleScannerMethodsTest(unittest.TestCase):
             return False
         return True
 
+    @staticmethod
+    def are_equal_regions(r1, r2):
+
+        if FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(r1[0], r2[0])\
+            and FreeAndSimpleScannerMethodsTest.is_equal_tuplepair_rounded(r1[1],r2[1]):
+            return True
+        return False
 
 
 #----------------------------------------

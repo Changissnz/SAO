@@ -11,6 +11,7 @@ class LanguageMakerMethodsTest(unittest.TestCase):
     - checks the size of descriptors of bag for minimum size requirement
     '''
     # TODO : check first chunk code
+    @staticmethod
     def test_LanguageMaker_GetDescriptorsForBag():
         x = LanguageMaker()
         bow = x.fetch_nonstop_words(100)
@@ -27,6 +28,8 @@ class LanguageMakerMethodsTest(unittest.TestCase):
 
     # TODO : make assertions for methods below
     #-----------------------------------------------------
+
+    @staticmethod
     def LanguageMaker_GetDescriptorsForBag_ContentsTest():
         x = LanguageMaker()
         bow = x.fetch_nonstop_words(1)
@@ -36,17 +39,33 @@ class LanguageMakerMethodsTest(unittest.TestCase):
         print("* descriptors :\n")
         print(desc)
 
-    def LanguageMaker_GetListOfDescriptors_ContentsTest():
+    def test_LanguageMaker_GetListOfDescriptors_ContentsTest(self):
         q = LanguageMaker.get_list_of_descriptors(100, 5, mode = "geq")
 
-    def LanguageMaker_GetLanguagesByContentSamples():
+    def test_LanguageMaker_GetLanguagesByContentSamples(self):
         centroidsForEach = [{"dog", "whale"}, {"cat", "rhino"}, {"water"}, {"hydrogen"}]
         q = LanguageMaker.get_languages_by_content_standard(centroidsForEach, outputForEach = list)
 
-    def LanguageMaker_GetLanguages():
+    @staticmethod
+    def test_LanguageMaker_GetLanguages():
         q = LanguageMaker.get_languages_standard(5, minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
+        print("languages\n")
+        for q_ in q:
+            print("*\t{}".format(q_))
+            print()
 
+    @staticmethod
+    def test_LanguageMaker_GetLanguagesByContentStandard():
+        centroids = [{"dog", "whale"}]
+        l = LanguageMaker.get_languages_by_content_standard(centroids, outputForEach = list)
+
+        print("LANGUAGES :\n", l)
+
+        return -1
     #-----------------------------------------------------
 
+
 if __name__ == '__main__':
-    unittest.main()
+    ##LanguageMakerMethodsTest.test_LanguageMaker_GetLanguages()
+    LanguageMakerMethodsTest.test_LanguageMaker_GetLanguagesByContentStandard()
+    ##unittest.main()

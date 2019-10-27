@@ -22,7 +22,7 @@ class Element:
     '''
     def set_language_stats(self):
         assert self.setInitial != True, "cannot set language stats after initial"
-
+        print("HERE:\n{}\n".format(self.language.language[1]))
         self.descriptorCount = len(self.language.language[1])
 
         if type(self.language.language[1]) is list:

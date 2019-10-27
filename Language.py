@@ -6,7 +6,7 @@ a measure of influence that does not use direct intersection:
     - will use similarity scores
     - FUNC should not be commutative
 """
-###
+### TODO : implement `languageFormation`
 from sklearn.feature_extraction.text import TfidfVectorizer
 from random import choice, choices, sample
 from nltk import word_tokenize
@@ -14,13 +14,13 @@ from LanguageMaker import *
 
 class Language:
 
-    def __init__(self, idn, language, languageFormation = "centroid"):
+    def __init__(self, idn, language):
         self.idn = idn
         self.language = language
         self.prohibited = [] # prohibited words
 
-        assert languageFormation == "centroid", "languageFormation {} invalid".format(languageFormation)
-        self.languageFormation = languageFormation
+        ##assert languageFormation == "centroid", "languageFormation {} invalid".format(languageFormation)
+        ##self.languageFormation = languageFormation
 
     def __len__(self):
         q = LanguageMaker.get_language_type(self.language)
@@ -34,11 +34,15 @@ class Language:
     - outputs a random language of specified size
     """
     @staticmethod
-    def random(idn = "numero-unetas", languageFormation = "centroid",\
-        minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
+    def random(idn = "numero-unetas", minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
         languageContents = LanguageMaker.get_languages_standard(1, minSizeInfo, startSizeInfo, mode)[0]
-        l = Language(idn, languageContents, languageFormation = languageFormation)
-        return l
+        return Language(idn, languageContents)
+
+    @staticmethod
+    def random_by_centroid(idn = "numero-unetas", centroids = set(), languageOutput = list,\
+        minSizeInfo = 100, startSizeInfo = 5, mode = "geq"):
+        languageContents = LanguageMaker.get_languages_by_content_standard([centroids], outputForEach = list)[0]
+        return Language(idn, languageContents)
 
     # TODO : test below 2 methods
     '''

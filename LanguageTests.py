@@ -37,9 +37,16 @@ class LanguageMethodsTest(unittest.TestCase):
         cm = Language.get_cosine_similarity_measure_(ml[0][1], ml[1][1])
         self.assertTrue(cm >= 0.15)
 
-    def test_SelfReproduce(self):
+    @staticmethod
+    def demonstrate_Language_RandomByCentroid():
+
+        q = Language.random_by_centroid(centroids = {"knight", "shine", "armor"})
+        print("here:\n",q.language)
+
+    def test_Language_SelfReproduce(self):
     ##def self_reproduce(self, numberOfDescriptors):
         return -1
 
 if __name__ == '__main__':
-    unittest.main()
+    q = LanguageMethodsTest.demonstrate_Language_RandomByCentroid()
+    #unittest.main()

@@ -6,6 +6,7 @@ from math import sqrt
 from random import uniform, random, shuffle
 from copy import deepcopy
 from FreeAndSimpleScanner import *
+from multiprocessing import Pool
 
 class GameBoardHandler:
 
@@ -278,6 +279,21 @@ class GameBoardHandler:
         ##print("HERE2:\t", q)
         return q
 
+    @staticmethod
+    def y(wantedDim, gameboardDim, usedRegions, calibrateMode, p):
+        q = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim,\
+            wantedDim, usedRegions, increment = 10**(-2), calibrateMode = calibrateMode)
+        ##print("HERE2:\t", q)
+        if q == False:
+            return q
+        if q[1] == False:
+            return q[1]
+
+        x = abs(q[1] - (wantedDim[0] * wantedDim[1]))
+        return q[0], x
+
+
+
     """
     description:
     - gets the best region given `wantedDim` and `currentConfig`.
@@ -344,7 +360,9 @@ class GameBoardHandler:
         bestAreaDiff = None
         wantedArea = wantedDim[0] * wantedDim[1]
 
+        ## regular approach without multiprocessing
         # iterate through points and get best region
+        """
         for p in points:
             q = GameBoardHandler.x(p, gameboardDim, wantedDim, currentConfig, calibrateMode = "square")
 
@@ -366,7 +384,26 @@ class GameBoardHandler:
                     bestRegion, bestAreaDiff = q[0], x
                     if cutoff():
                         break
+        """
 
+        # multiprocessing alternative
+        p = Pool(10)
+
+        f = partial(GameBoardHandler.y, wantedDim, gameboardDim, currentConfig, calibrateMode)
+        q = list(p.map(f, points))
+
+        p.close()
+        p.join()
+
+        # filter values by false
+        q = [r for r in q if r != False]
+        ##print("Q:\t", q)
+        if len(q) == 0:
+            bestRegion, bestAreaDiff = None, None
+        else:
+            d = sorted(q, key = lambda kv: kv[1])[-1]
+            ##print("D:\t",d)
+            bestRegion, bestAreaDiff = d[0], d[1]
         return bestRegion, bestAreaDiff
 
     ##
