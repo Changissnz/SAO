@@ -97,12 +97,7 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         print("[1] Q2:\t", q[1])
         print("time 1 :\t", rt)
 
-
-
-
         # case 2
-
-
         currentConfig = [((0,0), (2,2))]
         s = time()
         q = GameBoardHandler.get_best_config_region_using_inspection_points(\
@@ -111,7 +106,7 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         print("time 2 :\t", rt)
         print("q :\t", q)
         self.assertTrue(rt < 20, "[2] could not get best config not fast enough : {}".format(rt))
-        
+
 
 if __name__ == '__main__':
     #GameBoardHandlerMethodsTests.test_GameBoardHandler_GetBestConfigByRandomInspection_Accuracy()
