@@ -454,7 +454,6 @@ class GameBoardHandler:
                     currentAreaDiff += bad
                     print("found region for {} : {}".format(k, br))
                     break
-
                 q -= 1
 
         return configInfo, currentAreaDiff

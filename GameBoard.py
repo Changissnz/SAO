@@ -16,7 +16,7 @@ class GameBoard:
     - languageInfo := int|list(`languages`)
     - dimensions := (int,int)
     """
-    def __init__(self, languageInfo, dimensions, maxNumLanguages = 52):
+    def __init__(self, languageInfo, dimensions, maxNumLanguages = 52, assignElementsToRegion = False):
         self.dimensions = dimensions
         self.area = self.dimensions[0] * self.dimensions[1]
         self.wordCoordinates = {} ## these are not used for Shame And Obedience
@@ -24,7 +24,7 @@ class GameBoard:
         self.config, self.configAreaDiff = None, None
         self.set_languages(languageInfo, maxNumLanguages = maxNumLanguages)
         self.get_element_stats()
-        self.assign_elements_to_region()
+        if assignElementsToRegion: self.assign_elements_to_region()
 
     # TODO : test this.
     '''

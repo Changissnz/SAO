@@ -184,24 +184,24 @@ class AreaScannerMethodsTest(unittest.TestCase):
         usedRegions = [ur2]
         coord = (0.51,0.51)
 
-        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "approximate")
         print("q1:\n",q)
         self.assertTrue(AreaScannerMethodsTest.are_equal_regions(q, ((0.5, 0.5), (3, 2))))
 
         coord = (2,2)
-        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "approximate")
         print("q2:\n",q)
         self.assertTrue(AreaScannerMethodsTest.are_equal_regions(q,\
             ((0.002000000000035229, 0.002000000000035229), (2, 2))))
 
         ## test bottom right corner
         coord = (2,0)
-        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        q,_ = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "approximate")
         print("q3:\n",q)
         self.assertTrue(AreaScannerMethodsTest.are_equal_regions(q, ((0.59, 0), (2, 2)))) #? TODO
 
         coord = (0,0)
-        q = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2))
+        q = AreaScanner.get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "approximate")
         self.assertTrue(False == q, "incorrect q3 : {}".format(q))
 
     @staticmethod

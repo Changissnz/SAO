@@ -5,6 +5,7 @@ class ShameAndObedienceElementMethodsTest(unittest.TestCase):
 
     def setUp(self):
         self.testSample1 = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
+        self.testSampleElements = ShameAndObedienceElementMethodsTest.test_sample_ShameAndObedienceElement()
 
     """
     description:
@@ -49,8 +50,6 @@ class ShameAndObedienceElementMethodsTest(unittest.TestCase):
         l = ShameAndObedienceElementMethodsTest.test_sample_languages_1()[0]
 
         x = ShameAndObedienceElement(1, l, (1,2,3))
-        print("X :\t", x.language)
-        print("X2:\n", x.language.language)
 
     def test_ShameAndObedienceElement_GetDescriptorOverlapMeasures(self):
 
@@ -63,6 +62,8 @@ class ShameAndObedienceElementMethodsTest(unittest.TestCase):
         other = x[1:]
 
         q = ShameAndObedienceElement.get_element_descriptor_overlap_measures(e, x[1])
+        self.assertAlmostEqual(q[0], 0.375)
+        self.assertAlmostEqual(q[1], 0.45)
         print("overlap m 1 :\t", q[0])
         print("overlap m 2 :\t", q[1])
         return
@@ -71,9 +72,38 @@ class ShameAndObedienceElementMethodsTest(unittest.TestCase):
 
         colorTable = {(0,0,0) : 1, (255,255,255) : 1}
         q = ShameAndObedienceElement.calculate_color_by_color_table(colorTable, roundDecimalPlaces = 2)
-        print("q :\t", q)
-        self.assertAlmostEqual((127.5, 127.5, 127.5), q)
+        self.assertAlmostEqual((127, 127, 127), q)
 
+    def test_ShameAndObedienceElement_Shame(self):
+        q0, q1 = self.testSampleElements[0], self.testSampleElements[1]
+
+        degree = 1
+        typeShame = {"centroid"}
+
+        x = q0.shame(q1, degree, typeShame)
+        self.assertTrue(x == {'whistle', 'cat'}, "wrong shame")
+        self.assertTrue(x == q1.prohibitedSpeech, "wrong prohibited speech")
+
+        degree = 0.5
+        x = q0.shame(q1, degree, typeShame)
+        self.assertTrue(len(x) == 1, "wrong shame 2")
+
+    def test_ShameAndObedienceElement_Align(self):
+        q0, q1 = self.testSampleElements[0], self.testSampleElements[1]
+        c, d = q0.align(q1, 0.1)
+        self.assertTrue(c == ['dog'], "wrong align #1")
+
+        d_ = sorted(d)
+        x = sorted(['wolf', 'breeds', 'occurs', 'Canis', 'man', 'descended', 'many', 'member', 'since', 'common', 'times', 'prehistoric', 'domesticated', 'genus', 'probably'])
+        self.assertTrue(d_ == x, "wrong align #2")
+
+        """
+        print("centroids")
+        print(c)
+        print()
+        print("descriptors")
+        print(d)
+        """
 
 if __name__ == "__main__":
     #ShameAndObedienceElementMethodsTest.test_ShameAndObedienceElement_Init()

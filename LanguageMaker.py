@@ -40,7 +40,7 @@ class LanguageMaker:
     @staticmethod
     def get_standard_language_type(languageContents):
         assert LanguageMaker.get_language_type(languageContents) == "standard", "invalid language type!"
-        return "s" if type(languageContents) is set else "l"
+        return "s" if type(languageContents[1]) is set else "l"
 
     '''
     description:

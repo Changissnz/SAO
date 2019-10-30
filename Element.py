@@ -1,5 +1,5 @@
 from Language import *
-from GameBoardHandler import * 
+from GameBoardHandler import *
 
 class Element:
 
@@ -8,7 +8,7 @@ class Element:
         self.language = language #Language(idn, languageContents)
         self.setInitial = False
         self.set_language_stats()
-        self.prohibitedSpeech = {}
+        self.prohibitedSpeech = set()
 
     '''
     description:
@@ -43,16 +43,16 @@ class Element:
     - float
     """
     def get_language_stats_with_prohibition(self):
+        return self.get_language_stats_on_centroid_with_prohibition() +\
+            self.get_language_stats_on_descriptor_with_prohibition()
 
+    def get_language_stats_on_centroid_with_prohibition(self):
         funk = lambda x : False if x in self.prohibitedSpeech else True
+        return len(list(filter(funk, self.language.language[0])))
 
-        centroidSize = len(list(filter(funk, self.language.language[0])))
-        descriptorSize = len(list(filter(funk, self.language.language[1])))
-        return centroidSize + descriptorSize
-
-    # TODO : future
-    def get_language_stats_unique_with_prohibition(self):
-        return -1
+    def get_language_stats_on_descriptor_with_prohibition(self):
+        funk = lambda x : False if x in self.prohibitedSpeech else True
+        return len(list(filter(funk, self.language.language[1])))
 
     '''
     description:
@@ -76,7 +76,7 @@ class Element:
     def update_language_descriptors(self, newAdditions, newSubtractions):
         q = LanguageMaker.get_language_type(self.language.language)
         self.language.add_to_language_descriptors(newAdditions)
-        self.language.remove_from_language_descriptors(newAdditions)
+        self.language.remove_from_language_descriptors(newSubtractions)
 
     '''
     description:
@@ -90,21 +90,10 @@ class Element:
     -
     '''
     def update_language_centroids(self, toAdd, toRemove):
+        ##print("TO ADD:\t", toAdd)
         self.language.language[0].update(toAdd)
+        ##print("HERE :\t", self.language.language[0])
         self.language.language[0].difference_update(toRemove)
-
-    '''
-    description:
-    -
-
-    arguments:
-    - otherElement :=
-    - mateDetails := TODO
-
-    return:
-    - updated elements
-    '''
-    def mate_method1(self, otherElement, mateDetails):
-        return -1
+        ##print("HERE2")
 
     ################## END : language modification methods

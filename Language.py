@@ -44,6 +44,38 @@ class Language:
         languageContents = LanguageMaker.get_languages_by_content_standard([centroids], outputForEach = list)[0]
         return Language(idn, languageContents)
 
+    def get_centroids(self):
+        return deepcopy(self.language[0])
+
+    def is_centroid(self, d):
+        return True if d in self.language[0] else False
+
+    def get_descriptors(self):
+        return deepcopy(self.language[1])
+
+    def is_descriptor(self, d):
+        return True if d in self.language[1] else False
+
+    def get_content(self, output = list):
+        assert output in {list, set}, "invalid output {}".format(output)
+
+        c, d = self.get_centroids(), self.get_descriptors()
+        if output == list:
+            return list(c) + list(d)
+        return c + set(d)
+
+    def add_to_centroid(self, additions):
+        q = LanguageMaker.get_language_type(self.language)
+        if q == "standard":
+            self.language[0].update(additions)
+        elif q == "ripple":
+            raise NotImplementedError("IMPLEMENT HERE")
+        else:
+            raise NotImplementedError("IMPLEMENT HERE")
+
+    def remove_from_centroid(self, subtractions):
+        return -1
+
     # TODO : test below 2 methods
     '''
     description:
@@ -53,7 +85,7 @@ class Language:
         q = LanguageMaker.get_language_type(self.language)
         if q == "standard":
             if type(self.language[1]) is list:
-                for a in additions: self.language[1].append(additions)
+                for a in additions: self.language[1].extend(additions)
             elif type(self.language[1]) is set:
                 self.language[1].update(additions)
             else:
@@ -67,6 +99,8 @@ class Language:
         q = LanguageMaker.get_language_type(self.language)
         if q == "standard":
             if type(self.language[1]) is list:
+                # removes one copy, not all
+                """
                 for s in subtractions:
                     try:
                         i = self.language[1].index(s)
@@ -74,6 +108,11 @@ class Language:
                     except:
                         print("word {} not found".format(s))
                         pass
+                """
+                # removes all copies
+                funk = lambda x : False if x in subtractions else True
+                nl = list(filter(funk, self.language[1]))
+                self.language = (self.language[0], nl)
             elif type(self.language[1]) is set:
                 self.language[1].difference_update(subtractions)
             else:
@@ -189,72 +228,6 @@ class Language:
         for w in words:
             yield w + choice(romantic)
 
-    '''
-    description:
-    -
-
-    arguments:
-    - lang1 := (set(str::centroids), container(str::relatedTerms))
-    - lang2 := (set(str::centroids), container(str::relatedTerms))
-    - direction := (2,1)|(1,2)|None
-    - requiredWordsToMerge := int::(specifies number) | set::(specifies specific words)
-    - returnType := "lang"|"lang+additions"
-
-    return:
-    - (set(str::centroids), container(str::relatedTerms)), (set(str::centroids), container(str::relatedTerms))
-    OR
-    - (set(str::centroids), container(str::relatedTerms)), (set(str::centroids), container(str::relatedTerms)),
-        (set(str::centroids), container(str::relatedTerms))
-    '''
-    @staticmethod
-    def mate_languages(lang1, lang2, direction, requiredWordsToMerge, returnType = "lang"):
-        # check if words actually are in source
-        assert direction in {(1,2),(2,1),None}, "direction {} is not valid".format(direction)
-        assert returnType in {"lang", "lang+additions"}, "return type {} is invalid".format(returnType)
-        assert type(lang1[1]) == type(lang2[1]), "languages in different worlds cannot operate on each other"
-
-        newLang1, newLang2 = lang1[0], lang2[0]
-        q = None
-        if type(requiredWordsToMerge) is list:
-            if direction == None: q = lang1[0] | lang2[0]
-            elif direction[0] == 1: q = lang1[0]
-            else: q =lang2[0]
-            for x in requiredWordsToMerge:
-                if x not in q:
-                    raise ValueError("({}) is not a centroid value".format(x))
-
-        # get descriptors for words
-        descriptors = LanguageMaker.get_descriptors(requiredWordsToMerge, type(lang1[1]))
-
-        # add words from source to dest
-        x, x2 = lang1[1], lang2[1]
-        if direction == None:
-            newLang1, newLang2 = lang1[0] | requiredWordsToMerge, lang2[0] | requiredWordsToMerge
-            if type(lang1[1]) is list:
-                x, x2 = lang1[1] + descriptors, lang2[1] + descriptors
-            elif type(lang2[1]) is set:
-                x, x2 = lang1[1] | descriptors, lang2[1] | descriptors
-            else:
-                raise ValueError("type {} not yet supported.".format(type(lang2[1])))
-        elif direction == (1,2):
-            newLang2 = lang2[0] | requiredWordsToMerge
-            if type(lang2[1]) is list:
-                x2 = lang2[1] + descriptors
-            elif type(lang2[1]) is set:
-                x2 = lang2[1] | descriptors
-            else:
-                raise ValueError("type {} not yet supported.".format(type(lang2[1])))
-        else:
-            newLang1 = lang1[0] | requiredWordsToMerge
-            if type(lang1[1]) is list:
-                x = lang1[1] + descriptors
-            elif type(lang1[1]) is set:
-                x = lang1[1] | descriptors
-            else:
-                raise ValueError("type {} not yet supported.".format(type(lang1[1])))
-
-        if returnType == "lang": return (newLang1, x), (newLang2, x2)
-        return (newLang1, x), (newLang2, x2), (requiredWordsToMerge, descriptors)
 
     # TODO : test this
     """
