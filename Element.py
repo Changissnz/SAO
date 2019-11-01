@@ -1,5 +1,6 @@
 from Language import *
 from GameBoardHandler import *
+from math import ceil
 
 class Element:
 
@@ -9,6 +10,7 @@ class Element:
         self.setInitial = False
         self.set_language_stats()
         self.prohibitedSpeech = set()
+        self.reproduceCounter = 1
 
     '''
     description:
@@ -23,16 +25,13 @@ class Element:
     '''
     def set_language_stats(self):
         assert self.setInitial != True, "cannot set language stats after initial"
-        ##print("HERE0:\n{}\n".format(self.language.language))
-        ##print("HERE:\n{}\n".format(self.language.language[1]))
+        self.centroidCount = len(self.language.language[0])
+        self.activeCentroidCount = len(self.language.language[0])
         self.descriptorCount = len(self.language.language[1])
-
-        if type(self.language.language[1]) is list:
-            self.wordCount = len(list(self.language.language[0]) + self.language.language[1])
-        else:
-            self.wordCount = len(self.language.language[0] | self.language.language[1])
+        self.activeDescriptorCount = len(self.language.language[1])
+        self.wordCount = self.centroidCount + self.descriptorCount
+        self.activeWordCount = self.centroidCount + self.descriptorCount
         self.setInitial = True
-
 
     # TODO : test this
     """
@@ -46,13 +45,45 @@ class Element:
         return self.get_language_stats_on_centroid_with_prohibition() +\
             self.get_language_stats_on_descriptor_with_prohibition()
 
+    '''
+    description:
+    -
+    '''
     def get_language_stats_on_centroid_with_prohibition(self):
-        funk = lambda x : False if x in self.prohibitedSpeech else True
-        return len(list(filter(funk, self.language.language[0])))
+        return len(self.get_active_centroids())
 
-    def get_language_stats_on_descriptor_with_prohibition(self):
+    '''
+    description:
+    -
+    '''
+    def update_language_stats(self):
+        print("UPDATING")
+        self.activeCentroidCount = self.get_language_stats_on_centroid_with_prohibition()
+        self.activeDescriptorCount = self.get_language_stats_on_descriptor_with_prohibition()
+        self.activeWordCount = self.activeCentroidCount + self.activeDescriptorCount
+        self.centroidCount = len(self.language.get_centroids())
+        self.descriptorCount = len(self.language.get_descriptors())
+        self.wordCount =self.centroidCount + self.descriptorCount
+
+    def get_active_centroids(self):
         funk = lambda x : False if x in self.prohibitedSpeech else True
-        return len(list(filter(funk, self.language.language[1])))
+        return set(filter(funk, self.language.get_centroids()))
+
+    def get_active_descriptors(self):
+        funk = lambda x : False if x in self.prohibitedSpeech else True
+        if type(self.language.get_descriptors()) is list:
+            return list(filter(funk, self.language.get_descriptors()))
+        else:
+            return set(filter(funk, self.language.get_descriptors()))
+
+
+    '''
+    description:
+    -
+    '''
+    def get_language_stats_on_descriptor_with_prohibition(self):
+        q = self.get_active_descriptors()
+        return len(q)
 
     '''
     description:
@@ -97,3 +128,85 @@ class Element:
         ##print("HERE2")
 
     ################## END : language modification methods
+
+    # TODO : test below methods
+
+    """
+    description:
+    -
+
+    arguments:
+    - reproduceFrequency := int, interval between reproduction
+    - reproduceDegree := float, 0 <= x <= 1
+
+    return:
+    - int::(>= 0 change in size)
+    """
+    def do_self_actions_standard(self, reproduceFrequency, reproduceDegree):
+        # reproduce if on time
+        if reproduceFrequency == 0: return
+        c = 0
+        if self.reproduceCounter % reproduceFrequency == 0:
+            c += self.self_reproduce(reproduceDegree)
+            self.reproduceCounter = 1
+        else:
+            self.reproduceCounter += 1
+
+        # generate 1 round
+        c += self.self_generate()
+        return c
+
+
+    """
+    description:
+    - adds x new centroids to language.centroid based on `reproduceDegree`, and
+      their corresponding descriptors to language.descriptors.
+
+    arguments:
+    - reproduceDegree := 0 <= float <= 1
+
+    return:
+    - int::(>= 0 change in size)
+    """
+    def self_reproduce(self, reproduceDegree):
+        self.update_language_stats()
+        q = ceil(self.activeCentroidCount * reproduceDegree)
+        x = LanguageMaker.fetch_nonstop_words(q)
+        self.update_language_centroids(x, set())
+
+        d = LanguageMaker.get_descriptors(x, type(self.language.get_descriptors()))
+        self.update_language_descriptors(d, set())
+        return len(x) + len(d)
+
+    """
+    description:
+    - updates descriptors for centroid
+
+    arguments:
+    - typeGeneration := recursive|static, the type of content to use for generation
+    - numGenerations := int, number of times to add descriptors for centroids to descriptors
+
+    return:
+    - int::(>=0 difference in size)
+    """
+    def self_generate(self, typeGeneration = "recursive", numGenerations = 0):
+        assert typeGeneration in {"recursive", "static"}, "typeGeneration {}".format(typeGeneration)
+        self.update_language_stats()
+
+        x = LanguageMaker.get_descriptors(self.language.get_centroids(),\
+            output = type(self.language.get_descriptors()))
+
+        c = 0
+        self.update_language_descriptors(x, set())
+        c += len(x)
+
+        while numGenerations > 0:
+            if typeGeneration == "recursive":
+                self.update_language_centroids(x)
+                x = LanguageMaker.get_descriptors(x,\
+                    output = type(self.language.get_descriptors()))
+
+            self.update_language_descriptors(x, set())
+            c += len(x)
+            numGenerations -= 1
+        return c

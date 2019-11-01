@@ -2,20 +2,12 @@
 this file is an extension of the Element class. Use this with Shame And Obedience
 Simulation.
 '''
-# TODO : could add a `setOther` variable to some of the method names so that element
-#        variables get set for both elements.
-
-# TODO : need to devise `shameFunc` and `alignFunc`
-
-##def make_func_float_weighted_by_history
 from Element import *
 from collections import Counter, defaultdict
 import numpy as np
 from math import ceil
 from Functions import *
 
-# alternative shame function can take into account other ratio values
-# ex. : ratio of x(shame)/x(align), in which x is a function.
 class ShameAndObedienceElement(Element):
 
     def __init__(self, idn, language, color):
@@ -26,7 +18,7 @@ class ShameAndObedienceElement(Element):
 
         ## devising alignment scores for this element
         self.location = None
-        self.shameObeyTable = None
+        self.shameObeyTable = {}
         self.colorTable = {self.classColor : 1} # PaintingScheme will use this to paint world
         self.shameRange, self.alignRange = None, None
         self.shameFunc, self.alignFunc = None, None
@@ -53,15 +45,18 @@ class ShameAndObedienceElement(Element):
     arguments:
     - e1 := Element
     - e2 := Element
+    - output := counts|ratio
 
     return:
     - float::(overlap measure for e1), float::(overlap measure for e2)
     """
     @staticmethod
-    def get_element_descriptor_overlap_measures(e1, e2):
+    def get_element_descriptor_overlap_info(e1, e2, output = "counts"):
         # both languages must be same type
         t1, t2 = LanguageMaker.get_standard_language_type(e1.language.language), LanguageMaker.get_standard_language_type(e2.language.language)
         assert t1 == t2, "incompatible languages!"
+        assert output in {"counts", "ratio"}, "output {} is invalid".format(output)
+
         if e1.descriptorCount == 0 or e2.descriptorCount == 0: return False # TODO remove this
 
         c,d = (set(),[])  if t1 == "l" else (set(), set())
@@ -71,6 +66,8 @@ class ShameAndObedienceElement(Element):
         overlap = set(e1.language.language[1]) & set(e2.language.language[1])
 
         if t1 == "s":
+            if output == "counts":
+                return len(overlap), len(overlap)
             return len(overlap) / e1.descriptorCount, len(overlap) / e2.descriptorCount
 
         # get descriptor overlap
@@ -81,31 +78,67 @@ class ShameAndObedienceElement(Element):
         for o in overlap:
             overlapCount1 += counts1[o]
             overlapCount2 += counts2[o]
+
+        if output == "counts":
+            return overlapCount1, overlapCount2
+
         overlapRatio1 = overlapCount1 / e1.descriptorCount
         overlapRatio2 = overlapCount2 / e2.descriptorCount
         return overlapRatio1, overlapRatio2
 
     """
     description:
-    - gets descriptor overlap between elements e1 and e2
+    - calculates the measure that takes into account the number of words that
+      intersects between e1.language and e2.language
 
     arguments:
     - e1 := Element
     - e2 := Element
 
     return:
-    - set(`words`)
+    - float::(`measure for e1`), float::(`measure for e2`)
     """
     @staticmethod
-    def get_element_descriptor_overlap(e1,e2):
+    def get_element_language_overlap_measures(e1,e2):
         t1, t2 = LanguageMaker.get_standard_language_type(e1.language.language), LanguageMaker.get_standard_language_type(e2.language.language)
         assert t1 == t2, "incompatible languages!"
-        if e1.descriptorCount == 0 or e2.descriptorCount == 0: return set() # TODO remove this
+        if e1.wordCount == 0 or e2.wordCount == 0: return 0,0 # TODO remove this
+        dc1, dc2 = ShameAndObedienceElement.get_element_descriptor_overlap_info(e1, e2, output = "counts")
+        centroidCount = len(e1.language.get_centroids() & e2.language.get_centroids())
+        return dc1 / e1.wordCount, dc2 / e2.wordCount
 
-        # convert descriptors to sets first and get existing
-        # then get counts for each
-        overlap = set(e1.language.language[1]) & set(e2.language.language[1])
-        return overlap
+    """
+    description:
+    - calculates element disjoint measures based on the number of their disjoint
+      terms
+
+    arguments:
+    - e1 := Element
+    - e2 := Element
+
+    return:
+    - float::(`measure for e1`), float::(`measure for e2`)
+    """
+    @staticmethod
+    def get_element_language_disjoint_measures(e1, e2):
+        c1 = e1.language.language[0] - e2.language.language[0]
+        d1 = ShameAndObedienceElement.get_element_descriptor_disjoint_from(e1,e2)
+        #print("C1 {}:\t{}".format(len(c1), c1))
+        #print("D1 {}:\t{}".format(len(d1), d1))
+        c2 = e2.language.language[0] - e1.language.language[0]
+        d2 = ShameAndObedienceElement.get_element_descriptor_disjoint_from(e2,e1)
+
+        if LanguageMaker.get_standard_language_type(e1.language.language) == "l":
+            desc1 = len([l for l in e1.language.language[1] if l in d1])
+            desc2 = len([l for l in e2.language.language[1] if l in d2])
+            x1, x2 = len(c1) + desc1, len(c2) + desc2
+        else:
+            x1, x2 = len(c1) + len(d1), len(c2) + len(d2)
+
+        #print("desc1 :\t{}\tdesc2 :\t{}".format(desc1, desc2))
+        #print("c1 {}\tc2 {}\t".format(x1, x2))
+        return x1 / e1.wordCount, x2 / e2.wordCount
+
 
     """
     description:
@@ -125,8 +158,6 @@ class ShameAndObedienceElement(Element):
         overlap = set(e1.language.language[1]) - set(e2.language.language[1])
         return overlap
 
-
-
     """
     description:
     - gets overlap measure with other elements
@@ -140,18 +171,41 @@ class ShameAndObedienceElement(Element):
     - list(float)::(length of size `otherElements`)
     - dict(key::(elementId), value::(overlapRatio))
     """
-    def get_element_descriptor_overlaps(self, otherElements, setData = True, output = list):
-        overlapRatios = {} if output is dict else []
-        if setData: self.shameObeyTable = {}
+    def get_element_language_measures(self, otherElements, setClassVar = False):
+
+        if setClassVar:
+            self.shameObeyTable = {}
+        else:
+            out = {}
 
         for e in otherElements:
-            o1, x = ShameAndObedienceElement.get_element_descriptor_overlap_measures(self, e)
-            if output is list: overlapRatios.append(o1)
-            else: overlapRatios[e.idn] = o1
+            ov1, ov2 = self.get_element_language_overlap_measures(self, e)
+            d1, d2 = self.get_element_language_disjoint_measures(self, e)
+            #print("HERE :\t", ov1, ov2)
+            if setClassVar:
+                self.shameObeyTable[e.idn] = (ov1, d1)
+            else:
+                out[e.idn] = (ov1,d1)
 
-            if setData:
-                self.shameObeyTable[e.idn] = (o1,x) # ratio overlaps for e1 and other respectively
-        return overlapRatios
+        if setClassVar: return deepcopy(self.shameObeyTable)
+        return out
+
+    """
+    description:
+    - calculates element descriptor overlap measure
+
+    arguments:
+    - otherElements := list(`Element`)
+
+    return:
+    - list(int)
+    """
+    def get_element_descriptor_overlaps(self, otherElements):
+        ratios = []
+        for e in otherElements:
+            o1, _ = ShameAndObedienceElement.get_element_descriptor_overlap_info(self, e, output = "ratio")
+            ratios.append(o1)
+        return ratios
 
     """
 
@@ -163,13 +217,23 @@ class ShameAndObedienceElement(Element):
     """
     # TODO : test this
     def update_element_color_info_from_descriptor_overlaps(self, otherElements):
-        overlapRatios = self.get_element_descriptor_overlaps(otherElements, setData = True, output = list)
-        self.colorTable = {self.classColor : 1}
+        overlapRatios = self.get_element_descriptor_overlaps(otherElements)
+        self.colorTable = {self.classColor : 1} # reset to default
         for i, v in enumerate(overlapRatios):
-            ##assert otherElements[i].location != None, "cannot operate on None location"
             self.colorTable[otherElements[i].classColor] = v
 
     # TODO : test this
+    """
+    description:
+    - calculates color of element by averaging color in colorTable
+
+    arguments:
+    - colorTable := dict, key is color, value is float ratio
+    - roundDecimalPlaces := int
+
+    return:
+    - tuple::(size 3)
+    """
     @staticmethod
     def calculate_color_by_color_table(colorTable, roundDecimalPlaces = 2):
         maxxy = 10 ** roundDecimalPlaces
@@ -187,38 +251,86 @@ class ShameAndObedienceElement(Element):
         return tuple(q)
 
     # TODO : test this
+    """
+    description:
+    - updates color for each round
+
+    arguments:
+    - otherElements := list(`Element`)
+
+    return:
+    - `color`
+    """
     def update_color(self, otherElements, roundDecimalPlaces = 2):
         self.update_element_color_info_from_descriptor_overlaps(otherElements)
         self.currentColor = ShameAndObedienceElement.calculate_color_by_color_table(self.colorTable, roundDecimalPlaces)
         return self.currentColor
 
+    ###################### START : shame and align functions here
+
     """
+    description:
+    - shames the other element's language by `degree` of reference `shameReference`
     arguments:
     - element := Element
     - degree := 0 <= float <= 1
     - typeShame := {centroid}|{descriptor}|{centroid, descriptors}
+    - shameReference := self|other
 
     return:
     - set(`words`)
     """
-    def shame(self, element, degree, typeShame):
+    def shame(self, element, degree, typeShame, shameReference = "other"):
         assert degree >= 0 and degree <= 1, "invalid degree {}".format(degree)
+        assert shameReference in {"self", "other"}, "invalid shameReference {}".format(shameReference)
 
         # get random sample from each
+
+        ## TODO : relocate these to better locations
+        self.update_language_stats()
+        element.update_language_stats()
+
         q = set()
         if "centroid" in typeShame:
-            x = list(element.language.get_centroids())
-            numToChoose = ceil(degree * len(x))
+            x = element.get_active_centroids()
+            ##print("ACTIVE CENTROIDS :\t", x)
+            if shameReference == "self":
+                numToChoose = min(ceil(degree * self.activeCentroidCount), self.activeCentroidCount)
+                ##print("DEGREE AND ACTIVE :\t", degree, self.activeCentroidCount)
+            else:
+                numToChoose = min(ceil(degree * element.activeCentroidCount), element.activeCentroidCount)
+                ##print("DEGREE AND ACTIVE :\t", degree, element.activeCentroidCount)
+
+            ##print("LEN X :\{}\t{}".format(len(x), numToChoose))
             r = sample(x, k = numToChoose)
             q.update(r)
         if "descriptor" in typeShame:
-            x = list(element.language.get_descriptors())
-            numToChoose = ceil(degree * len(x))
+            x = element.get_active_descriptors()
+
+            if shameReference == "self":
+                numToChoose = min(ceil(degree * self.activeDescriptorCount), self.activeDescriptorCount)
+                ##print("DEGREE AND ACTIVE :\t", degree, self.activeDescriptorCount)
+            else:
+                numToChoose = min(ceil(degree * element.activeDescriptorCount), element.activeDescriptorCount)
+                ##print("DEGREE AND ACTIVE :\t", degree, element.activeDescriptorCount)
+            ##print("LEN Y :\{}\t{}".format(len(x), numToChoose))
             r = sample(x, k = numToChoose)
             q.update(r)
         element.prohibitedSpeech.update(q)
         return q
 
+    """
+    description:
+    - mates languages by adding `degree` of e1.language to e2.language
+
+    arguments:
+    - e1 := Element
+    - e2 := Element
+    - degree := float
+
+    return:
+    - `centroids to add to e2`, `descriptors to add to e2`
+    """
     @staticmethod
     def mate_languages(e1, e2, degree):
         l = list(e1.language.get_centroids())
@@ -226,18 +338,21 @@ class ShameAndObedienceElement(Element):
         # get number of disjoint centroids in e1
         dc = list(e1.language.language[0] - e2.language.language[0])
         requiredNumberOfWordsToMerge = ceil(len(dc) * degree)
-
         q = choices(dc, k = requiredNumberOfWordsToMerge)
-        descriptors = LanguageMaker.get_descriptors(q, output = type(e2.language.get_descriptors()))
+
+        # generate descriptions for set of words
+        x = LanguageMaker.get_descriptors(q, output = type(e1.language.language[1]))
         e2.update_language_centroids(q, set())
-        e2.update_language_descriptors(descriptors, set())
-        return q, descriptors
+        e2.update_language_descriptors(x, set())
+        return q, x
 
     """
     description:
     - `align` is an operation that adds centroids from self to element based on degree
     """
     def align(self, element, degree):
+        self.update_language_stats()
+        element.update_language_stats()
         c, d= ShameAndObedienceElement.mate_languages(self, element, degree)
         return c,d
 
@@ -247,23 +362,79 @@ class ShameAndObedienceElement(Element):
     - pertinent class variables include:
         - shameObeyTable
     """
-    def move_against(self, otherElement, typeShame, timestamp = 1):
+    def move_against(self, otherElement, typeShame, timestamp):
         toShameDegree, toAlignDegree = self.decide(otherElement.idn)
+
         s = self.shame(otherElement, toShameDegree, typeShame) # shame other element
         d = self.align(otherElement, toAlignDegree)
+        #print("SHAME? :\t", toShameDegree)
+        #print("ALIGN? :\t", toAlignDegree)
+        self.log_timestamp_events(otherElement.idn, toShameDegree, toAlignDegree, timestamp)
 
-        self.log_action("shame", toShameDegree, timestamp)
-        self.log_received(otherElement.idn, "shame", toShameDegree, timestamp)
-        self.log_action("align", toShameDegree, timestamp)
-        self.log_received(otherElement.idn, "align", toShameDegree, timestamp)
+    # TODO : return change in size
+    """
+    description:
+    -
 
-    def log_action(self, typeAction, degree, timestamp):
+    arguments:
+    - otherElements :=
+    - typeShame :=
+    - timestamp := int, >= 0
+    - reproduceInfo := (int::(frequency), int::(degree))
+    """
+    def move_one_timestamp(self, otherElements, typeShame, timestamp, reproduceInfo):
+        # move against all other elements
+        for e in otherElements:
+            self.move_against(e, typeShame, timestamp)
+
+        # reproduce and generate
+        self.do_self_actions_standard(reproduceInfo[0], reproduceInfo[1])
+
+
+    ######################## START : deciding and recording things #########################
+
+    def log_timestamp_events(self, otherElementIdn, toShameDegree, toAlignDegree, timestamp):
+        self.log_action("shame", otherElementIdn, toShameDegree, timestamp)
+        self.log_received("shame", otherElementIdn, toShameDegree, timestamp)
+        self.log_action("align", otherElementIdn, toAlignDegree, timestamp)
+        self.log_received("align", otherElementIdn, toAlignDegree, timestamp)
+
+    """
+    description:
+    - logs action given variables
+
+    arguments:
+    - typeAction := shame|align
+    - elementIdn := int
+    - degree := 0 <= float <= 1
+    - timestamp := int, unit-of-time with respect to game
+    """
+    def log_action(self, typeAction, elementIdn, degree, timestamp):
         assert typeAction in {"shame", "align"}, "typeAction {} invalid".format(typeAction)
-        self.actionHistory[timestamp][self.idn][typeAction] = degree
 
-    def log_received(self, otherElementId, typeAction, degree, timestamp):
+        if elementIdn in self.actionHistory[timestamp]:
+            self.actionHistory[timestamp][elementIdn][typeAction] = degree
+        else:
+            self.actionHistory[timestamp][elementIdn] = {}
+            self.actionHistory[timestamp][elementIdn][typeAction] = degree
+
+
+    """
+    description:
+    - logs receive given variables
+
+    arguments:
+    - typeAction := shame|align
+    - degree := 0 <= float <= 1
+    """
+    def log_received(self, typeAction, otherElementId, degree, timestamp):
         assert typeAction in {"shame", "align"}, "typeAction {} invalid".format(typeAction)
-        self.receiveHistory[timestamp][otherElementId][typeAction] = degree
+
+        if otherElementId in self.receiveHistory[timestamp]:
+            self.receiveHistory[timestamp][otherElementId][typeAction] = degree
+        else:
+            self.receiveHistory[timestamp][otherElementId] = {}
+            self.receiveHistory[timestamp][otherElementId][typeAction] = degree
 
     """
     description:
@@ -275,9 +446,28 @@ class ShameAndObedienceElement(Element):
     def decide(self, otherElementIdn):
         s, a = self.shameObeyTable[otherElementIdn]
         shameDegree, alignDegree = self.shameFunc(s), self.alignFunc(a)
+        #print("SHAME {}/{} OBEY {}/{}".format(s, shameDegree, a, alignDegree))
         return shameDegree, alignDegree
 
-    ######## START : terminating condition for ShameAndObedienceElement
+    ######################## END : deciding and recording things #########################
+
+    ######## START : terminating condition for ShameAndObedienceElement ##################
+
+    def display_alignments(self):
+        print("displaying alignments for : {}".format(self.idn))
+        for k, v in self.shameObeyTable.items():
+            print("key : {}\tvalue : {}".format(k, v))
+
+    def display_history(self):
+        print("** displaying history for : {}".format(self.idn))
+        print("\t* action history")
+        for k, v in self.actionHistory.items():
+            print("{} : {}".format(k, v))
+        print()
+        print()
+        print("\t* receive history")
+        for k, v in self.receiveHistory.items():
+            print("{} : {}".format(k, v))
 
     """
     description:

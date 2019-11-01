@@ -1,12 +1,3 @@
-###
-"""
-a measure of influence that does not use direct intersection:
-"functionality" : definitional capacity.
-    - FUNC(definitions(Element.bagOfWords), (otherElement.bagOfWords)) => 0 <= float <= 1
-    - will use similarity scores
-    - FUNC should not be commutative
-"""
-### TODO : implement `languageFormation`
 from sklearn.feature_extraction.text import TfidfVectorizer
 from random import choice, choices, sample
 from nltk import word_tokenize
@@ -19,13 +10,26 @@ class Language:
         self.language = language
         self.prohibited = [] # prohibited words
 
-        ##assert languageFormation == "centroid", "languageFormation {} invalid".format(languageFormation)
-        ##self.languageFormation = languageFormation
-
     def __len__(self):
         q = LanguageMaker.get_language_type(self.language)
         if q == "standard":
             return len(self.language[0]) + len(self.language[1])
+        elif q == "ripple":
+            raise NotImplementedError("IMPLEMENT HERE")
+
+    def __str__(self):
+        q = LanguageMaker.get_language_type(self.language)
+        x = "* language {} : size {}\n".format(self.idn, len(self.language[0])\
+            + len(self.language[1]))
+        if q == "standard":
+            x += "\t**centroids : {}**\n".format(len(self.language[0]))
+            for l in self.language[0]:
+                x += l + " "
+            x += "\n\n"
+            x += "\t**description : {}**\n".format(len(self.language[1]))
+            for l in self.language[1]:
+                x += l + " "
+            return x
         elif q == "ripple":
             raise NotImplementedError("IMPLEMENT HERE")
 
@@ -205,13 +209,6 @@ class Language:
     def output_random_string(self):
         return -1
 
-    # TODO
-    '''
-    factors :=
-    '''
-    def output_string_based_on_effect(self, factors):
-        return -1
-
     """
     description:
     - romannnnnnnnnnnnnnnntic
@@ -227,29 +224,3 @@ class Language:
         romantic = ["ia", "io", "o", "a", "ni", "li", "sa", "la", "si", "zzi"]
         for w in words:
             yield w + choice(romantic)
-
-
-    # TODO : test this
-    """
-    description:
-    - chooses random words in language descriptors and outs descriptors for them
-      into self
-    """
-    def self_reproduce(self, numberOfDescriptors):
-
-        if type(self.language[1]) is set:
-            x = list(self.language[1])
-            q = sample(x, numberOfDescriptors)
-        elif type(self.language[1]) is list:
-            x = self.language[1]
-            q = choices(x, k = numberOfDescriptors)
-        else:
-            raise NotImplementedError("invalid type of language : {}".\
-                format(type(self.language[1])))
-
-        # gather descriptors for these descriptors
-        # like a see-saw.
-        additions = LanguageMaker.get_descriptors(q, type(self.language[1]))
-        self.add_to_language_descriptors(additions)
-        # update centroids
-        self.language[0] |= q

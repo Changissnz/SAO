@@ -1,15 +1,10 @@
 '''
 this is where visualization of gameboard in Shame And Obedience goes.
 '''
-
-# classes to work on
-# GameBoard
-# PaintingScheme
-# this
-
 from GameBoard import *
 from PaintingScheme import *
 from FreeAndSimpleScanner import *
+from EventHistory import *
 
 class ShameAndObedienceGameBoard(GameBoard):
 
@@ -22,10 +17,11 @@ class ShameAndObedienceGameBoard(GameBoard):
     - areaChangeUpdate := "auto"|float, threshold value determines when visualization needs to be updated
     - selfReproductionFrequency := (int::(number of rounds before update), float::(ratio of current language size)) ;
                                 value determines how elements will reproduce
+    - actionFunctions := dict(`action`:func), `action` could be `shame` or `align`
     """
     def __init__(self, languageInfo, dimensions, assignElementsToRegion = False,\
             pixelRes = (400, 400), areaChangeUpdate = "auto", typeShame = {"centroid", "descriptor"},\
-            selfReproductionFrequency = (1, 0.05)):
+            selfReproductionFrequency = (1, 0.05), actionFunctions = None):
         assert len(languageInfo) < 12, "Shame And Obedience accepts a maximum of 12 elements"
         super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
         self.pixelRes = pixelRes
@@ -34,7 +30,31 @@ class ShameAndObedienceGameBoard(GameBoard):
         self.selfReproductionFrequency = selfReproductionFrequency
         self.update_element_colors()
         PaintingScheme.make_blanko(self.pixelRes)
-        self.eventLogger = EventHistory(frequency = 10)
+        self.eventLogger = EventHistory(1, None)
+        self.set_action_functions(actionFunctions)
+
+    """
+    description:
+    - sets action functions for shame and align
+
+    arguments:
+    - af := dict, standard function dict.
+
+    return:
+    -
+    """
+    def set_action_functions(self, af):
+        if af == None: return
+        self.shameFunc, self.alignFunc = af["shame"], af["align"]
+
+    """
+    description:
+    - codes for setting uniform element action functions
+    """
+    def set_element_action_functions_uniform(self):
+        for e in self.elements.values():
+            e.shameFunc = self.shameFunc
+            e.alignFunc = self.alignFunc
 
     ######################### START : methods for visualization here ###############
     """
@@ -99,33 +119,99 @@ class ShameAndObedienceGameBoard(GameBoard):
 
     ######################### START : methods for moving one timestamp on gameboard ###############
 
+    # TODO : update visualization here
+
+    """
+    description:
+    - updates language stats for each element,
+      active descriptor and word counts.
+    """
+    def update_language_stats(self):
+        for e in self.elements.values():
+            e.update_language_stats()
+
+    # TODO : work on this, inefficient
+    # TODO : work on element descriptor overlaps
+    """
+    description:
+    - sets shame-align pairwise measures for elements
+    """
+    def update_element_alignments(self):
+
+        for e in self.elements.values():
+            q = self.the_others(e.idn)
+            # set overlap measures
+            e.get_element_language_measures(q, setClassVar = True)
+
+    """
+    arguments:
+    - idn := int
+
+    return:
+    - `all elements not of idn`
+    """
+    def the_others(self, idn):
+        return [e for e in self.elements.values() if e.idn != idn]
+
+    """
+    description:
+    - moves against all other elements
+    """
+    def move_elements(self, mode = "standard"):
+        assert mode == "standard", "mode {} is invalid".format(mode)
+
+        for k, v in self.elements.items():
+            oth = self.the_others(v.idn)
+            v.move_one_timestamp(oth, self.typeShame, self.eventLogger.timeStamp, self.selfReproductionFrequency)
+
     """
     description:
     -
     """
     def move_one(self):
+        self.update_language_stats()
         self.update_element_alignments()
         self.move_elements()
 
         # update visualization and areas here
 
-
-    def move_elements(self):
-        def others(ex):
-            return [e for self.elements if e.idn != ex]
-
-
-        for k, v in self.elements.items():
-            oth = others(v.idn)
-            for o in oth:
-                v.move_against(o, self.typeShame)
+        # REFACTOR
+        # update history here
+        self.eventLogger.log(self)
 
 
+    def run(self, numRounds = None):
+        # set shame and align functions first
+        self.set_element_action_functions_uniform()
 
-    def run(self):
+        # run a maximum of `numRounds`
+        if numRounds != None:
+            for _ in range(numRounds):
+                self.move_one()
+                if self.termination_condition_mute():
+                    print("TERMINATED")
+                    break
+            return
 
-        return -1
+        while self.termination_condition_mute() == False:
+            self.move_one()
 
+    # TODO
+    '''
+    description:
+    - determines if game should halt based on following:
+    -   if only 1 speaker
+    '''
+    def termination_condition_mute(self):
+        nonmute = []
+        # get number of mute elements
+        for k, e in self.elements.items():
+            if e.activeWordCount != 0:
+                nonmute.append(k)
+
+        if len(nonmute) <= 1:
+            return True
+        return False
 
 
     ######################### END : methods for moving one timestamp on gameboard ###############
