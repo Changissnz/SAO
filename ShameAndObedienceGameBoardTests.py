@@ -43,7 +43,7 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
     """
     description:
     - makes a gameboard with random elements with declared
-      overlapping centroids 
+      overlapping centroids
     """
     @staticmethod
     def sample_gameboard_random_elements_and_premate():
@@ -76,39 +76,6 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
     def test_demonstrate_ShameAndObedienceGameBoard_run(self):
         numRuns = 1000
         self.gb2.run(numRounds = numRuns)
-        #self.gb2.update_element_alignments()
-
-        """
-        for e in self.gb.elements.values():
-            e.display_alignments()
-        """
-
-        """
-        self.gb.set_element_action_functions_uniform()
-        self.gb.update_language_stats()
-        self.gb.update_element_alignments()
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        for v in self.gb.elements.values():
-            e = v
-
-            e.display_alignments()
-            break
-        print("SELF :\t", e.shameFunc(.20))
-        print("SELF2 :\t", self.gb.shameFunc(.20))
-        print()
-        print()
-        """
-
-
-    """
-    @staticmethod
-    def t():
-
-        shameFunc = make_func_float_by_threshold_standard(0, 100)
-        print("SELF :\t", shameFunc(20))
-        print("SELF2 :\t", shameFunc(20))
-    """
 
 if __name__ == "__main__":
     unittest.main()
-    #ShameAndObedienceGameBoardMethodsTest.t()
