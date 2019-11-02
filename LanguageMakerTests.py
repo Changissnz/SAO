@@ -60,7 +60,6 @@ class LanguageMakerMethodsTest(unittest.TestCase):
         l = LanguageMaker.get_languages_by_content_standard(centroids, outputForEach = list)
 
         print("LANGUAGES :\n", l)
-
         return -1
     #-----------------------------------------------------
 

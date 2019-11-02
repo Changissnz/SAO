@@ -31,8 +31,8 @@ class PaintingScheme:
             for y in range(img.size[1]):
                 data[x,y] = (
                     255,
-                    255,
-                    255,
+                    0,
+                    0,
                 )
         img.save(saveFile)
 
@@ -101,4 +101,4 @@ class PaintingScheme:
         # get centroid coordinates
         return -1
 
-## TODO : fix up assign square region 
+## TODO : fix up assign square region

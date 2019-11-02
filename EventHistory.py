@@ -1,16 +1,17 @@
 # TODO : test this class
-from os import path, mkdir, remove, listdir
+from os import path, mkdir, remove, listdir, rmdir
 from collections import defaultdict
 from copy import deepcopy
+from shutil import rmtree
 
 class EventHistory:
 
     def __init__(self, logFrequency, eventFolderPath, masterLogFolderPath = "events_in_history", clearPastInfo = True):
+        self.clear_info(masterLogFolderPath, clearPastInfo)
         self.set_folder_paths(eventFolderPath, masterLogFolderPath)
         self.logFrequency = logFrequency
         self.logCounter = defaultdict(int)
         self.timeStamp = 0
-        # make assertions here for existence
 
     """
     description:
@@ -19,11 +20,28 @@ class EventHistory:
     arguments:
     - clearPastInfo := bool
     """
-    def clear_info(self, clearPastInfo):
+    def clear_info(self, masterLogFolderPath, clearPastInfo):
         if clearPastInfo:
-            l = listdir(self.masterLogFolderPath)
+            l = listdir(masterLogFolderPath)
             for l_ in l:
-                remove(l_)
+                q = masterLogFolderPath + "/" + l_
+                if path.isdir(q):
+                    rmtree(q)
+                else:
+                    remove(q)
+
+    """
+    description:
+    ~
+
+    arguments:
+    - eIdn := int
+
+    return:
+    - str
+    """
+    def element_id_to_filepath(self, eIdn):
+        return self.eventFolderPath + "/element_id_{}.txt".format(eIdn)
 
     """
     description:
@@ -40,20 +58,22 @@ class EventHistory:
         self.alignmentInfoPath = self.eventFolderPath + "/alignment_info.txt"
 
     """
-    each element's history will be written to a separate file,
-    and will contain its shame-align-receive history for each pertinent
-    timestamp in GameBoard
+    description:
+    - each element's history will be written to a separate file,
+      and will contain its shame-align-receive history for each pertinent
+      timestamp in GameBoard
 
     arguments:
-    - element :=
-    - destructiveLog :=
+    - element := Element
+    - destructiveLog := bool
     """
     def log_element_event_history(self, element, destructiveLog = True):
-        fp = self.eventFolderPath + "/element_id_{}.txt".format(element.idn)
+        fp = self.element_id_to_filepath(element.idn)
         fi = open(fp, "a")
+
         # element event history will consist of 2 variables:
         ## action
-        ##
+        ## receive
         k = list(element.actionHistory.keys())
 
         for k_ in k:
@@ -65,6 +85,10 @@ class EventHistory:
 
         fi.close()
 
+    """
+    description:
+    - logs element event history according to `logFrequency`
+    """
     def log_element_event_history_scheduled(self, element):
         self.logCounter[element.idn] = self.logCounter[element.idn] + 1
 
@@ -79,6 +103,13 @@ class EventHistory:
             self.log_element_event_history_scheduled(e)
 
     ##
+    """
+    description:
+    ~
+
+    arguments:
+    - sequenceElements := container(`Element`)
+    """
     def log_alignments(self, sequenceElements):
         f = open(self.alignmentInfoPath, "a")
         f.write("**[{}] alignments**\n".format(self.timeStamp))
@@ -91,6 +122,32 @@ class EventHistory:
 
     """
     description:
+    - logs termination for `element` given `timestamp`
+
+    arguments:
+    ~
+    """
+    def log_terminate(self, element):
+        fp = self.element_id_to_filepath(element.idn)
+        f = open(fp, "a")
+        f.write("\n\n***********DONE @ T [{}] ---------------".format(self.timeStamp))
+        f.close()
+
+    """
+    description:
+    - logs mute and terminated elements
+
+    arguments:
+    - elements := container(Elements)
+    - timestamp := int
+    """
+    def log_terminations(self, elements):
+        for e in elements:
+            if e.mute:
+                self.log_terminate(e)
+
+    """
+    description:
     -
 
     arguments:
@@ -99,11 +156,22 @@ class EventHistory:
     def log(self, gb):
         self.log_element_events(gb.elements.values())
         self.log_alignments(gb.elements.values())
+        self.log_terminations(gb.elements.values())
         self.timeStamp += 1
 
     # TODO : test this
     """
-    typeTimeStamp := receive|action
+    description:
+    - logs element's receive or action history at timestamp
+
+    arguments:
+    - element := Element
+    - timestamp := int, >= 0
+    - typeTimeStamp := receive|action
+    - destructiveLog := bool, to delete log after writing to log
+
+    return:
+    - str
     """
     @staticmethod
     def convert_element_history_timestamp_to_log_history(element, timestamp,\
@@ -131,5 +199,7 @@ class EventHistory:
             shame, align = round(q[k]['shame'], 2), round(q[k]['align'], 2)
             s = "\nelement {} : shame->{}, align->{}".format(k, shame, align)
             out += s
-        out += "\n-------#--------------#---------#-------------#-------------#--------\n"
+        out += "\n"
+        if typeTimeStamp == "receive":
+            out += "-------#--------------#---------#-------------#-------------#--------\n"
         return out

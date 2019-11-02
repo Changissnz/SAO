@@ -6,11 +6,12 @@ class Element:
 
     def __init__(self, idn, language):
         self.idn = idn
-        self.language = language #Language(idn, languageContents)
+        self.language = language
         self.setInitial = False
         self.set_language_stats()
         self.prohibitedSpeech = set()
         self.reproduceCounter = 1
+        self.mute = False
 
     '''
     description:
@@ -25,13 +26,15 @@ class Element:
     '''
     def set_language_stats(self):
         assert self.setInitial != True, "cannot set language stats after initial"
-        self.centroidCount = len(self.language.language[0])
-        self.activeCentroidCount = len(self.language.language[0])
-        self.descriptorCount = len(self.language.language[1])
-        self.activeDescriptorCount = len(self.language.language[1])
+        self.centroidCount = len(self.language.get_centroids())
+        self.activeCentroidCount = len(self.language.get_centroids())
+        self.descriptorCount = len(self.language.get_descriptors())
+        self.activeDescriptorCount = len(self.language.get_descriptors())
+        assert self.centroidCount != 0 and self.descriptorCount != 0, "invalid initial language : cannot be empty"
         self.wordCount = self.centroidCount + self.descriptorCount
         self.activeWordCount = self.centroidCount + self.descriptorCount
         self.setInitial = True
+
 
     # TODO : test this
     """
@@ -52,9 +55,10 @@ class Element:
     def get_language_stats_on_centroid_with_prohibition(self):
         return len(self.get_active_centroids())
 
+    ## TODO : add arguments for call to mute
     '''
     description:
-    -
+    - updates language statistic variables
     '''
     def update_language_stats(self):
         print("UPDATING")
@@ -64,11 +68,26 @@ class Element:
         self.centroidCount = len(self.language.get_centroids())
         self.descriptorCount = len(self.language.get_descriptors())
         self.wordCount =self.centroidCount + self.descriptorCount
+        self.mute = self.is_mute()
 
+    """
+    description:
+    ~
+
+    return:
+    - set(`active centroids`)
+    """
     def get_active_centroids(self):
         funk = lambda x : False if x in self.prohibitedSpeech else True
         return set(filter(funk, self.language.get_centroids()))
 
+    """
+    description:
+    ~
+
+    return:
+    - set|list, `active centroids`
+    """
     def get_active_descriptors(self):
         funk = lambda x : False if x in self.prohibitedSpeech else True
         if type(self.language.get_descriptors()) is list:
@@ -76,10 +95,12 @@ class Element:
         else:
             return set(filter(funk, self.language.get_descriptors()))
 
-
     '''
     description:
-    -
+    ~
+
+    return:
+    - int, count of active descriptor
     '''
     def get_language_stats_on_descriptor_with_prohibition(self):
         q = self.get_active_descriptors()
@@ -130,7 +151,6 @@ class Element:
     ################## END : language modification methods
 
     # TODO : test below methods
-
     """
     description:
     -
@@ -210,3 +230,23 @@ class Element:
             c += len(x)
             numGenerations -= 1
         return c
+
+    """
+    description:
+    ~
+
+    arguments:
+    - criteria := centroid|descriptor
+    - minThreshold := 0 <= x <= 1, minimum threshold for non-mute
+
+    return:
+    - bool, mute
+    """
+    def is_mute(self, criteria = {"centroid", "descriptor"}, minThreshold = 0):
+        assert minThreshold >= 0 and minThreshold <= 1, "invalid minThreshold {}".format(minThreshold)
+
+        if "descriptor" in criteria:
+            return True if self.activeDescriptorCount/self.descriptorCount <= minThreshold else False
+        if "centroid" in criteria:
+            return True if self.activeCentroidCount/self.centroidCount <= minThreshold else False
+        return True if self.activeWordCount/self.wordCount <= minThreshold else False

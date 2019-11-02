@@ -335,8 +335,8 @@ class ShameAndObedienceElement(Element):
     def mate_languages(e1, e2, degree):
         l = list(e1.language.get_centroids())
 
-        # get number of disjoint centroids in e1
-        dc = list(e1.language.language[0] - e2.language.language[0])
+        # get number of active and disjoint centroids in e1
+        dc = list(e1.get_active_centroids() - e2.get_active_centroids())
         requiredNumberOfWordsToMerge = ceil(len(dc) * degree)
         q = choices(dc, k = requiredNumberOfWordsToMerge)
 
@@ -369,7 +369,7 @@ class ShameAndObedienceElement(Element):
         d = self.align(otherElement, toAlignDegree)
         #print("SHAME? :\t", toShameDegree)
         #print("ALIGN? :\t", toAlignDegree)
-        self.log_timestamp_events(otherElement.idn, toShameDegree, toAlignDegree, timestamp)
+        self.log_timestamp_events(otherElement, toShameDegree, toAlignDegree, timestamp)
 
     # TODO : return change in size
     """
@@ -393,11 +393,13 @@ class ShameAndObedienceElement(Element):
 
     ######################## START : deciding and recording things #########################
 
-    def log_timestamp_events(self, otherElementIdn, toShameDegree, toAlignDegree, timestamp):
-        self.log_action("shame", otherElementIdn, toShameDegree, timestamp)
-        self.log_received("shame", otherElementIdn, toShameDegree, timestamp)
-        self.log_action("align", otherElementIdn, toAlignDegree, timestamp)
-        self.log_received("align", otherElementIdn, toAlignDegree, timestamp)
+    def log_timestamp_events(self, otherElement, toShameDegree, toAlignDegree, timestamp):
+        self.log_action("shame", otherElement.idn, toShameDegree, timestamp)
+        self.log_received("shame", otherElement.idn, toShameDegree, timestamp)
+        self.log_action("align", otherElement.idn, toAlignDegree, timestamp)
+        self.log_received("align", otherElement.idn, toAlignDegree, timestamp)
+        otherElement.update_language_stats()
+        return otherElement.is_mute()
 
     """
     description:
@@ -417,7 +419,6 @@ class ShameAndObedienceElement(Element):
         else:
             self.actionHistory[timestamp][elementIdn] = {}
             self.actionHistory[timestamp][elementIdn][typeAction] = degree
-
 
     """
     description:
@@ -468,10 +469,3 @@ class ShameAndObedienceElement(Element):
         print("\t* receive history")
         for k, v in self.receiveHistory.items():
             print("{} : {}".format(k, v))
-
-    """
-    description:
-    - determines if instance is still active based on non-prohibited words.
-    """
-    def is_mute(self, minSpeakingRatio):
-        return -1

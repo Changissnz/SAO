@@ -9,8 +9,6 @@ from FreeAndSimpleScanner import *
 from multiprocessing import Pool
 
 ## TODO : bug in square calibration
-
-
 class GameBoardHandler:
 
     def __init__(self):
@@ -435,6 +433,7 @@ class GameBoardHandler:
     """
     @staticmethod
     def get_best_config_by_random_inspection(elementInfo, gameboardDim, numRandomPoints = 10, calibrateMode = "square", cutOff = None):
+
         # ? sort ?
         configInfo = []
         currentConfig = []

@@ -1,4 +1,3 @@
-
 from nltk.corpus import stopwords
 from nltk.corpus import words
 from nltk.corpus import wordnet as wn

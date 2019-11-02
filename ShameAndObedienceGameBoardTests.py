@@ -2,6 +2,8 @@ from ShameAndObedienceGameBoard import *
 from ShameAndObedienceElementTests import *
 import unittest
 
+# TODO : test pixel res
+
 class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
 
     @staticmethod
@@ -13,8 +15,8 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
 
     @staticmethod
     def sample_action_functions_multiplier():
-        shameFunc = multiplier_function(minVal = 0.0, maxVal = 1.00, k = 1)
-        alignFunc = multiplier_function(minVal = 0.00, maxVal = 1.00, k = 1)
+        shameFunc = multiplier_function(minVal = 0.25, maxVal = 0.5, k = 1)
+        alignFunc = multiplier_function(minVal = 0.5, maxVal = 0.75, k = 1)
         funcInfo = {"shame" : shameFunc, "align" : alignFunc}
         return funcInfo
 
@@ -33,13 +35,21 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
         dim = (8,8)
         for i in range(5):
             languageInfo.append(Language.random(idn = i, mode = "const"))
-        q = ShameAndObedienceGameBoard(languageInfo, dim, assignElementsToRegion = assignElementsToRegion)
+        q = ShameAndObedienceGameBoard(languageInfo, dim, pixelRes = (1000,750),\
+            assignElementsToRegion = assignElementsToRegion)
 
         ## set action functions
         #q.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions())
         q.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
         return q
 
+    @staticmethod
+    def sample_gameboard2():
+        sampleLanguages = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
+        gb = ShameAndObedienceGameBoard(sampleLanguages, (8,8), pixelRes = (1000, 750),\
+            assignElementsToRegion = True)
+        gb.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
+        return gb
     """
     description:
     - makes a gameboard with random elements with declared
@@ -49,6 +59,10 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
     def sample_gameboard_random_elements_and_premate():
         return -1
 
+    """
+    description:
+    -
+    """
     def setUp(self):
 
         # set up the first gameboard
@@ -57,7 +71,7 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
 
         # get sample languages
         sampleLanguages = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
-        self.gb2 = ShameAndObedienceGameBoard(sampleLanguages, (8,8), assignElementsToRegion = False)
+        self.gb2 = ShameAndObedienceGameBoard(sampleLanguages, (8,8), pixelRes = (1000,750), assignElementsToRegion = False)
         self.gb2.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
 
     def test_ShameAndObedienceGameBoard_PaintGameBoard(self):
@@ -72,10 +86,26 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
         print("overlap measures : {} / {}".format(ov1, ov2))
         print("disjoint measures : {} / {}".format(d1, d2))
 
-
     def test_demonstrate_ShameAndObedienceGameBoard_run(self):
-        numRuns = 1000
+        ## uncomment below run
+        '''
+        numRuns = 5
         self.gb2.run(numRounds = numRuns)
+        '''
+        return
+
+    def test_demonstrate_ShameAndObedienceGameBoard_run_and_visualize(self):
+        gb3 = ShameAndObedienceGameBoardMethodsTest.sample_gameboard2()
+
+        # order might be mixed up
+        for k in gb3.elements.values():
+            print("element location :\t", k.location) 
+
+
+        return
+
+#    def paint(self, regionAndColorPairs, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -24,7 +24,10 @@ class ShameAndObedienceGameBoard(GameBoard):
             selfReproductionFrequency = (1, 0.05), actionFunctions = None):
         assert len(languageInfo) < 12, "Shame And Obedience accepts a maximum of 12 elements"
         super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
+        assert ShameAndObedienceGameBoard.is_valid_pixel_res(pixelRes), "invalid pixelRes {}".format(pixelRes)
         self.pixelRes = pixelRes
+        self.imageRes = ShameAndObedienceGameBoard.dim_to_square_dim(self.pixelRes)
+
         self.set_area_change_update(areaChangeUpdate)
         self.typeShame = typeShame
         self.selfReproductionFrequency = selfReproductionFrequency
@@ -32,6 +35,32 @@ class ShameAndObedienceGameBoard(GameBoard):
         PaintingScheme.make_blanko(self.pixelRes)
         self.eventLogger = EventHistory(1, None)
         self.set_action_functions(actionFunctions)
+
+        # visualization here
+        self.paint_elements()
+
+    """
+    description:
+    -
+    """
+    @staticmethod
+    def is_valid_pixel_res(pixelRes):
+        if pixelRes[0] <= 0 or pixelRes[1] <= 0 or pixelRes[0] <= pixelRes[1]: return False
+        if type(pixelRes[0]) is not int or type(pixelRes[1]) is not int:
+            return False
+
+
+        minimum, maximum = min(pixelRes), max(pixelRes)
+        if minimum < 400: return False
+
+        arbitraryScaleRange = (1.33, 2)
+        if maximum/minimum >= arbitraryScaleRange[0] and maximum/minimum <= arbitraryScaleRange[1]:
+            return True
+        return False
+
+    @staticmethod
+    def dim_to_square_dim(pr):
+        return (min(pr), min(pr))
 
     """
     description:
@@ -78,15 +107,17 @@ class ShameAndObedienceGameBoard(GameBoard):
         q = self.elements[elementIndex]
 
         if q.location != None:
-            x = PaintingScheme.convert_region_to_pixel_region(q.location, self.dimensions, self.pixelRes)
-            ##print("PAINTING :\t", x)
+            x = PaintingScheme.convert_region_to_pixel_region(q.location, self.dimensions, self.imageRes)
+            print("PAINTING :\t", x)
             PaintingScheme.paint_image_given_pixel_region_and_color(x, q.currentColor, zheFile = zheFile)
+            return
+        print("XXX")
 
     def paint_elements(self,  zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
         assert mode in {"clear first", None}
 
         if mode == "clear first":
-            PaintingScheme.make_blanko(self.pixelRes, zheFile)
+            PaintingScheme.make_blanko(self.imageRes, zheFile)
 
         for k in self.elements.keys():
             self.paint_element(k)
@@ -109,9 +140,10 @@ class ShameAndObedienceGameBoard(GameBoard):
         assert mode in {"clear first", None}
 
         if mode == "clear first":
-            PaintingScheme.make_blanko(self.pixelRes, zheFile)
+            PaintingScheme.make_blanko(self.imageRes, zheFile)
 
         for r, c in regionAndColorPairs:
+            print("")
             PaintingScheme.paint_image_given_pixel_region_and_color(r, c, zheFile = zheFile)
         return True
 
@@ -147,11 +179,19 @@ class ShameAndObedienceGameBoard(GameBoard):
     arguments:
     - idn := int
 
+    arguments:
+    - idn := int, identifier for element
+    - mode := all|mute|non-mute
+
     return:
     - `all elements not of idn`
     """
-    def the_others(self, idn):
-        return [e for e in self.elements.values() if e.idn != idn]
+    def the_others(self, idn, mode = "non-mute"):
+        if mode == "all":
+            return [e for e in self.elements.values() if e.idn != idn]
+        elif mode == "mute":
+            return [e for e in self.elements.values() if e.idn != idn and e.mute]
+        return [e for e in self.elements.values() if e.idn != idn and not e.mute]
 
     """
     description:
@@ -161,8 +201,22 @@ class ShameAndObedienceGameBoard(GameBoard):
         assert mode == "standard", "mode {} is invalid".format(mode)
 
         for k, v in self.elements.items():
+            # mute element, no move
+            if v.mute:
+                continue
+
             oth = self.the_others(v.idn)
             v.move_one_timestamp(oth, self.typeShame, self.eventLogger.timeStamp, self.selfReproductionFrequency)
+
+    """
+    description:
+    -
+    """
+    def update_visualization(self):
+        ## TODO : add boolean switch for change here
+        if self.assignElementsToRegion:
+            self.assign_elements_to_region()
+            self.paint_elements()
 
     """
     description:
@@ -172,9 +226,10 @@ class ShameAndObedienceGameBoard(GameBoard):
         self.update_language_stats()
         self.update_element_alignments()
         self.move_elements()
+        self.update_language_stats()
 
         # update visualization and areas here
-
+        self.update_visualization()
         # REFACTOR
         # update history here
         self.eventLogger.log(self)
@@ -191,6 +246,10 @@ class ShameAndObedienceGameBoard(GameBoard):
                 if self.termination_condition_mute():
                     print("TERMINATED")
                     break
+
+                print("LANGUAGE FOR EACH ELEMENT")
+                for e in self.elements.values():
+                    print("e : {}".format(e.activeWordCount))
             return
 
         while self.termination_condition_mute() == False:
@@ -203,15 +262,16 @@ class ShameAndObedienceGameBoard(GameBoard):
     -   if only 1 speaker
     '''
     def termination_condition_mute(self):
-        nonmute = []
         # get number of mute elements
+        c = 0
         for k, e in self.elements.items():
-            if e.activeWordCount != 0:
-                nonmute.append(k)
+            if e.is_mute(minThreshold = 0):
+                c += 1
 
-        if len(nonmute) <= 1:
+        if c >= len(self.elements) - 1:
             return True
         return False
+
 
 
     ######################### END : methods for moving one timestamp on gameboard ###############
