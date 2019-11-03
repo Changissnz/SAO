@@ -82,23 +82,6 @@ class PaintingScheme:
     def paint_image_using_gameboard_info(gameboard):
         return -1
 
-
     ########### END : methods for painting image given element info
-
-
-    #----------------------------------------------------------------------------------------
-
-    # TODO ?
-    '''
-    description:
-    -
-
-    arguments:
-    - gameboard := GameBoard
-    '''
-    @staticmethod
-    def populate_by_element_to_region_assignment(gameboard):
-        # get centroid coordinates
-        return -1
 
 ## TODO : fix up assign square region

@@ -61,7 +61,6 @@ class Element:
     - updates language statistic variables
     '''
     def update_language_stats(self):
-        print("UPDATING")
         self.activeCentroidCount = self.get_language_stats_on_centroid_with_prohibition()
         self.activeDescriptorCount = self.get_language_stats_on_descriptor_with_prohibition()
         self.activeWordCount = self.activeCentroidCount + self.activeDescriptorCount
@@ -142,11 +141,8 @@ class Element:
     -
     '''
     def update_language_centroids(self, toAdd, toRemove):
-        ##print("TO ADD:\t", toAdd)
         self.language.language[0].update(toAdd)
-        ##print("HERE :\t", self.language.language[0])
         self.language.language[0].difference_update(toRemove)
-        ##print("HERE2")
 
     ################## END : language modification methods
 

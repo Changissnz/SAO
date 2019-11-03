@@ -20,15 +20,13 @@ class ShameAndObedienceGameBoard(GameBoard):
     - actionFunctions := dict(`action`:func), `action` could be `shame` or `align`
     """
     def __init__(self, languageInfo, dimensions, assignElementsToRegion = False,\
-            pixelRes = (400, 400), areaChangeUpdate = "auto", typeShame = {"centroid", "descriptor"},\
+            pixelRes = (400, 400), typeShame = {"centroid", "descriptor"},\
             selfReproductionFrequency = (1, 0.05), actionFunctions = None):
         assert len(languageInfo) < 12, "Shame And Obedience accepts a maximum of 12 elements"
         super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
         assert ShameAndObedienceGameBoard.is_valid_pixel_res(pixelRes), "invalid pixelRes {}".format(pixelRes)
         self.pixelRes = pixelRes
         self.imageRes = ShameAndObedienceGameBoard.dim_to_square_dim(self.pixelRes)
-
-        self.set_area_change_update(areaChangeUpdate)
         self.typeShame = typeShame
         self.selfReproductionFrequency = selfReproductionFrequency
         self.update_element_colors()
@@ -37,7 +35,9 @@ class ShameAndObedienceGameBoard(GameBoard):
         self.set_action_functions(actionFunctions)
 
         # visualization here
+        self.visualizeCounter = 0
         self.paint_elements()
+        self.finish = False
 
     """
     description:
@@ -49,10 +49,8 @@ class ShameAndObedienceGameBoard(GameBoard):
         if type(pixelRes[0]) is not int or type(pixelRes[1]) is not int:
             return False
 
-
         minimum, maximum = min(pixelRes), max(pixelRes)
         if minimum < 400: return False
-
         arbitraryScaleRange = (1.33, 2)
         if maximum/minimum >= arbitraryScaleRange[0] and maximum/minimum <= arbitraryScaleRange[1]:
             return True
@@ -99,13 +97,9 @@ class ShameAndObedienceGameBoard(GameBoard):
             v.update_color(q)
         return
 
-    def set_area_change_update(self, areaChangeUpdate):
-        assert areaChangeUpdate == "auto" or type(areaChangeUpdate) is float, "invalid areaChangeUpdate {}".format(areaChangeUpdate)
-        self.areaChangeUpdate = self.area / 4 if areaChangeUpdate == "auto" else areaChangeUpdate
-
     def paint_element(self, elementIndex, zheFile = "defaultPitcherOfEmotions.png"):
-        q = self.elements[elementIndex]
 
+        q = self.elements[elementIndex]
         if q.location != None:
             x = PaintingScheme.convert_region_to_pixel_region(q.location, self.dimensions, self.imageRes)
             print("PAINTING :\t", x)
@@ -113,8 +107,10 @@ class ShameAndObedienceGameBoard(GameBoard):
             return
         print("XXX")
 
-    def paint_elements(self,  zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
+    def paint_elements(self, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
         assert mode in {"clear first", None}
+
+        if self.assignElementsToRegion == False: return
 
         if mode == "clear first":
             PaintingScheme.make_blanko(self.imageRes, zheFile)
@@ -152,7 +148,6 @@ class ShameAndObedienceGameBoard(GameBoard):
     ######################### START : methods for moving one timestamp on gameboard ###############
 
     # TODO : update visualization here
-
     """
     description:
     - updates language stats for each element,
@@ -176,9 +171,6 @@ class ShameAndObedienceGameBoard(GameBoard):
             e.get_element_language_measures(q, setClassVar = True)
 
     """
-    arguments:
-    - idn := int
-
     arguments:
     - idn := int, identifier for element
     - mode := all|mute|non-mute
@@ -206,15 +198,20 @@ class ShameAndObedienceGameBoard(GameBoard):
                 continue
 
             oth = self.the_others(v.idn)
+            print("THE OTHERS :\t", oth)
             v.move_one_timestamp(oth, self.typeShame, self.eventLogger.timeStamp, self.selfReproductionFrequency)
 
     """
     description:
-    -
+    - updates visualization depending on interval
     """
     def update_visualization(self):
         ## TODO : add boolean switch for change here
-        if self.assignElementsToRegion:
+        if self.assignElementsToRegion is False:
+            return
+        self.visualizeCounter += 1
+        if self.visualizeCounter % self.assignElementsToRegion == 0:
+            self.visualizeCounter = 0
             self.assign_elements_to_region()
             self.paint_elements()
 
@@ -222,7 +219,12 @@ class ShameAndObedienceGameBoard(GameBoard):
     description:
     -
     """
-    def move_one(self):
+    def move_one(self, calibrateSize = False):
+        if self.finish: return
+
+        print("pixel res :\t", self.pixelRes)
+        print("image res :\t", self.imageRes)
+
         self.update_language_stats()
         self.update_element_alignments()
         self.move_elements()
@@ -230,10 +232,16 @@ class ShameAndObedienceGameBoard(GameBoard):
 
         # update visualization and areas here
         self.update_visualization()
+
         # REFACTOR
         # update history here
         self.eventLogger.log(self)
+        self.finish = self.termination_condition_mute()
 
+        if calibrateSize != False:
+            print("CALIBRATE SIZE :\t", calibrateSize)
+            sizeCap, shrinkRatio = calibrateSize
+            self.calibrate_size(sizeCap, shrinkRatio)
 
     def run(self, numRounds = None):
         # set shame and align functions first
@@ -272,6 +280,60 @@ class ShameAndObedienceGameBoard(GameBoard):
             return True
         return False
 
+    """
+    description:
+    - calibrates the element languages if their total size exceeds some size cap,
+      to `shrinkRatio`
+    - for each language, will remove equal ratios for centroids and descriptors
+
+    arguments:
+    - sizeCap := int, integer limit before calibrating size
+    - shrinkRatio := 0 <= float <= 1, determines the size to shrink languages to
+
+    return:
+    - dict(`new element sizes`)
+    """
+    def calibrate_size(self, sizeCap, shrinkRatio):
+        assert shrinkRatio >= 0 and shrinkRatio <= 1, "invalid shrinkRatio"
+
+        def shrink_language(element, wantedMaxSize):
+            assert wantedMaxSize > 0, "invalid max size"
+            # get number of actives
+            q1, q2 = element.activeCentroidCount, element.activeDescriptorCount
+            r = element.activeDescriptorCount // element.activeCentroidCount
+
+            q = element.activeWordCount
+
+            # get remove info
+            numCentroidsToRemove, numDescriptorsToRemove = 0, 0
+            while q > wantedMaxSize:
+                numDescriptorsToRemove += r
+                numCentroidsToRemove += 1
+                q = element.activeWordCount - (numDescriptorsToRemove + numCentroidsToRemove)
+
+            # pick and remove
+            l_ = list(element.get_active_descriptors())
+            s = sample(l_, k = numDescriptorsToRemove)
+            element.update_language_descriptors(set(), s)
+
+            l_ = list(element.get_active_centroids())
+            s = sample(l_, k = numCentroidsToRemove)
+            element.update_language_centroids(set(), s)
+
+        q = sum(e.activeWordCount for e in self.elements.values())
+        if q == 0: return
+
+        if q >= sizeCap:
+            newSz = ceil(sizeCap * shrinkRatio)
+
+            # get wantedSizes of sizes for each element
+            wantedSizes = {}
+            for k,v in self.elements.items():
+                wantedSizes[k] = ceil(v.activeWordCount / q * newSz)
+
+            # shrink each language based on wanted size
+            for k, v in wantedSizes.items():
+                shrink_language(self.elements[k], v)
 
 
     ######################### END : methods for moving one timestamp on gameboard ###############

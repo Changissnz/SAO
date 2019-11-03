@@ -50,5 +50,9 @@ following things, in order to help aid the simulation, per se, of `SAO`:
 
 ##### FINISH DOCS HERE
 
+Below is a screenshot of current progress.
+
+![alt text](display.png "Title")
+
 
 ##### END FINISH DOCS HERE

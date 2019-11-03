@@ -47,7 +47,7 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
     def sample_gameboard2():
         sampleLanguages = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
         gb = ShameAndObedienceGameBoard(sampleLanguages, (8,8), pixelRes = (1000, 750),\
-            assignElementsToRegion = True)
+            assignElementsToRegion = 200)
         gb.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
         return gb
     """
@@ -99,13 +99,8 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
 
         # order might be mixed up
         for k in gb3.elements.values():
-            print("element location :\t", k.location) 
-
-
+            print("element location :\t", k.location)
         return
-
-#    def paint(self, regionAndColorPairs, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
-
 
 if __name__ == "__main__":
     unittest.main()
