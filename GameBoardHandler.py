@@ -6,7 +6,6 @@ from math import sqrt
 from random import uniform, random, shuffle
 from copy import deepcopy
 from FreeAndSimpleScanner import *
-from multiprocessing import Pool
 
 ## TODO : bug in square calibration
 class GameBoardHandler:
@@ -56,7 +55,7 @@ class GameBoardHandler:
     arguments:
     - numCentroids := int
     - coordinateRange := (int::(maxX), int::(maxY))
-    - setOfCoordinates := list((int::(x), int::(y)))
+    - setOfCoordinates := list((int::(x), int::(y))), coordinates presently existing in `coordinateRange`
     - minDistance := "auto"|float
 
     return:
@@ -451,10 +450,93 @@ class GameBoardHandler:
                     currentConfig.append(br)
                     configInfo.append((k, v, br, bad))
                     currentAreaDiff += bad
-                    print("found region for {} : {}".format(k, br))
+                    #print("found region for {} : {}".format(k, br))
                     break
                 q -= 1
 
         return configInfo, currentAreaDiff
+
+    ######################################## TODO : above to be deleted.
+
+    # add scale for element region area to gameboard area
+    @staticmethod
+    def get_best_config_by_trial_and_error(elementInfo, gameboardDim, numTrials = 100):
+
+        '''
+        description:
+        -
+
+        arguments:
+        - wantedDim :=
+        -
+        '''
+        def get_config_region_for_dimension(wantedDim):
+            xMax, yMax = gameboardDim[0] - wantedDim[0], gameboardDim[1] - wantedDim[1]
+
+            if xMax < 0 or yMax < 0:
+                return False
+
+            possibleCoordRange = (xMax, yMax)
+            xMin = uniform(0, xMax)
+            yMin = uniform(0, yMax)
+            xMax, yMax = xMin + wantedDim[0], yMin + wantedDim[1]
+            return ((xMin, yMin), (xMax, yMax))
+
+        '''
+        description:
+        -
+        '''
+        def get_possible_config():
+            config = []
+            for e in elementInfo:
+                p2 = get_config_region_for_dimension(e[1])
+                config.append(p2)
+            return config
+
+# elementId, wantedDim, bestRegion, areaDifference
+
+        def get_possible_config_info(config):
+            c = []
+            areaDiff = 0
+            for (i, c_) in enumerate(config):
+                q = [config[j] for j in range(len(config)) if j != i]
+                area = AreaScanner.sloppy_area_scan_mp(q, 10 ** -1, c_)
+                ad= abs(area - (elementInfo[i][1][0] * elementInfo[i][1][1]))
+                areaDiff += ad
+                c.append((elementInfo[i][0], elementInfo[i][1], c_, ad))
+
+            return c, areaDiff
+
+        # keep track of the best config
+        configInfoBest = None
+        adBest = None
+
+        for i in range(numTrials):
+            config = get_possible_config()
+            c, ad = get_possible_config_info(config)
+            if adBest != None:
+                if ad < adBest:
+                    adBest = ad
+            else:
+                adBest, configBest = ad, c
+
+        return configBest, adBest
+
+    @staticmethod
+    def get_region_in_region_by_dimensions(q, wantedDim, gameboardDim):
+
+        # get four regions
+        lu = ((q[0] - wantedDim[0], q[1]), (q[0], q[1] + wantedDim[0]))
+        lb = ((q[0] - wantedDim[0], q[1] - wantedDim[1]), (q[0], q[1]))
+        ru = ((q[0], q[1]), (q[0], q[1] + wantedDim[0]))
+        rb = ((q[0], q[1] - wantedDim[1]), (q[0], q[1]))
+        r = [lu, lb, ru, rb]
+
+        # check if they are in regions
+        for r_ in r:
+            if FreeAndSimpleScanner.is_region_in_region(r_, ((0,0), gameboardDim)):
+                return r_
+        return False
+
     ####### END : the assignment algorithm for elements in Shame And Obedience
     ########### END : code for assigning elements to regions here

@@ -1,9 +1,8 @@
 from copy import deepcopy
 from functools import partial
-##from AreaScanner import *
-
+from random import uniform
+from multiprocessing import Pool
 ## TODO : there is a bug in `calibrate_region_into_square`
-
 
 class FreeAndSimpleScanner:
 
@@ -101,6 +100,15 @@ class FreeAndSimpleScanner:
         if not (r1[1][1] >= r2[0][1] and r1[1][1] <= r2[1][1]):
             return False
         return True
+
+    @staticmethod
+    def random_region_in_dimensions(dim):
+
+        minX = uniform(0, dim[0])
+        maxX = uniform(minX, dim[0])
+        minY = uniform(0, dim[1])
+        maxY = uniform(minY, dim[1])
+        return ((minX, minY), (maxX, maxY))
 
     @staticmethod
     def is_square_region(region, rounding = 2):
@@ -688,40 +696,29 @@ class AreaScanner:
     '''
     @staticmethod
     def sloppy_area_scan(wantedRegion, usedRegions, increment = 10**(-2)):
-        ##print("X")
-        ##("f", FreeAndSimpleScanner)
         if wantedRegion == None: return False ##### ?? TODO
         assert FreeAndSimpleScanner.is_proper_region(wantedRegion) is True, "invalid region {}".format(wantedRegion)
         if FreeAndSimpleScanner.get_area_of_region(wantedRegion) == 0:
             return False
 
-        ##print("SS")
         # scan from lower left corner to upper right corner
         startCoord = wantedRegion[0]
-        ##print("START:\t",startCoord)
         clause = lambda c: False if FreeAndSimpleScanner.on_border_during_scan_event(c, wantedRegion, direction = "up") else True
         incrementos = FreeAndSimpleScanner.get_increment(wantedRegion, "up", increment)
         totalArea = 0
         ls1,ls2 = None, None
-        ##allLineSets = []
-        ##print("SS :\t", startCoord)
-        ##print("free")
 
         while clause(startCoord):
             ls2 = ls1
 
             ls1 = AreaScanner.scan_collect_free_lineset(startCoord, wantedRegion, usedRegions,\
                 direction = "right", increment = increment)
-            ##print("free ls:\t",ls1)
 
-            ##allLineSets.append(ls1)
             if ls1 != None and ls2 != None:
                 coex = AreaScanner.get_horizontal_coexistence_between_linesets(ls1, ls2)
                 a = AreaScanner.get_area_from_horizontal_line_segments(coex, increment)
                 totalArea += a
             startCoord = incrementos(startCoord)
-            ##print("A NOW :\t", totalArea)
-            #print("SC:\t",startCoord)
         return totalArea##, ls1
 
     # TODO : check this
@@ -734,6 +731,13 @@ class AreaScanner:
         a = AreaScanner.sloppy_area_scan(wantedRegion, usedRegions, increment)
         return wantedRegion, a
 
+    """
+    description:
+    - calculates the vertical area between horizontal lines with points p1 and p2.
+
+    return:
+    - (`wantedRegion`, `area`)
+    """
     @staticmethod
     def get_area_from_coordinate_pairs(wantedRegion, usedRegions, increment, p):
         p1, p2 = p
@@ -747,6 +751,48 @@ class AreaScanner:
         area = AreaScanner.get_area_from_horizontal_line_segments(coex, increment)
         return area
 
+    # TODO : test this.
+    """
+    description:
+    - the multiprocessed version of original sloppy area scan
+
+    arguments:
+    ~
+
+    return:
+    - float::(area of wantedRegion)
+    """
+    @staticmethod
+    def sloppy_area_scan_mp(usedRegions, increment, wantedRegion):
+
+        # collect all the y-values first
+        def get_coordinates():
+            y = wantedRegion[0][1]
+            coords = []
+            while y <= wantedRegion[1][1]:
+                coords.append((wantedRegion[0][0], y))
+                y += increment
+            return coords
+
+        def get_coordinate_pairs(coords):
+            p = []
+            for i in range(len(coords) - 1):
+                p.append((coords[i], coords[i +1]))
+            return p
+            
+        c = get_coordinates()
+        p = get_coordinate_pairs(c)
+
+        f = partial(AreaScanner.get_area_from_coordinate_pairs, wantedRegion, usedRegions, increment)
+        w = Pool(5)
+        q = sum(w.map(f, p))
+        w.close()
+        w.join()
+
+        return q
+
+    ################# TODO : below methods need to be observed for runtime deficiencies
+
     '''
     description:
     -
@@ -758,11 +804,8 @@ class AreaScanner:
     def get_best_region_given_coordinates(coord, gameboardDim, usedRegions, increment = 10**(-2), calibrateMode = "square"):
 
         tr = ((0,0),gameboardDim) if FreeAndSimpleScanner.get_dimension_format(gameboardDim) == "gameboard-dim" else gameboardDim
-        ##print("TR:\t",tr)
         if FreeAndSimpleScanner.get_area_of_region(tr) == 0:
             return False
-
-        ##print("USED:\t", usedRegions)
 
         # get 4 regions
         lu = FreeAndSimpleScanner.right_angle_scan_from_coordinate(coord, tr, usedRegions, "left", "up", calibrateMode = calibrateMode)

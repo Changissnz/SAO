@@ -23,8 +23,11 @@ class ShameAndObedienceGameBoard(GameBoard):
             pixelRes = (400, 400), typeShame = {"centroid", "descriptor"},\
             selfReproductionFrequency = (1, 0.05), actionFunctions = None):
         assert len(languageInfo) < 12, "Shame And Obedience accepts a maximum of 12 elements"
-        super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
         assert ShameAndObedienceGameBoard.is_valid_pixel_res(pixelRes), "invalid pixelRes {}".format(pixelRes)
+        assert actionFunctions != None, "cannot proceed without any actions"
+
+
+        super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
         self.pixelRes = pixelRes
         self.imageRes = ShameAndObedienceGameBoard.dim_to_square_dim(self.pixelRes)
         self.typeShame = typeShame
@@ -33,6 +36,7 @@ class ShameAndObedienceGameBoard(GameBoard):
         PaintingScheme.make_blanko(self.pixelRes)
         self.eventLogger = EventHistory(1, None)
         self.set_action_functions(actionFunctions)
+        self.set_element_action_functions_uniform()
 
         # visualization here
         self.visualizeCounter = 0
@@ -110,7 +114,7 @@ class ShameAndObedienceGameBoard(GameBoard):
     def paint_elements(self, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
         assert mode in {"clear first", None}
 
-        if self.assignElementsToRegion == False: return
+        if self.assignElementsToRegion is False: return
 
         if mode == "clear first":
             PaintingScheme.make_blanko(self.imageRes, zheFile)
@@ -156,6 +160,8 @@ class ShameAndObedienceGameBoard(GameBoard):
     def update_language_stats(self):
         for e in self.elements.values():
             e.update_language_stats()
+        self.get_element_stats() # TODO : relocate
+
 
     # TODO : work on this, inefficient
     # TODO : work on element descriptor overlaps
@@ -198,7 +204,6 @@ class ShameAndObedienceGameBoard(GameBoard):
                 continue
 
             oth = self.the_others(v.idn)
-            print("THE OTHERS :\t", oth)
             v.move_one_timestamp(oth, self.typeShame, self.eventLogger.timeStamp, self.selfReproductionFrequency)
 
     """
@@ -210,10 +215,12 @@ class ShameAndObedienceGameBoard(GameBoard):
         if self.assignElementsToRegion is False:
             return
         self.visualizeCounter += 1
-        if self.visualizeCounter % self.assignElementsToRegion == 0:
+        if self.visualizeCounter % self.assignElementsToRegion[1] == 0:
             self.visualizeCounter = 0
-            self.assign_elements_to_region()
+            self.assign_elements(self.assignElementsToRegion)
             self.paint_elements()
+
+    #########################33 START : below methods need to be checked.
 
     """
     description:
@@ -221,9 +228,6 @@ class ShameAndObedienceGameBoard(GameBoard):
     """
     def move_one(self, calibrateSize = False):
         if self.finish: return
-
-        print("pixel res :\t", self.pixelRes)
-        print("image res :\t", self.imageRes)
 
         self.update_language_stats()
         self.update_element_alignments()
@@ -239,7 +243,6 @@ class ShameAndObedienceGameBoard(GameBoard):
         self.finish = self.termination_condition_mute()
 
         if calibrateSize != False:
-            print("CALIBRATE SIZE :\t", calibrateSize)
             sizeCap, shrinkRatio = calibrateSize
             self.calibrate_size(sizeCap, shrinkRatio)
 
@@ -252,33 +255,15 @@ class ShameAndObedienceGameBoard(GameBoard):
             for _ in range(numRounds):
                 self.move_one()
                 if self.termination_condition_mute():
-                    print("TERMINATED")
                     break
-
-                print("LANGUAGE FOR EACH ELEMENT")
-                for e in self.elements.values():
-                    print("e : {}".format(e.activeWordCount))
             return
 
         while self.termination_condition_mute() == False:
             self.move_one()
 
-    # TODO
-    '''
-    description:
-    - determines if game should halt based on following:
-    -   if only 1 speaker
-    '''
-    def termination_condition_mute(self):
-        # get number of mute elements
-        c = 0
-        for k, e in self.elements.items():
-            if e.is_mute(minThreshold = 0):
-                c += 1
+    ######################### END : methods for moving one timestamp on gameboard ###############
 
-        if c >= len(self.elements) - 1:
-            return True
-        return False
+    ######################### START : termination and calibration methods #####################################
 
     """
     description:
@@ -336,4 +321,21 @@ class ShameAndObedienceGameBoard(GameBoard):
                 shrink_language(self.elements[k], v)
 
 
-    ######################### END : methods for moving one timestamp on gameboard ###############
+    # TODO
+    '''
+    description:
+    - determines if game should halt based on following:
+    -   if only 1 speaker
+    '''
+    def termination_condition_mute(self):
+        # get number of mute elements
+        c = 0
+        for k, e in self.elements.items():
+            if e.is_mute(minThreshold = 0):
+                c += 1
+
+        if c >= len(self.elements) - 1:
+            return True
+        return False
+
+    ######################### END : termination and calibration methods #####################################

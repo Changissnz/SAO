@@ -4,6 +4,8 @@ update on GameBoard, specialized for shame and obedience element
 from ShameAndObedienceElement import *
 from math import sqrt
 
+# assignElementsToRegion needs to go from False -> "assignMode"
+# add variable to this method : assign_elements_to_region
 class GameBoard:
 
     """
@@ -13,6 +15,11 @@ class GameBoard:
     arguments:
     - languageInfo := int|list(`languages`)
     - dimensions := (int,int)
+    - maxNumLanguages := int, maximum languages supported
+    - assignElementsToRegion := False|((random|fit)::assignmentMode, int::(assignFrequency))
+
+    return:
+    -
     """
     def __init__(self, languageInfo, dimensions, maxNumLanguages = 52, assignElementsToRegion = False):
         self.dimensions = dimensions
@@ -23,7 +30,7 @@ class GameBoard:
         self.set_languages(languageInfo, maxNumLanguages = maxNumLanguages)
         self.get_element_stats()
         self.assignElementsToRegion = assignElementsToRegion
-        if self.assignElementsToRegion: self.assign_elements_to_region()
+        self.assign_elements(self.assignElementsToRegion)
 
     # TODO : test this.
     '''
@@ -129,10 +136,16 @@ class GameBoard:
 
     ################# START : methods below used to calculate the element-to-region assignment
 
-    # TODO : test this, make argument for alternative config alg.
+    def get_element_dim_from_ratio(self, r):
+        assert r >= 0 and r <= 1, "invalid r {}".format(r)
+        elemArea = r * self.area
+        return round(sqrt(elemArea), 4)
+
+    # TODO : delete this
     """
     description:
-    - assigns elements to region after alreading setting element stats
+    - assigns elements to region after alreading setting element stats. `elementRatioScale` determines the proportion of the gameboard the elements
+      occupy, 1 means area of all elements equals gameboard, 0 means none.
 
     arguments:
     - requiredFit := False|int::(positive), number of times to attempt fitting elements to gameboard
@@ -142,27 +155,12 @@ class GameBoard:
     - `configInfo`, `areaDiff`
     """
     def assign_elements_to_region_(self, requiredFit, elementRatioScale):
-
-        def get_element_dim_from_ratio(r):
-            assert r >= 0 and r <= 1, "invalid r {}".format(r)
-            elemArea = r * self.area
-            return round(sqrt(elemArea), 4)
+        assert elementRatioScale >= 0 and elementRatioScale <= 1, "elementRatioScale {} invalid".format(elementRatioScale)
 
         # get element dimensions
-        elementDim = []
-        for k, v in self.elementLanguageRatio.items():
-            q = get_element_dim_from_ratio(v)
-            elementDim.append((k,(q,q)))
-            ##print("{} :{}".format(k,v))
-
-        ##print("ELEMENT DIM :\t", elementDim)
+        elementDim = self.get_element_dimensions(elementRatioScale = elementRatioScale)
         config, areaDiff = GameBoardHandler.get_best_config_by_random_inspection(elementDim,\
-            self.dimensions, cutOff = "auto")
-
-        ##print("CONFIG\n")
-        ##print(config)
-        ##print("LEN ELEMENTS :\t", len(self.elements))
-
+            self.dimensions, numRandomPoints = 2, cutOff = "auto")
         if type(requiredFit) is int:
             if requiredFit == 0:
                 return config, areaDiff
@@ -174,12 +172,66 @@ class GameBoard:
 
     """
     description:
-    -
+    - assigns elements to region depending on some mode,
     """
-    def assign_elements_to_region(self, requiredFit = 0, elementRatioScale = 0.5):
+    def assign_elements_to_region_by_fit(self, requiredFit = 0, elementRatioScale = 0.5):
         q = self.assign_elements_to_region_(requiredFit, elementRatioScale)
         if q == False: return False
         self.config, self.configAreaDiff = q[0],q[1]
+        self.assign_to_elements_helper()
+
+    """
+    description:
+    - assigns elements to region using some either fit-assignment or random assignment
+
+    arguments:
+    - assignElementsToRegion := False|((t/e|fit)::assignmentMode, int::(assignFrequency))
+    """
+    # TODO : add arguments here
+    def assign_elements(self, assignElementsToRegion):
+
+        if assignElementsToRegion is False:
+            return
+
+        assert assignElementsToRegion[0] in {"t/e", "fit"} and\
+            type(assignElementsToRegion[1]) is int and len(assignElementsToRegion) == 2,\
+            "invalid assignElementsToRegion {}".format(assignElementsToRegion)
+
+        if assignElementsToRegion[0] == "fit":
+            self.assign_elements_to_region_by_fit() # gets best fit
+        else:
+            self.assign_elements_to_region_by_trial_and_error() #
+
+    """
+    description:
+    - calculates element dimensions from its ratio of game language.
+
+    arguments:
+    ~
+
+    return:
+    - list::((`id`, `dim`:(int,int)))
+    """
+    def get_element_dimensions(self, elementRatioScale = 1):
+        # get element dimensions
+        elementDim = []
+        for k, v in self.elementLanguageRatio.items():
+            q = self.get_element_dim_from_ratio(v)
+            q = elementRatioScale * q
+            elementDim.append((k,(q,q)))
+        return elementDim
+
+    """
+    description:
+    ~
+
+    arguments:
+    ~
+    """
+    def assign_elements_to_region_by_trial_and_error(self):
+        ei = self.get_element_dimensions()
+        self.config, self.configAreaDiff =\
+            GameBoardHandler.get_best_config_by_trial_and_error(ei, self.dimensions, numTrials = 10)
         self.assign_to_elements_helper()
 
     """
@@ -193,5 +245,6 @@ class GameBoard:
             idn = c[0]
             reg = c[2]
             self.elements[idn].set_location(reg)
+
 
     ################# END : methods below used to calculate the element-to-region assignment

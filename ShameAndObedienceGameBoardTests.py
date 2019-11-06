@@ -1,55 +1,10 @@
-from ShameAndObedienceGameBoard import *
-from ShameAndObedienceElementTests import *
+from ShameAndObedienceGameBoardTestVariables import *
 import unittest
-
+from time import time
 # TODO : test pixel res
 
 class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
 
-    @staticmethod
-    def sample_action_functions():
-        shameFunc = make_func_float_by_threshold_standard(0.0, 1.0)
-        alignFunc = make_func_float_by_threshold_standard(0.0, 1.0)
-        funcInfo = {"shame" : shameFunc, "align" : alignFunc}
-        return funcInfo
-
-    @staticmethod
-    def sample_action_functions_multiplier():
-        shameFunc = multiplier_function(minVal = 0.25, maxVal = 0.5, k = 1)
-        alignFunc = multiplier_function(minVal = 0.5, maxVal = 0.75, k = 1)
-        funcInfo = {"shame" : shameFunc, "align" : alignFunc}
-        return funcInfo
-
-    @staticmethod
-    def sample_action_functions_exponential():
-        shameFunc = exponential_function_restricted(minVal = 0.15, maxVal = 0.3, k = 2)
-        alignFunc = exponential_function_restricted(minVal = 0.10, maxVal = 0.35, k = 2)
-        funcInfo = {"shame" : shameFunc, "align" : alignFunc}
-        return funcInfo
-
-    # TODO : refactor duplicate
-    @staticmethod
-    def sample_gameboard1(assignElementsToRegion = False):
-        # get languages with random centroids of uniform size
-        languageInfo = []
-        dim = (8,8)
-        for i in range(5):
-            languageInfo.append(Language.random(idn = i, mode = "const"))
-        q = ShameAndObedienceGameBoard(languageInfo, dim, pixelRes = (1000,750),\
-            assignElementsToRegion = assignElementsToRegion)
-
-        ## set action functions
-        #q.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions())
-        q.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
-        return q
-
-    @staticmethod
-    def sample_gameboard2():
-        sampleLanguages = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
-        gb = ShameAndObedienceGameBoard(sampleLanguages, (8,8), pixelRes = (1000, 750),\
-            assignElementsToRegion = 200)
-        gb.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
-        return gb
     """
     description:
     - makes a gameboard with random elements with declared
@@ -59,48 +14,58 @@ class ShameAndObedienceGameBoardMethodsTest(unittest.TestCase):
     def sample_gameboard_random_elements_and_premate():
         return -1
 
-    """
-    description:
-    -
-    """
-    def setUp(self):
-
-        # set up the first gameboard
-        # consists of random languages
-        self.gb = ShameAndObedienceGameBoardMethodsTest.sample_gameboard1()
-
-        # get sample languages
-        sampleLanguages = ShameAndObedienceElementMethodsTest.test_sample_languages_1()
-        self.gb2 = ShameAndObedienceGameBoard(sampleLanguages, (8,8), pixelRes = (1000,750), assignElementsToRegion = False)
-        self.gb2.set_action_functions(ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
-
-    def test_ShameAndObedienceGameBoard_PaintGameBoard(self):
-        ##self.gb.paint_elements()
-        #print("AREADIFF :\t", self.gb.configAreaDiff)
-        return
-
     def test_ShameAndObedienceElement_analysis_gameboard2(self):
-        e1, e2 = self.gb2.elements[3], self.gb2.elements[4]
+        sampleLanguages = ShameAndObedienceGameBoardTestVariables.test_sample_languages_1()
+
+        gb = ShameAndObedienceGameBoard(sampleLanguages, (8,8),\
+            pixelRes = (1000,750), assignElementsToRegion = False,\
+            actionFunctions = ShameAndObedienceGameBoardTestVariables.sample_action_functions_multiplier())
+        e1, e2 = gb.elements[3], gb.elements[4]
         ov1, ov2 = ShameAndObedienceElement.get_element_language_overlap_measures(e1, e2)
         d1, d2 = ShameAndObedienceElement.get_element_language_disjoint_measures(e1, e2)
         print("overlap measures : {} / {}".format(ov1, ov2))
         print("disjoint measures : {} / {}".format(d1, d2))
 
-    def test_demonstrate_ShameAndObedienceGameBoard_run(self):
-        ## uncomment below run
-        '''
-        numRuns = 5
-        self.gb2.run(numRounds = numRuns)
-        '''
-        return
+    ###################### INITIALIZATION METHODS FOR GAMEBOARD OF DIFFERENT ASSIGNMENTS
 
-    def test_demonstrate_ShameAndObedienceGameBoard_run_and_visualize(self):
-        gb3 = ShameAndObedienceGameBoardMethodsTest.sample_gameboard2()
+    ## uncomment below to run initialization by fit
+    """
+    def test_demonstrate_ShameAndObedienceGameBoard_run_with_assign_for_fit(self):
+        t = time()
+        assignElementsToRegion = ("fit", 4)
+        gb = ShameAndObedienceGameBoardTestVariables.sample_gameboard2(assignElementsToRegion)
+        rt = time() - t
 
-        # order might be mixed up
-        for k in gb3.elements.values():
-            print("element location :\t", k.location)
-        return
+        print("total runtime for assign fit:\t", rt)
+        print("area difference :\t", gb.configAreaDiff)
+    """
+
+    ## uncomment below to run initialization by t/e
+    """
+    def test_demonstrate_ShameAndObedienceGameBoard_run_with_assign_for_random(self):
+        t = time()
+        assignElementsToRegion = ("t/e", 4)
+        gb = ShameAndObedienceGameBoardTestVariables.sample_gameboard2(assignElementsToRegion)
+        rt = time() - t
+
+        print("total runtime for assign t/e:\t", rt)
+        print("area difference :\t", gb.configAreaDiff)
+    """
+
+    ## uncomment below for vis.
+
+    def test_demonstrate_ShameAndObedienceGameBoard_run_n_rounds_no_visualization(self, n = 15):
+
+        assignElementsToRegion = False #("t/e", 2)
+        gb = ShameAndObedienceGameBoardTestVariables.sample_gameboard2(assignElementsToRegion)
+        t = time()
+        n_ = n
+        while n_ > 0 and not gb.finish:
+            gb.move_one()
+            print("moving one")
+            n_ -= 1
+        print("runtime : {}\trounds run :\t".format(time() - t, n - n_))
+
 
 if __name__ == "__main__":
     unittest.main()
