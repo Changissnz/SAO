@@ -1,4 +1,6 @@
 
+
+***********DONE @ T [0] ---------------
 action @ time [0]
 
 element 0 : shame->0.41, align->0.55
@@ -14,132 +16,129 @@ element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
 
-action @ time [1]
 
-element 2 : shame->0.45, align->0.55
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [1] ---------------
 
-receive @ time [1]
+***********DONE @ T [2] ---------------
 
-element 2 : shame->0.45, align->0.55
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [3] ---------------
 
-action @ time [2]
+***********DONE @ T [4] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [5] ---------------
 
-receive @ time [2]
+***********DONE @ T [6] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [7] ---------------
 
-action @ time [3]
+***********DONE @ T [8] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [9] ---------------
 
-receive @ time [3]
+***********DONE @ T [10] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [11] ---------------
 
-action @ time [4]
+***********DONE @ T [12] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [13] ---------------
 
-receive @ time [4]
+***********DONE @ T [14] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [15] ---------------
 
-action @ time [5]
+***********DONE @ T [16] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [17] ---------------
 
-receive @ time [5]
+***********DONE @ T [18] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [19] ---------------
 
-action @ time [6]
+***********DONE @ T [20] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [21] ---------------
 
-receive @ time [6]
+***********DONE @ T [22] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [23] ---------------
 
-action @ time [7]
+***********DONE @ T [24] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [25] ---------------
 
-receive @ time [7]
+***********DONE @ T [26] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [27] ---------------
 
-action @ time [8]
+***********DONE @ T [28] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [29] ---------------
 
-receive @ time [8]
+***********DONE @ T [30] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [31] ---------------
 
-action @ time [9]
+***********DONE @ T [32] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [33] ---------------
 
-receive @ time [9]
+***********DONE @ T [34] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [35] ---------------
 
-action @ time [10]
+***********DONE @ T [36] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
+***********DONE @ T [37] ---------------
 
-receive @ time [10]
+***********DONE @ T [38] ---------------
 
-element 2 : shame->0, align->0
-element 3 : shame->0, align->0
-element 4 : shame->0, align->0
--------#--------------#---------#-------------#-------------#--------
+***********DONE @ T [39] ---------------
+
+***********DONE @ T [40] ---------------
+
+***********DONE @ T [41] ---------------
+
+***********DONE @ T [42] ---------------
+
+***********DONE @ T [43] ---------------
+
+***********DONE @ T [44] ---------------
+
+***********DONE @ T [45] ---------------
+
+***********DONE @ T [46] ---------------
+
+***********DONE @ T [47] ---------------
+
+***********DONE @ T [48] ---------------
+
+***********DONE @ T [49] ---------------
+
+***********DONE @ T [50] ---------------
+
+***********DONE @ T [51] ---------------
+
+***********DONE @ T [52] ---------------
+
+***********DONE @ T [53] ---------------
+
+***********DONE @ T [54] ---------------
+
+***********DONE @ T [55] ---------------
+
+***********DONE @ T [56] ---------------
+
+***********DONE @ T [57] ---------------
+
+***********DONE @ T [58] ---------------
+
+***********DONE @ T [59] ---------------
+
+***********DONE @ T [60] ---------------
+
+***********DONE @ T [61] ---------------
+
+***********DONE @ T [62] ---------------
+
+***********DONE @ T [63] ---------------

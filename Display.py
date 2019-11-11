@@ -131,8 +131,6 @@ class DisplayGameboard:
         minX = self.gameboard.imageRes[0]
         self.displaySurf.fill(DisplayGameboard.BLACK,rect = (minX, 0, self.gameboard.imageRes[0], self.gameboard.imageRes[1]))
 
-
-
     '''
     description:
     - blanks gameboard image white
