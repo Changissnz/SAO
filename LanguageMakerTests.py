@@ -28,7 +28,6 @@ class LanguageMakerMethodsTest(unittest.TestCase):
 
     # TODO : make assertions for methods below
     #-----------------------------------------------------
-
     @staticmethod
     def LanguageMaker_GetDescriptorsForBag_ContentsTest():
         x = LanguageMaker()
@@ -58,13 +57,9 @@ class LanguageMakerMethodsTest(unittest.TestCase):
     def test_LanguageMaker_GetLanguagesByContentStandard():
         centroids = [{"dog", "whale"}]
         l = LanguageMaker.get_languages_by_content_standard(centroids, outputForEach = list)
-
         print("LANGUAGES :\n", l)
-        return -1
     #-----------------------------------------------------
 
 
 if __name__ == '__main__':
-    ##LanguageMakerMethodsTest.test_LanguageMaker_GetLanguages()
     LanguageMakerMethodsTest.test_LanguageMaker_GetLanguagesByContentStandard()
-    ##unittest.main()

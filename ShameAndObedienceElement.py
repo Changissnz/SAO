@@ -123,8 +123,6 @@ class ShameAndObedienceElement(Element):
     def get_element_language_disjoint_measures(e1, e2):
         c1 = e1.language.language[0] - e2.language.language[0]
         d1 = ShameAndObedienceElement.get_element_descriptor_disjoint_from(e1,e2)
-        #print("C1 {}:\t{}".format(len(c1), c1))
-        #print("D1 {}:\t{}".format(len(d1), d1))
         c2 = e2.language.language[0] - e1.language.language[0]
         d2 = ShameAndObedienceElement.get_element_descriptor_disjoint_from(e2,e1)
 
@@ -134,9 +132,6 @@ class ShameAndObedienceElement(Element):
             x1, x2 = len(c1) + desc1, len(c2) + desc2
         else:
             x1, x2 = len(c1) + len(d1), len(c2) + len(d2)
-
-        #print("desc1 :\t{}\tdesc2 :\t{}".format(desc1, desc2))
-        #print("c1 {}\tc2 {}\t".format(x1, x2))
         return x1 / e1.wordCount, x2 / e2.wordCount
 
 
@@ -181,7 +176,6 @@ class ShameAndObedienceElement(Element):
         for e in otherElements:
             ov1, ov2 = self.get_element_language_overlap_measures(self, e)
             d1, d2 = self.get_element_language_disjoint_measures(self, e)
-            #print("HERE :\t", ov1, ov2)
             if setClassVar:
                 self.shameObeyTable[e.idn] = (ov1, d1)
             else:
@@ -285,7 +279,6 @@ class ShameAndObedienceElement(Element):
         assert shameReference in {"self", "other"}, "invalid shameReference {}".format(shameReference)
 
         # get random sample from each
-
         ## TODO : relocate these to better locations
         self.update_language_stats()
         element.update_language_stats()
@@ -293,15 +286,11 @@ class ShameAndObedienceElement(Element):
         q = set()
         if "centroid" in typeShame:
             x = element.get_active_centroids()
-            ##print("ACTIVE CENTROIDS :\t", x)
             if shameReference == "self":
                 numToChoose = min(ceil(degree * self.activeCentroidCount), self.activeCentroidCount)
-                ##print("DEGREE AND ACTIVE :\t", degree, self.activeCentroidCount)
             else:
                 numToChoose = min(ceil(degree * element.activeCentroidCount), element.activeCentroidCount)
-                ##print("DEGREE AND ACTIVE :\t", degree, element.activeCentroidCount)
 
-            ##print("LEN X :\{}\t{}".format(len(x), numToChoose))
             r = sample(x, k = numToChoose)
             q.update(r)
         if "descriptor" in typeShame:
@@ -309,11 +298,8 @@ class ShameAndObedienceElement(Element):
 
             if shameReference == "self":
                 numToChoose = min(ceil(degree * self.activeDescriptorCount), self.activeDescriptorCount)
-                ##print("DEGREE AND ACTIVE :\t", degree, self.activeDescriptorCount)
             else:
                 numToChoose = min(ceil(degree * element.activeDescriptorCount), element.activeDescriptorCount)
-                ##print("DEGREE AND ACTIVE :\t", degree, element.activeDescriptorCount)
-            ##print("LEN Y :\{}\t{}".format(len(x), numToChoose))
             r = sample(x, k = numToChoose)
             q.update(r)
         element.prohibitedSpeech.update(q)
@@ -367,8 +353,6 @@ class ShameAndObedienceElement(Element):
 
         s = self.shame(otherElement, toShameDegree, typeShame) # shame other element
         d = self.align(otherElement, toAlignDegree)
-        #print("SHAME? :\t", toShameDegree)
-        #print("ALIGN? :\t", toAlignDegree)
         self.log_timestamp_events(otherElement, toShameDegree, toAlignDegree, timestamp)
 
     # TODO : return change in size
@@ -447,7 +431,6 @@ class ShameAndObedienceElement(Element):
     def decide(self, otherElementIdn):
         s, a = self.shameObeyTable[otherElementIdn]
         shameDegree, alignDegree = self.shameFunc(s), self.alignFunc(a)
-        #print("SHAME {}/{} OBEY {}/{}".format(s, shameDegree, a, alignDegree))
         return shameDegree, alignDegree
 
     ######################## END : deciding and recording things #########################

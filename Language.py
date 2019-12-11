@@ -99,6 +99,11 @@ class Language:
         else:
             raise NotImplementedError("IMPLEMENT HERE")
 
+    # TODO : specify removal method (one copy or all)
+    """
+    description: 
+    - 
+    """ 
     def remove_from_language_descriptors(self, subtractions):
         q = LanguageMaker.get_language_type(self.language)
         if q == "standard":
@@ -159,7 +164,6 @@ class Language:
     def get_tfidf_measure(l1, l2):
         VectorShell = TfidfVectorizer()
         return VectorShell.fit_transform([l1,l2])
-
 
     '''
     description:

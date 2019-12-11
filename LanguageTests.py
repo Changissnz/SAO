@@ -32,9 +32,7 @@ class LanguageMethodsTest(unittest.TestCase):
         print("here:\n",q.language)
 
     def test_Language_SelfReproduce(self):
-    ##def self_reproduce(self, numberOfDescriptors):
         return -1
 
 if __name__ == '__main__':
     q = LanguageMethodsTest.demonstrate_Language_RandomByCentroid()
-    #unittest.main()

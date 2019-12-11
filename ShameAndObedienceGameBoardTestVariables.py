@@ -44,7 +44,7 @@ class ShameAndObedienceGameBoardTestVariables():
         for i in range(5):
             languageInfo.append(Language.random(idn = i, mode = "const"))
         q = ShameAndObedienceGameBoard(languageInfo, dim, pixelRes = (1000,750),\
-            assignElementsToRegion = assignElementsToRegion, actionFunctions = ShameAndObedienceGameBoardMethodsTest.sample_action_functions_multiplier())
+            assignElementsToRegion = assignElementsToRegion, actionFunctions = ShameAndObedienceGameBoardTestVariables.sample_action_functions_multiplier())
         return q
 
     """
@@ -63,7 +63,6 @@ class ShameAndObedienceGameBoardTestVariables():
     @staticmethod
     def sample_gameboard3(assignElementsToRegion):
         sampleLanguages = ShameAndObedienceGameBoardTestVariables.test_sample_languages_1()
-
         return -1
 
     @staticmethod
@@ -78,10 +77,7 @@ class ShameAndObedienceGameBoardTestVariables():
         languages = []
 
         for (i, c) in enumerate(centroidsForEach):
-
             l = Language.random_by_centroid(idn = i, centroids = c, languageOutput = list,\
                         minSizeInfo = 100, startSizeInfo = 5, mode = "geq")
-            #print("LANGUAGE :\t", l)
-            #print("\ncontents :\t", l.language)
             languages.append(l)
         return languages

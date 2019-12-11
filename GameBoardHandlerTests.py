@@ -12,16 +12,12 @@ assign_helper(elementInfo, gameboardDim, numRandomPoints = 1000)
 
 class GameBoardHandlerMethodsTests(unittest.TestCase):
 
-    '''
-    '''
     def test_GameBoardHandler_GetDistanceBetweenCoordinates(self):
         c1 = (0, 0)
         c2 = (2, 2)
         d = abs(GameBoardHandler.get_distance_between_coordinates(c1,c2) - sqrt(8))
         self.assertTrue(d <= 0.001)
 
-    '''
-    '''
     def test_GameBoardHandler_ChooseRandomPointInRadius(self):
         radius = 2
         point = (4, 2)
@@ -30,8 +26,6 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
             self.assertTrue(abs(p[0] - point[0]) <= radius, "[0] random : {}\point : {}".format(abs(p[0] - point[0]), radius))
             self.assertTrue(abs(p[1] - point[1]) <= radius)
 
-    '''
-    '''
     def test_GameBoardHandler_ChooseNPoints(self):
 
         numPoints = 1000 # this will not work : 10000
@@ -41,8 +35,6 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         x = GameBoardHandler.choose_n_points(numPoints, coordinateRange, setOfCoordinates, minDistance)
         self.assertTrue(len(x) == numPoints)
 
-    '''
-    '''
     def test_GameBoardHandler_GetFactorsFor(self):
         x = 1000
         q = GameBoardHandler.get_factors_for(x, 5)
@@ -50,9 +42,6 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         for q_ in q:
             self.assertTrue(q_[0] * q_[1] == 1000, "want 1000 got {}".format(q_[0] * q_[1]))
 
-    #######
-
-    #@staticmethod
     def test_GameBoardHandler_GetBestConfigRegionUsingInspectionPoints_Accuracy(self):
 
         gameboardDim = (8, 8)
@@ -72,7 +61,6 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
 
         self.assertTrue(q[1] < 0.05, "configuration not accurate")
 
-    ##@staticmethod
     def test_GameBoardHandler_GetBestConfigRegionUsingInspectionPoints_Accuracy(self):
         gameboardDim = (8, 8)
         wantedDim = (2,2)
@@ -107,7 +95,5 @@ class GameBoardHandlerMethodsTests(unittest.TestCase):
         print("q :\t", q)
         self.assertTrue(rt < 20, "[2] could not get best config not fast enough : {}".format(rt))
 
-
 if __name__ == '__main__':
-    #GameBoardHandlerMethodsTests.test_GameBoardHandler_GetBestConfigByRandomInspection_Accuracy()
     unittest.main()

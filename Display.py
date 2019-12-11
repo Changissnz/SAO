@@ -19,19 +19,9 @@ class DisplayGameboard:
     def __init__(self, gameboard, imagePath = "defaultPitcherOfEmotions.png"):
         self.gameboard = gameboard
         self.imagePath = imagePath
-        #self.set_up_display()
         return
 
     ###########################################################################
-    # TODO : improve
-    '''
-    description:
-    - this is a temporary method to load gameboard.
-    '''
-    def load_gameboard_tmp(self):
-        # TODO : relocate this to gameboard initialization
-        self.init_screen()
-        self.run_loop()
 
     def init_screen(self):
         pygame.init()
@@ -44,20 +34,18 @@ class DisplayGameboard:
         # draw scoreboard here
         self.update_display_scoreboard(criteria = "id")
 
-
-    # add function below
-
     def run_loop(self, function = so_true):
         ## this is the loop
         # TODO : instead of True, input termination function
         #        input user keys in this loop
+        # CAUTION 
+        self.init_screen() 
         while function(): # run while-loop
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
                     sys.exit()
                 pygame.display.update()
-
             self.move_and_update()
 
     """
@@ -69,10 +57,11 @@ class DisplayGameboard:
 
         if terminationCondition == "mute":
             q = self.gameboard.termination_condition_mute
-
         self.gameboard.move_one()
         self.update_display_scoreboard()
         self.update_display_gameboard()
+        print("move round {}".format(self.gameboard.roundNumber)) 
+        self.gameboard.roundNumber += 1 
 
     """
     description:
@@ -110,8 +99,8 @@ class DisplayGameboard:
         x = get_x_coord()
         # blank scoreboard
         self.blank_scoreboard()
-        print("sleeping")
-        sleep(2)
+        sleep(0.4)
+        
         for i, k in enumerate(keys):
             y = get_y_coord(i)
             s = "element {} : active size {}".format(k, self.gameboard.elements[k].activeWordCount)
@@ -161,7 +150,6 @@ class DisplayGameboard:
         # blank
         img = pygame.image.load(self.imagePath)
         self.displaySurf.blit(img, (0,0))
-        print("WRITING IMAGE")
         pygame.image.save(img, self.imagePath)
 
     ## TOD0 : add criteria "ranking

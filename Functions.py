@@ -2,7 +2,6 @@
 this file contains some examples of Shame/Align functions
 """
 
-
 '''
 standard bool function is by float range
 '''

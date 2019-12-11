@@ -64,9 +64,6 @@ class GameBoardMethodsTest(unittest.TestCase):
         print("test 1 areaDiff :\n{}\n".format(self.gb.configAreaDiff))
         print("test 1 time :\t{}".format(rt))
 
-    """
-
-    """
     def test_GameBoard_AssignElementsToRegion_TrialAndError_RandomSizedLanguages(self):
         s = time()
         numLanguages = 5

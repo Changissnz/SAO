@@ -276,30 +276,23 @@ class GameBoardHandler:
     def x(p, gameboardDim, wantedDim, usedRegions, calibrateMode = "square"):
         q = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim,\
             wantedDim, usedRegions, increment = 10**(-2), calibrateMode = calibrateMode)
-        ##print("HERE2:\t", q)
         return q
 
-    ## TODO : there is a bug in `calibrate_region_into_square`
     @staticmethod
     def y(wantedDim, gameboardDim, usedRegions, calibrateMode, p):
         q = AreaScanner.get_best_region_fit_given_wanted_dimensions(p, gameboardDim,\
             wantedDim, usedRegions, increment = 10**(-2), calibrateMode = calibrateMode)
-        ##print("HERE2:\t", q)
         if q == False:
             return q
         if q[1] == False:
             return q[1]
 
-        ##print("IS SQUARE REGION :\t", FreeAndSimpleScanner.is_square_region(q[0]))
         if calibrateMode == "square":
             if not FreeAndSimpleScanner.is_square_region(q[0]):
-                ##print("NOT SQUARE")
                 return False
 
         x = abs(q[1] - (wantedDim[0] * wantedDim[1]))
         return q[0], x
-
-
 
     """
     description:

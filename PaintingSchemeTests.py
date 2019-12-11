@@ -12,8 +12,5 @@ class PaintingSchemeMethodsTest(unittest.TestCase):
         q = make_blanko(pixelRes, saveFile = "defaultPitcherOfEmotions.png")
         paint_image_given_region_and_color(region, color)
 
-def t():
-    demonstrate_PaintImageGivenRegionAndColor()
-
 if __name__ == '__main__':
     unittest.main()

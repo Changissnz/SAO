@@ -26,7 +26,6 @@ class ShameAndObedienceGameBoard(GameBoard):
         assert ShameAndObedienceGameBoard.is_valid_pixel_res(pixelRes), "invalid pixelRes {}".format(pixelRes)
         assert actionFunctions != None, "cannot proceed without any actions"
 
-
         super().__init__(languageInfo, dimensions, 12, assignElementsToRegion = assignElementsToRegion)
         self.pixelRes = pixelRes
         self.imageRes = ShameAndObedienceGameBoard.dim_to_square_dim(self.pixelRes)
@@ -106,10 +105,8 @@ class ShameAndObedienceGameBoard(GameBoard):
         q = self.elements[elementIndex]
         if q.location != None:
             x = PaintingScheme.convert_region_to_pixel_region(q.location, self.dimensions, self.imageRes)
-            print("PAINTING :\t", x)
             PaintingScheme.paint_image_given_pixel_region_and_color(x, q.currentColor, zheFile = zheFile)
             return
-        print("XXX")
 
     def paint_elements(self, zheFile = "defaultPitcherOfEmotions.png", mode = "clear first"):
         assert mode in {"clear first", None}
@@ -143,7 +140,6 @@ class ShameAndObedienceGameBoard(GameBoard):
             PaintingScheme.make_blanko(self.imageRes, zheFile)
 
         for r, c in regionAndColorPairs:
-            print("")
             PaintingScheme.paint_image_given_pixel_region_and_color(r, c, zheFile = zheFile)
         return True
 
@@ -151,7 +147,6 @@ class ShameAndObedienceGameBoard(GameBoard):
 
     ######################### START : methods for moving one timestamp on gameboard ###############
 
-    # TODO : update visualization here
     """
     description:
     - updates language stats for each element,
