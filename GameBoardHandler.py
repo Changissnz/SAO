@@ -473,6 +473,10 @@ class GameBoardHandler:
             xMin = uniform(0, xMax)
             yMin = uniform(0, yMax)
             xMax, yMax = xMin + wantedDim[0], yMin + wantedDim[1]
+            
+            print("WANTED DIM :\t", wantedDim) 
+            print("GOT :\t", ((xMin, yMin), (xMax, yMax)))
+            
             return ((xMin, yMin), (xMax, yMax))
 
         '''

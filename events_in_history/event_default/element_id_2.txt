@@ -2,14 +2,14 @@
 action @ time [0]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [0]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -17,14 +17,14 @@ element 4 : shame->0, align->0
 action @ time [1]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [1]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -32,14 +32,14 @@ element 4 : shame->0, align->0
 action @ time [2]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [2]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -47,14 +47,14 @@ element 4 : shame->0, align->0
 action @ time [3]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [3]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -62,14 +62,14 @@ element 4 : shame->0, align->0
 action @ time [4]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [4]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -77,14 +77,14 @@ element 4 : shame->0, align->0
 action @ time [5]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [5]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -92,14 +92,14 @@ element 4 : shame->0, align->0
 action @ time [6]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [6]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -107,14 +107,14 @@ element 4 : shame->0, align->0
 action @ time [7]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [7]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -122,14 +122,14 @@ element 4 : shame->0, align->0
 action @ time [8]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [8]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -137,14 +137,14 @@ element 4 : shame->0, align->0
 action @ time [9]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [9]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -152,14 +152,14 @@ element 4 : shame->0, align->0
 action @ time [10]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [10]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -167,14 +167,14 @@ element 4 : shame->0, align->0
 action @ time [11]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [11]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -182,14 +182,14 @@ element 4 : shame->0, align->0
 action @ time [12]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [12]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -197,14 +197,14 @@ element 4 : shame->0, align->0
 action @ time [13]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [13]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -212,14 +212,14 @@ element 4 : shame->0, align->0
 action @ time [14]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [14]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -227,14 +227,14 @@ element 4 : shame->0, align->0
 action @ time [15]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [15]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -242,14 +242,14 @@ element 4 : shame->0, align->0
 action @ time [16]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [16]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -257,14 +257,14 @@ element 4 : shame->0, align->0
 action @ time [17]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [17]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -272,14 +272,14 @@ element 4 : shame->0, align->0
 action @ time [18]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [18]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -287,14 +287,14 @@ element 4 : shame->0, align->0
 action @ time [19]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [19]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -302,14 +302,14 @@ element 4 : shame->0, align->0
 action @ time [20]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [20]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------
@@ -317,14 +317,14 @@ element 4 : shame->0, align->0
 action @ time [21]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 
 receive @ time [21]
 
 element 0 : shame->0, align->0
-element 2 : shame->0, align->0
+element 1 : shame->0, align->0
 element 3 : shame->0, align->0
 element 4 : shame->0, align->0
 -------#--------------#---------#-------------#-------------#--------

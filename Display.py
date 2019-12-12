@@ -16,8 +16,9 @@ class DisplayGameboard:
     arguments:
     - gameboard := Gameboard, to be run
     """
-    def __init__(self, gameboard, imagePath = "defaultPitcherOfEmotions.png"):
+    def __init__(self, gameboard, calibrateSize, imagePath = "defaultPitcherOfEmotions.png"):
         self.gameboard = gameboard
+        self.calibrateSize = calibrateSize
         self.imagePath = imagePath
         return
 
@@ -27,18 +28,31 @@ class DisplayGameboard:
         pygame.init()
         self.displaySurf = pygame.display.set_mode(self.gameboard.pixelRes)
         pygame.display.set_caption('Hello Learned One')
+
+        """
+        print("awaiting computational results")
+        print("*****\t", self.gameboard.assignElementsToRegion)
+        self.gameboard.assign_elements(self.gameboard.assignElementsToRegion)
+        """ 
+        
+        self.update_display_gameboard()
+        self.update_display_scoreboard() 
+        
+        """
         img = pygame.image.load(self.imagePath)
         self.displaySurf.blit(img, (0,0))
         pygame.image.save(img, self.imagePath)
 
         # draw scoreboard here
         self.update_display_scoreboard(criteria = "id")
+        """ 
 
     def run_loop(self, function = so_true):
         ## this is the loop
         # TODO : instead of True, input termination function
         #        input user keys in this loop
         # CAUTION 
+        
         self.init_screen() 
         while function(): # run while-loop
             for event in pygame.event.get():
@@ -57,7 +71,7 @@ class DisplayGameboard:
 
         if terminationCondition == "mute":
             q = self.gameboard.termination_condition_mute
-        self.gameboard.move_one()
+        self.gameboard.move_one(calibrateSize = self.calibrateSize)
         self.update_display_scoreboard()
         self.update_display_gameboard()
         print("move round {}".format(self.gameboard.roundNumber)) 
@@ -152,4 +166,3 @@ class DisplayGameboard:
         self.displaySurf.blit(img, (0,0))
         pygame.image.save(img, self.imagePath)
 
-    ## TOD0 : add criteria "ranking

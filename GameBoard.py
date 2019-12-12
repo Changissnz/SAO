@@ -156,7 +156,7 @@ class GameBoard:
       occupy, 1 means area of all elements equals gameboard, 0 means none.
 
     arguments:
-    - requiredFit := False|int::(positive), number of times to attempt fitting elements to gameboard
+    - requiredFit := int::(> 0), number of times to attempt fitting elements to gameboard
     - elementRatioScale := 0 <= float <= 1
 
     return:
@@ -168,15 +168,13 @@ class GameBoard:
         # get element dimensions
         elementDim = self.get_element_dimensions(elementRatioScale = elementRatioScale)
         config, areaDiff = GameBoardHandler.get_best_config_by_random_inspection(elementDim,\
-            self.dimensions, numRandomPoints = 2, cutOff = "auto")
-        if type(requiredFit) is int:
-            if requiredFit == 0:
-                return config, areaDiff
+            self.dimensions, numRandomPoints = 10, cutOff = "auto")
 
-            if len(config) < len(self.elements):
-                return self.assign_elements_to_region_(requiredFit -1, elementRatioScale)
+        if requiredFit == 0:
+            return config, areaDiff
 
-        return config, areaDiff
+        else: 
+            return self.assign_elements_to_region_(requiredFit -1, elementRatioScale)
 
     """
     description:
@@ -204,7 +202,7 @@ class GameBoard:
         assert assignElementsToRegion[0] in {"t/e", "fit"} and\
             type(assignElementsToRegion[1]) is int and len(assignElementsToRegion) == 2,\
             "invalid assignElementsToRegion {}".format(assignElementsToRegion)
-
+        
         if assignElementsToRegion[0] == "fit":
             self.assign_elements_to_region_by_fit() # gets best fit
         else:

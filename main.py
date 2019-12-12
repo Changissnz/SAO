@@ -1,6 +1,8 @@
 from ShameAndObedienceGameBoardTestVariables import * 
 from Display import * 
 
+## TOD0 : make ranking for scoreboard, calibrate scoreboard
+
 ## TO DO
 # this is where GameBoard gets run
 # make introduction screen
@@ -165,9 +167,26 @@ def declare_game():
         gb = ShameAndObedienceGameBoardTestVariables.sample_gameboard1(assignElementsToRegion=("fit", 5)) 
     else: 
         gb = input_vars()
+    
+    print("awaiting computational results")
+    while True: 
+        sz = input("set max bound on language size?  T  F :\t").lower() 
+        if sz == "t": 
+            sz = True 
+        elif sz == "f": 
+            sz = False
+        else: 
+            print("invalid input")
+            continue            
+        break
+    
+    # set default capacity at 10 ** 7 
+    if sz == True:
+        szCap = 10 ** 6 
+        shrinkRatio = 0.05 
+        sz = (szCap, shrinkRatio) 
         
-    dg = DisplayGameboard(gb)
-    dg.init_screen()
+    dg = DisplayGameboard(gb, calibrateSize= sz) 
     dg.run_loop()
     
 declare_game() 

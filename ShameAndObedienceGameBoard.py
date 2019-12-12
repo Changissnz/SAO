@@ -39,6 +39,7 @@ class ShameAndObedienceGameBoard(GameBoard):
 
         # visualization here
         self.visualizeCounter = 0
+        print("******************************************************PAINTING")
         self.paint_elements()
         self.finish = False
 
@@ -211,6 +212,7 @@ class ShameAndObedienceGameBoard(GameBoard):
             return
         self.visualizeCounter += 1
         if self.visualizeCounter % self.assignElementsToRegion[1] == 0:
+            print("^ updating visual")
             self.visualizeCounter = 0
             self.assign_elements(self.assignElementsToRegion)
             self.paint_elements()

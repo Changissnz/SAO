@@ -242,7 +242,9 @@ class Element:
         assert minThreshold >= 0 and minThreshold <= 1, "invalid minThreshold {}".format(minThreshold)
 
         if "descriptor" in criteria:
+            if self.descriptorCount == 0: return True 
             return True if self.activeDescriptorCount/self.descriptorCount <= minThreshold else False
         if "centroid" in criteria:
+            if self.centroidCount == 0: return True 
             return True if self.activeCentroidCount/self.centroidCount <= minThreshold else False
         return True if self.activeWordCount/self.wordCount <= minThreshold else False
