@@ -2,6 +2,11 @@
 ## Shame And Obedience
 
 ### WIP'ed : On This 11th Of November Equates To Work-in-Progress (aka Sorry But Time Ain't Free)  
+### UPDATE : Working program is up! 
+### USAGE 
+- Download: git clone https://github.com/SabotageNDefenseIndustryExperi-Mentals/SAO.git
+- Run: python3 main.py
+
 
 It started off as a shoutout. And now It's here. "It" in this
 context means `SAO`, an acronym for the real thing, `Shame And Obedience`. Consider
