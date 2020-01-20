@@ -7,7 +7,7 @@
 - Download: git clone https://github.com/SabotageNDefenseIndustryExperi-Mentals/SAO.git
 - Run: python3 main.py
 
-
+### Introduction
 It started off as a shoutout. And now It's here. "It" in this
 context means `SAO`, an acronym for the real thing, `Shame And Obedience`. Consider
 from this point on worth that `SAO` always means `Shame And Obedience`, if only
