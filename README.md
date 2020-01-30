@@ -7,6 +7,9 @@
 - Download: `git clone https://github.com/SabotageNDefenseIndustryExperi-Mentals/SAO.git`
 - Run: `python3 main.py`
 
+### Full Explanation 
+See link `https://richppp34.com/2020/01/01/on-the-game-of-sao-shame-and-obedience/` for a full explanation of the logistics behind this game. 
+
 ### Introduction
 It started off as a shoutout. And now It's here. "It" in this
 context means `SAO`, an acronym for the real thing, `Shame And Obedience`. Consider
@@ -30,6 +33,7 @@ This program operates on a gameboard of square dimension that contains `n < 12`
 elements. The elements the gameboard contains are of the class `ShameAndObedienceElement`.
 
 #### ShameAndObedienceElement
+This element is represented by a grayshade (white through black) square on the gameboard. 
 The really special thing about this `ShameAndObedienceElement` is that it does the
 following things, in order to help aid the simulation, per se, of `SAO`:
 - the `ShameAndObedienceElement` can speak a `Language`
@@ -39,6 +43,7 @@ following things, in order to help aid the simulation, per se, of `SAO`:
     - it goes mute from `shame`
     - its language includes all other languages (win from size)
     - it is the only speaker left on the gameboard (win from existence)
+   
 
 
 #### Language
@@ -55,11 +60,7 @@ following things, in order to help aid the simulation, per se, of `SAO`:
                         a set of words will be shared between them, meaning
                         their languages overlap.
 
-##### FINISH DOCS HERE
 
-Below is a screenshot of current progress.
-
+### Demo 
+Below is a screenshot of a run. 
 ![alt text](display.png "Title")
-
-
-##### END FINISH DOCS HERE
