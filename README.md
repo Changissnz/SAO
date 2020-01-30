@@ -8,7 +8,7 @@
 - Run: `python3 main.py`
 
 ### Full Explanation 
-See link `https://richppp34.com/2020/01/01/on-the-game-of-sao-shame-and-obedience/` for a full explanation of the logistics behind this game. 
+See [my personal blog's post](https://richppp34.com/2020/01/01/on-the-game-of-sao-shame-and-obedience/) for a full explanation of the logistics behind this game. 
 
 ### Introduction
 It started off as a shoutout. And now It's here. "It" in this
