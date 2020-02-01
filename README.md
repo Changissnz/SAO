@@ -5,6 +5,10 @@
 ### UPDATE : Working program is up! 
 ### USAGE 
 - Download: `git clone https://github.com/SabotageNDefenseIndustryExperi-Mentals/SAO.git`
+- Make sure the following libraries are installed (sorry, no setup.py installation!): 
+    * scikit-learn 
+    * nltk (packages `wordnet`, `stopwords`, `words` are used)
+    * pygame
 - Run: `python3 main.py`
 
 ### Full Explanation 
