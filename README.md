@@ -4,7 +4,7 @@
 ### WIP'ed : On This 11th Of November Equates To Work-in-Progress (aka Sorry But Time Ain't Free)  
 ### UPDATE : Working program is up! 
 ### USAGE 
-- Download: `git clone https://github.com/SabotageNDefenseIndustryExperi-Mentals/SAO.git`
+- Download: `git clone https://github.com/Changissnz/SAO.git`
 - Make sure the following libraries are installed (sorry, no setup.py installation!): 
     * scikit-learn 
     * nltk (packages `wordnet`, `stopwords`, `words` are used)
